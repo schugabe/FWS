@@ -15,15 +15,15 @@ public enum Units {
 	}
 	
 	static public Units getUnit(String unit) {
-		if (unit == "km/h")
+		if (unit.equals("km/h"))
 		 return SPEEDKMH;
-		if (unit ==  "m/s")
+		if (unit.equals("m/s"))
 			return SPEEDMS;
-		if (unit ==  "Hz")
+		if (unit.equals("Hz"))
 			return FREQUENCY;
-		if (unit ==  "Richtung")
+		if (unit.equals("Richtung"))
 			return DIRECTION;
-		if (unit ==  "¡C")
+		if (unit.equals("¡C"))
 			return TEMPERATURE;
 		 return UNKNOWN;
 	}

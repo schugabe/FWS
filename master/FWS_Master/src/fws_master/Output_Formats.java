@@ -15,17 +15,17 @@ public enum Output_Formats {
 	}
 
 	static public Output_Formats getFormat(String format) {
-		if (format == "65536")
+		if (format.equals("65536"))
 			return NK0;
-		else if (format == "6553.6")
+		else if (format.equals("6553.6"))
 			return NK1;
-		else if (format == "655.36")
+		else if (format.equals("655.36"))
 			return NK2;
-		else if (format == "65.536")
+		else if (format.equals("65.536"))
 			return NK3;
-		else if (format == "6.5536")
+		else if (format.equals("6.5536"))
 			return NK4;
-		else if (format == "0.65536")
+		else if (format.equals("0.65536"))
 			return NK5;
 		return UNKNOWN;
 	}

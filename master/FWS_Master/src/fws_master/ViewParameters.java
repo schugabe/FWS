@@ -21,15 +21,34 @@ public class ViewParameters {
 		this.selected_parameter = null;
 		this.new_parameter = false;
 		this.InitView();
+		
+		this.select_first();
+			
 	}
 	
+	private void select_first() {
+		if(list.getItemCount()>0) {
+			list.select(0);
+			this.list_selected();
+		}
+	}
 	private void new_param() {
 		this.selected_parameter = new Parameter("Neuer Parameter");
 		this.nameText.setText(this.selected_parameter.getName());
 		this.new_parameter = true;
+		this.typeCombo.setEnabled(true);
+		
+		this.unitCombo.select(0);
+		this.formatCombo.select(0);
+		this.funcCombo.select(0);
+		
+		
+		this.list.deselectAll();
 	}
 	
 	private void del_param() {
+		if (this.list.getSelectionCount()==0)
+			return;
 		if (this.new_parameter)
 			this.selected_parameter = null;
 		else if (!this.controller.removeParameter(selected_parameter)) {
@@ -37,32 +56,86 @@ public class ViewParameters {
 			messageBox.setMessage("Dieser Parameter kann nicht gelöscht werden, da er in Verwendung ist.");
 			messageBox.open();
 		}
+		this.loadList();
+		
 	}
 	
 	private void save_param() {
-		if (new_parameter) {
-			Parameter p;
-			if (this.typeCombo.getSelectionIndex() == 0) {
-				p = new Config_Parameter(this.nameText.getText());
-			}
-			else {
-				Units u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
-				Output_Formats f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
-				History_Functions func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
-				
-				p = new Input_Parameter(this.nameText.getText(),u,f,func);
-			}
-			this.controller.addParameter(p);
-			this.typeCombo.setEnabled(false);
-			this.loadList();
+		if (this.selected_parameter == null)
+			return;
+		
+		String tmpName = this.nameText.getText();
+		Units u = Units.SPEEDMS;
+		Output_Formats f = Output_Formats.NK0;
+		History_Functions func = History_Functions.MAX;
+		int last_sel = -1;
+		boolean is_input = false;
+		
+		if (tmpName.equals("")) {
+			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+			messageBox.setMessage("Es muss ein Name eingegeben werden!");
+			messageBox.open();
+			return;
 		}
-		else {
+		
+		if (new_parameter && this.controller.findParameter(tmpName)!=null) {
+			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+			messageBox.setMessage("Dieser Name ist bereits vorhanden!");
+			messageBox.open();
+			return;
+		}
+		
+		if (this.typeCombo.getSelectionIndex() != 0) {
+			if (unitCombo.getSelectionIndex() == 0 || formatCombo.getSelectionIndex() == 0 || funcCombo.getSelectionIndex() == 0) {
+				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+				messageBox.setMessage("Es müssen überall gültige Werte ausgewählt werden!");
+				messageBox.open();
+				return;
+			}
+			
+			u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
+			f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
+			func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+			is_input = true;
+		}
+		
+		if (!new_parameter) {
 			if (this.selected_parameter.inUse()) {
 				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
 				messageBox.setMessage("Dieser Parameter kann nicht bearbeitet werden, da er in Verwendung ist.");
 				messageBox.open();
+				return;
 			}
+			this.selected_parameter.setName(tmpName);
+			if (is_input) {
+				Input_Parameter tmp_input = (Input_Parameter)this.selected_parameter;
+				tmp_input.setFormat(f);
+				tmp_input.setHistory_function(func);
+				tmp_input.setUnit(u);
+			}
+			last_sel = list.getSelectionIndex();
 		}
+		else {
+			Parameter p;
+			if (this.typeCombo.getSelectionIndex() == 0) {
+				p = new Config_Parameter(tmpName);
+			}
+			else {
+				u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
+				f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
+				func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+				
+				p = new Input_Parameter(tmpName,u,f,func);
+			}
+			this.controller.addParameter(p);
+			
+			last_sel = this.controller.getParameters().size()-1;
+		}
+		this.typeCombo.setEnabled(false);
+		this.loadList();
+		this.list.setSelection(last_sel);
+		list_selected();
+		this.new_parameter = false;
 	}
 	
 	private void list_selected() {
@@ -71,6 +144,8 @@ public class ViewParameters {
 			sel = this.controller.findParameter((list.getSelection()[0]));
 			this.selected_parameter = sel;
 			this.nameText.setText(sel.getName());
+			this.typeCombo.setEnabled(false);
+			
 			if (sel instanceof Config_Parameter) {
 				this.typeCombo.select(0);
 				this.unitCombo.select(0);
@@ -89,6 +164,11 @@ public class ViewParameters {
 			}
 		}
 		catch (Exception e) {
+			this.nameText.setText("");
+			this.unitCombo.select(0);
+			this.formatCombo.select(0);
+			this.funcCombo.select(0);
+			select_first();
 			
 		}
 		
@@ -170,6 +250,7 @@ public class ViewParameters {
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		unitCombo.setLayoutData(gridData);
+		
 		for (Units unit:Units.values()) {
 			unitCombo.add(Units.getString(unit));
 		}
@@ -196,6 +277,7 @@ public class ViewParameters {
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		funcCombo.setLayoutData(gridData);
+		funcCombo.add("");
 		for (History_Functions func:History_Functions.values()) {
 			funcCombo.add(func.toString());
 		}
@@ -235,13 +317,13 @@ public class ViewParameters {
 	
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
-			if (((Button) event.widget).getText() == "Neuen Parameter erstellen") {
+			if (((Button) event.widget).getText().equals("Neuen Parameter erstellen")) {
 				new_param();
 			}
-			else if (((Button) event.widget).getText() == "Parameter löschen") {
+			else if (((Button) event.widget).getText().equals("Parameter löschen")) {
 				del_param();
 			}
-			else if (((Button) event.widget).getText() == "Änderungen speichern") {
+			else if (((Button) event.widget).getText().equals("Änderungen speichern")) {
 				save_param();
 			}
 		}

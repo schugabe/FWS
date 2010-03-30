@@ -29,7 +29,7 @@ public class Parameter_Controller {
 	
 	public Parameter findParameter(String name) {
 		for(Parameter param:this.parameters) {
-			if (param.getName()==name)
+			if (param.getName().equals(name))
 				return param;
 		}
 		return null;
