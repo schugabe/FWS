@@ -21,3 +21,4 @@ Makefile~
 .config
 *.out
 *.backup
+*.class
