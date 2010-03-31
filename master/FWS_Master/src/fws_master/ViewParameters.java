@@ -9,19 +9,22 @@ import org.eclipse.swt.widgets.*;
 public class ViewParameters {
 	private Shell shell;
 	private List list;
-	private Parameter_Controller controller;
-	private Parameter selected_parameter;
-	private boolean new_parameter;
 	private Text nameText;
 	private Combo typeCombo,unitCombo,formatCombo,funcCombo;
+	
+	private Parameter_Controller controller;
+	
+	private Parameter selected_parameter;
+	private boolean new_parameter;
+
 	
 	public ViewParameters(Shell shell,Parameter_Controller controller) {
 		this.shell = shell;
 		this.controller = controller;
 		this.selected_parameter = null;
 		this.new_parameter = false;
-		this.InitView();
 		
+		this.InitView();
 		this.select_first();
 			
 	}
@@ -32,6 +35,7 @@ public class ViewParameters {
 			this.list_selected();
 		}
 	}
+	
 	private void new_param() {
 		this.selected_parameter = new Parameter("Neuer Parameter");
 		this.nameText.setText(this.selected_parameter.getName());
@@ -47,10 +51,16 @@ public class ViewParameters {
 	}
 	
 	private void del_param() {
+		if (this.new_parameter) {
+			this.selected_parameter = null;
+			this.new_parameter = false;
+			this.select_first();
+			return;
+		}
+		
 		if (this.list.getSelectionCount()==0)
 			return;
-		if (this.new_parameter)
-			this.selected_parameter = null;
+		
 		else if (!this.controller.removeParameter(selected_parameter)) {
 			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
 			messageBox.setMessage("Dieser Parameter kann nicht gelšscht werden, da er in Verwendung ist.");
@@ -203,6 +213,8 @@ public class ViewParameters {
 	
 	private void InitView() {
 		GridLayout gridLayout = new GridLayout(3,false);
+		ButtonListener bl = new ButtonListener();
+		
 		shell.setLayout(gridLayout);
 
 		list = new List(this.shell,SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);	
@@ -282,48 +294,60 @@ public class ViewParameters {
 			funcCombo.add(func.toString());
 		}
 		
+		
+		Button saveButton = new Button(shell, SWT.PUSH);
+		saveButton.setText("Speichern");
+		saveButton.addSelectionListener(bl);
+		
+		
 		Composite filler = new Composite(shell,SWT.NONE);
 		gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		gridData.horizontalSpan = 2;
+		gridData.heightHint = 10;
 		filler.setLayoutData(gridData);
+	
 		
 		
+		
+		Composite comp_buttons = new Composite(shell,SWT.NONE);
 		gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.horizontalSpan = 3;
-		
-		ButtonListener bl = new ButtonListener();
-		Composite comp_buttons = new Composite(shell,SWT.NONE);
+		gridData.grabExcessHorizontalSpace = false;
+		gridData.widthHint = 100;
 		comp_buttons.setLayoutData(gridData);
 		
-		comp_buttons.setLayout(new FillLayout(SWT.HORIZONTAL));
+		RowLayout rowLayout = new RowLayout();
+		rowLayout.wrap = false;
+		rowLayout.pack = false;
+		rowLayout.justify = false;
+		rowLayout.type = SWT.HORIZONTAL;
+		rowLayout.marginLeft = 5;
+		rowLayout.marginTop = 5;
+		rowLayout.marginRight = 5;
+		rowLayout.marginBottom = 5;
+		rowLayout.spacing = 0;
+		comp_buttons.setLayout(rowLayout);
 		
 		Button newButton = new Button(comp_buttons, SWT.PUSH);
-		newButton.setText("Neuen Parameter erstellen");
+		newButton.setText("+");
 		newButton.addSelectionListener(bl);
 		
 		Button delButton = new Button(comp_buttons, SWT.PUSH);
-		delButton.setText("Parameter lšschen");
+		delButton.setText("-");
 		delButton.addSelectionListener(bl);
 		
-		Button saveButton = new Button(comp_buttons, SWT.PUSH);
-		saveButton.setText("€nderungen speichern");
-		saveButton.addSelectionListener(bl);
 	}
 	
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
-			if (((Button) event.widget).getText().equals("Neuen Parameter erstellen")) {
+			if (((Button) event.widget).getText().equals("+")) {
 				new_param();
 			}
-			else if (((Button) event.widget).getText().equals("Parameter lšschen")) {
+			else if (((Button) event.widget).getText().equals("-")) {
 				del_param();
 			}
-			else if (((Button) event.widget).getText().equals("€nderungen speichern")) {
+			else if (((Button) event.widget).getText().equals("Speichern")) {
 				save_param();
 			}
 		}

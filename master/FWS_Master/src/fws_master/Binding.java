@@ -16,6 +16,15 @@ public class Binding {
 		this.setStation(station);
 		this.parameter = parameter;
 	}
+	
+	public void releaseParameter() {
+		this.parameter.removeBinding(this);
+	}
+	
+	public void releaseStation() {
+		this.station.removeBinding(this);
+	}
+	
 	/**
 	 * @param address the address to set
 	 */
@@ -34,8 +43,8 @@ public class Binding {
 	public void setParameter(Parameter parameter) {
 		if (this.parameter != null)
 			this.parameter.removeBinding(this);
-		this.parameter.addBinding(this);
 		this.parameter = parameter;
+		this.parameter.addBinding(this);
 	}
 	/**
 	 * @return the parameter
@@ -49,8 +58,9 @@ public class Binding {
 	public void setStation(Station station) {
 		if(this.station != null)
 			this.station.removeBinding(this);
-		this.station.addBinding(this);
 		this.station = station;
+		this.station.addBinding(this);
+		
 	}
 	/**
 	 * @return the station
