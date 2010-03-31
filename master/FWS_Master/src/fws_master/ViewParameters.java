@@ -37,7 +37,7 @@ public class ViewParameters {
 	}
 	
 	private void new_param() {
-		this.selected_parameter = new Parameter("Neuer Parameter");
+		this.selected_parameter = new Parameter("Neuer Parameter",null);
 		this.nameText.setText(this.selected_parameter.getName());
 		this.new_parameter = true;
 		this.typeCombo.setEnabled(true);
@@ -128,14 +128,14 @@ public class ViewParameters {
 		else {
 			Parameter p;
 			if (this.typeCombo.getSelectionIndex() == 0) {
-				p = new Config_Parameter(tmpName);
+				p = new Config_Parameter(tmpName,this.controller);
 			}
 			else {
 				u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
 				f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
 				func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
 				
-				p = new Input_Parameter(tmpName,u,f,func);
+				p = new Input_Parameter(tmpName,this.controller,u,f,func);
 			}
 			this.controller.addParameter(p);
 			

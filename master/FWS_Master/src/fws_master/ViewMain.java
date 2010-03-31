@@ -43,7 +43,7 @@ public class ViewMain {
 		RowLayout rowLayout = new RowLayout();
 		rowLayout.wrap = false;
 		rowLayout.pack = false;
-		rowLayout.justify = true;
+		rowLayout.justify = false;
 		rowLayout.type = SWT.VERTICAL;
 		rowLayout.marginLeft = 5;
 		rowLayout.marginTop = 5;
@@ -67,21 +67,25 @@ public class ViewMain {
 		rowLayout.marginBottom = 5;
 		rowLayout.spacing = 0;
 		
-		
 		for(Station s:this.master.getStationController().getStations()) {
 			Composite c = new Composite(c_all,SWT.NONE);
 			
 			c.setLayout(rowLayout);
 			Label nameLabel = new Label(c, SWT.NONE);
-			nameLabel.setText(s.getName());
+			nameLabel.setText(s.getStationName());
 			Label ipLabel = new Label(c, SWT.NONE);
 			ipLabel.setText(s.getIpAddress());
 			Label statusLabel = new Label(c, SWT.NONE);
 			statusLabel.setText("Status:");
 			
 			Label statusLabel2 = new Label(c, SWT.NONE);
-			statusLabel2.setText("Unbekannt");
+			statusLabel2.setText("stopp");
+			statusLabel2.setSize(100, 20);
+			s.setStatusLabel(statusLabel2);
 		}
+		Button startButton = new Button(c_all, SWT.PUSH);
+		startButton.setText("Starten");
+		startButton.addSelectionListener(new ButtonListener());
 	}
 	
 	private void InitMenuBar() {
@@ -109,6 +113,20 @@ public class ViewMain {
 	    shell.setMenuBar(menuBar);
 	}
 	
+	
+	class ButtonListener extends SelectionAdapter {
+		public void widgetSelected(SelectionEvent event) {
+			Button b = (Button)event.widget;
+			if (b.getText().equals("Starten")) {
+				master.StartClicked(true);
+				b.setText("Stoppen");
+			}
+			else if (b.getText().equals("Stoppen")) {
+				master.StartClicked(false);
+				b.setText("Starten");
+			}
+		}
+	}
 	class MenuItemListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			if (((MenuItem) event.widget)==fileExitItem) {

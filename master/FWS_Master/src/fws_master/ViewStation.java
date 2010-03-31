@@ -97,8 +97,15 @@ public class ViewStation {
 		saveButton.setText("Speichern");
 		saveButton.addSelectionListener(new ButtonListener());
 		gridData = new GridData();
-		gridData.horizontalSpan=2;
+		//gridData.horizontalSpan=2;
 		saveButton.setLayoutData(gridData);
+		
+		Button uploadButton = new Button(shell, SWT.PUSH);
+		uploadButton.setText("Upload");
+		uploadButton.setToolTipText("Die aktuellen Parameterwerte an das Device hochladen");
+		uploadButton.addSelectionListener(new ButtonListener());
+		gridData = new GridData();
+		uploadButton.setLayoutData(gridData);
 		
 		Composite params = new Composite(shell, SWT.BORDER);
 		
@@ -192,14 +199,14 @@ public class ViewStation {
 	private void loadList() {
 		this.station_list.removeAll();
 		for (Station s:this.station_controller.getStations()) {
-			station_list.add(s.getName());
+			station_list.add(s.getStationName());
 		}
 	}
 	
 	public void list_selected() {
 		try {
 			this.selected_station = this.station_controller.findStation((this.station_list.getSelection()[0]));
-			this.nameText.setText(selected_station.getName());
+			this.nameText.setText(selected_station.getStationName());
 			this.ipText.setText(selected_station.getIpAddress());
 			this.pollingText.setText(""+selected_station.getPollingIntervall());
 			this.enableText(true);
@@ -248,9 +255,10 @@ public class ViewStation {
 				messageBox.open();
 				return;
 			}
-			this.selected_station.setName(name);
-			this.selected_station.setIpAddress(ip);
+			this.selected_station.setStationName(name);
 			this.selected_station.setPollingIntervall(tmp_p);
+			
+			this.selected_station.uploadDeviceConfig(ip);
 			int tmp_sel = this.station_list.getSelectionIndex();
 			this.loadList();
 			this.station_list.setSelection(tmp_sel);
@@ -340,6 +348,10 @@ public class ViewStation {
 		
 	}
 	
+	public void uploadClicked() {
+		this.selected_station.uploadParamsConfig();
+	}
+	
 	
 	class ListListener implements Listener{
 		public void handleEvent(Event e) {
@@ -361,10 +373,15 @@ public class ViewStation {
 			if (((Button) event.widget).getText().equals("Zuordnen")) {
 				bindClicked();
 			}
+			if (((Button) event.widget).getText().equals("Upload")) {
+				uploadClicked();
+			}
 		}
 
 		
 	}
+
+	
 
 	
 }

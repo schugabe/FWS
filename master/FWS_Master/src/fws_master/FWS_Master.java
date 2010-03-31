@@ -16,33 +16,23 @@ public class FWS_Master {
 	private Display display;
 	
 	private void generateParameters() {
-		Config_Parameter c = new Config_Parameter("IP Addresse");
+		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
 		this.parameter_controller.addParameter(c);
 		
-		Input_Parameter i = new Input_Parameter("Temperatur",Units.TEMPERATURE,Output_Formats.NK1,History_Functions.MAX);
+		Input_Parameter i = new Input_Parameter("Temperatur",this.parameter_controller,Units.TEMPERATURE,Output_Formats.NK1,History_Functions.MAX);
 		this.parameter_controller.addParameter(i);
 		
-		Station s = new Station("Dach");
+		Station s = new Station("Dach",this.station_controller);
+		s.uploadDeviceConfig("127.0.0.2");
+		s.setPollingIntervall(1);
 		this.station_controller.addStation(s);
 		
-		s = new Station("Dach2");
-		s.setIpAddress("127.0.0.1");
+		s = new Station("Dach2",this.station_controller);
+		s.uploadDeviceConfig("127.0.0.3");
+		s.setPollingIntervall(30);
 		this.station_controller.addStation(s);
 		
-		s = new Station("Dach3");
-		this.station_controller.addStation(s);
 		
-		s = new Station("Dach4");
-		this.station_controller.addStation(s);
-		
-		s = new Station("Dach5");
-		this.station_controller.addStation(s);
-		
-		s = new Station("Dach6");
-		this.station_controller.addStation(s);
-		
-		s = new Station("Dach7");
-		this.station_controller.addStation(s);
 	}
 	
 	private FWS_Master(Shell shell, Display display) {
@@ -100,6 +90,10 @@ public class FWS_Master {
 		
 		return;
 		
+	}
+	
+	public void StartClicked(boolean start) {
+		this.station_controller.startStation(start);
 	}
 
 }

@@ -5,8 +5,10 @@ import java.util.Vector;
 public class Parameter {
 	private String name;
 	private Vector<Binding> stations;
+	private Parameter_Controller controller;
 	
-	public Parameter(String name) {
+	public Parameter(String name,Parameter_Controller controller) {
+		this.controller = controller;
 		this.setName(name);
 		stations = new Vector<Binding>();
 	}
@@ -24,8 +26,15 @@ public class Parameter {
 	/**
 	 * @param name the name to set
 	 */
-	public void setName(String name) {
+	public boolean setName(String name) {
+		if (this.controller != null) {
+			for(Parameter p:this.controller.getParameters()) {
+				if (p != this && p.getName().equals(name))
+					return false;
+			}
+		}
 		this.name = name;
+		return true;
 	}
 
 	/**

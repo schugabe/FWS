@@ -26,7 +26,7 @@ public class Station_Controller {
 
 	public Station findStation(String name) {
 		for(Station s:this.stations) {
-			if(s.getName().equals(name))
+			if(s.getStationName().equals(name))
 				return s;
 		}
 		return null;
@@ -36,6 +36,22 @@ public class Station_Controller {
 	 */
 	public Vector<Station> getStations() {
 		return stations;
+	}
+
+	public void startStation(boolean start) {
+		
+		for (Station s:this.stations) {
+			if (start && !s.isAlive())
+				s.start();
+			else if (start && s.isAlive()) {
+				s.resumeStation();
+			}
+			else if (!start && s.isAlive()){
+				s.pauseStation();
+			}
+				
+		}
+		
 	}
 	
 	

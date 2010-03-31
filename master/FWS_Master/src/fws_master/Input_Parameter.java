@@ -5,13 +5,13 @@ public class Input_Parameter extends Parameter{
 	private Output_Formats format;
 	private History_Functions history_function;
 	
-	public Input_Parameter(String name) {
-		super(name);
+	public Input_Parameter(String name,Parameter_Controller controller) {
+		super(name,controller);
 		
 	}
 	
-	public Input_Parameter(String name,Units unit,Output_Formats format, History_Functions history_function) {
-		super(name);
+	public Input_Parameter(String name,Parameter_Controller controller, Units unit,Output_Formats format, History_Functions history_function) {
+		super(name,controller);
 		this.format = format;
 		this.unit = unit;
 		this.history_function = history_function;
