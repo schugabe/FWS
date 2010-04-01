@@ -48,6 +48,7 @@ public class Station_Controller {
 			}
 			else if (!start && s.isAlive()){
 				s.pauseStation();
+				s.interrupt();
 			}
 				
 		}

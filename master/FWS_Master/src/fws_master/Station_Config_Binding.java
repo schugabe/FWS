@@ -8,6 +8,11 @@ public class Station_Config_Binding extends Binding {
 		this.value = 0;
 	}
 	
+	public Station_Config_Binding(Station station,Config_Parameter parameter,int address,int value) {
+		super(station,parameter,address);
+		this.value = value;
+	}
+	
 	/**
 	 * @param value the value to set
 	 */

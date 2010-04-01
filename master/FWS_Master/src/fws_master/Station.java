@@ -1,28 +1,45 @@
 package fws_master;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.eclipse.swt.widgets.Label;
 
 public class Station extends Thread{
 	private Vector<Binding> parameters;
+	private Vector<Measurement> measurements;
 	private String ipAddress;
 	private int polling_intervall;
 	private String name;
 	private Label statusLabel;
 	private Station_Controller controller;
 	private volatile boolean suspended;
-	
+	private ModBusWrapper wrapper;
 	public Station(String name,Station_Controller controller) {
 		this.setStationName(name);
+		this.controller = controller;
 		this.polling_intervall = 60;
 		this.ipAddress = "127.0.0.1";
 		this.statusLabel = null;
-		this.parameters = new Vector<Binding>();
+		this.init();
+	}
+	
+	public Station(String name,Station_Controller controller,String ip,int polling_intervall) {
+		this.setStationName(name);
 		this.controller = controller;
+		this.polling_intervall = polling_intervall;
+		this.ipAddress = ip;
+		this.statusLabel = null;
+		this.init();
+	}
+	
+	private void init() {
+		this.parameters = new Vector<Binding>();
+		this.measurements = new Vector<Measurement>();
 		this.suspended = true;
+		
 	}
 	
 	public void resumeStation() {
@@ -34,44 +51,56 @@ public class Station extends Thread{
 		this.suspended = true;
 	}
 	
+	private void setLabel(final String msg) {
+		this.statusLabel.getDisplay().asyncExec(new Runnable() {
+			public void run()
+			{
+				Calendar cal = Calendar.getInstance();
+			    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+			    String date =  sdf.format(cal.getTime());
+
+				statusLabel.setText(""+msg+" um "+ date);
+			}
+		});
+	}
+	
 	public void run() {
 		this.suspended = false;
-		
+		wrapper = new ModBusWrapper(this.ipAddress);
 		while (true) {
-			this.statusLabel.getDisplay().asyncExec(new Runnable() {
-				public void run()
-				{
-					GregorianCalendar cal = new GregorianCalendar();
-					statusLabel.setText("Running"+cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":" +cal.get(Calendar.SECOND));
-				}
-			});
-
-
-			this.getMeasurements();
-
 			try {
 				if (this.suspended) {
+					this.wrapper.releaseConnection();
+					this.setLabel("Pause");
 					synchronized(this) {
 						while(this.suspended)
 							wait();
 					}
-					// reinit der parameter
+					this.wrapper = new ModBusWrapper(this.ipAddress);
+					setLabel("Gestartet");
 				}
-
+				this.getMeasurements();
 				Thread.sleep(this.polling_intervall*1000);
 
 			} catch (InterruptedException e) {
-				this.interrupt();
+				
 			}
 		}
 
 	}
 	
 	private void getMeasurements() {
+		
+		if (!wrapper.hasConnection()) {
+			this.setLabel("Keine Verbindung");
+			return;
+		}
+		this.setLabel("Online");
 		for(Binding b:this.parameters) {
 			if (b instanceof Station_Input_Binding) {
-				Station_Input_Binding sb = (Station_Input_Binding)b;
-				
+				int result = wrapper.sendReadRequest(b.getAddress());
+				Measurement m = new Measurement(this,(Input_Parameter) b.getParameter(),result);
+				this.measurements.add(m);
 			}
 		}
 	}
@@ -81,14 +110,57 @@ public class Station extends Thread{
 	}
 	
 	public boolean uploadDeviceConfig(String newIP) {
-		// TODO upload config to device
-		for (Station s:this.controller.getStations()) {
-			if (s.getIpAddress().equals(newIP)) {
-				return false;
+		
+		if(!this.ipAddress.equals(newIP)) {
+			ModBusWrapper config_wrapper = new ModBusWrapper(this.ipAddress);
+			for (Station s:this.controller.getStations()) {
+				if (s.getIpAddress().equals(newIP)) {
+					return false;
+				}
 			}
+			int []int_ip = this.convertIP(newIP);
+
+			config_wrapper.sendWriteRequest(0, int_ip[0]);
+			//config_wrapper.sendWriteRequest(1, int_ip[1]);
+			config_wrapper.releaseConnection();
 		}
 		this.ipAddress = newIP;
 		return true;
+	}
+	
+	private int[] convertIP(String ip) {
+		int [] conv = new int[2];
+		int idx = ip.indexOf(':');
+	    
+	    if(idx > 0) {
+	      ip = ip.substring(0,idx);
+	    }
+	    
+	    int tmp = 0;
+	    String sub;
+	    StringTokenizer st = new StringTokenizer(ip,".");
+	    while (st.hasMoreTokens()) {
+	         sub = st.nextToken();
+	         if (tmp == 0) {
+	        	 conv[0] = Integer.parseInt(sub) << 8;
+	         }
+	         else if (tmp == 1) {
+	        	 conv[0] |= Integer.parseInt(sub);
+	        	 
+	         }
+	         else if (tmp == 2) {
+	        	 conv[1] = Integer.parseInt(sub) << 8;
+	         }
+	         else if (tmp == 3) {
+	        	 conv[1] |= Integer.parseInt(sub);
+	         }
+	         else
+	        	 break;
+	         tmp++;
+	     }
+
+		
+		return conv;
 	}
 	
 	public boolean uploadParamsConfig() {
@@ -150,5 +222,28 @@ public class Station extends Thread{
 	 */
 	public String getStationName() {
 		return name;
+	}
+	
+	public int getInputParamsCount() {
+		int tmp = 0;
+		for(Binding b:this.parameters) {
+			if (b instanceof Station_Input_Binding)
+				tmp++;
+		}
+		return tmp;
+	}
+	
+	public Vector<Measurement> getNMeasurements(int time) {
+		int params_count = this.getInputParamsCount();
+		int count = (time/this.polling_intervall)*params_count;
+		Vector<Measurement> tmp = new Vector<Measurement>(count);
+		int i = 0;
+		int size = this.measurements.size();
+		i = size-count;
+		while (i < size) {
+			tmp.add(this.measurements.get(i));
+			i++;
+		}
+		return tmp;
 	}
 }

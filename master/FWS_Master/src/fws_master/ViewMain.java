@@ -42,7 +42,7 @@ public class ViewMain {
 	private void InitStationView() {
 		RowLayout rowLayout = new RowLayout();
 		rowLayout.wrap = false;
-		rowLayout.pack = false;
+		rowLayout.pack = true;
 		rowLayout.justify = false;
 		rowLayout.type = SWT.VERTICAL;
 		rowLayout.marginLeft = 5;
@@ -66,6 +66,8 @@ public class ViewMain {
 		rowLayout.marginRight = 5;
 		rowLayout.marginBottom = 5;
 		rowLayout.spacing = 0;
+		rowLayout.justify = false;
+		rowLayout.pack = true;
 		
 		for(Station s:this.master.getStationController().getStations()) {
 			Composite c = new Composite(c_all,SWT.NONE);
@@ -79,12 +81,11 @@ public class ViewMain {
 			statusLabel.setText("Status:");
 			
 			Label statusLabel2 = new Label(c, SWT.NONE);
-			statusLabel2.setText("stopp");
-			statusLabel2.setSize(100, 20);
+			statusLabel2.setText("stopp                                              ");
 			s.setStatusLabel(statusLabel2);
 		}
 		Button startButton = new Button(c_all, SWT.PUSH);
-		startButton.setText("Starten");
+		startButton.setText(" Starten ");
 		startButton.addSelectionListener(new ButtonListener());
 	}
 	
@@ -117,13 +118,17 @@ public class ViewMain {
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			Button b = (Button)event.widget;
-			if (b.getText().equals("Starten")) {
+			if (b.getText().equals(" Starten ")) {
 				master.StartClicked(true);
+				fileParamsItem.setEnabled(false);
+				fileStationsItem.setEnabled(false);
 				b.setText("Stoppen");
 			}
 			else if (b.getText().equals("Stoppen")) {
 				master.StartClicked(false);
-				b.setText("Starten");
+				fileParamsItem.setEnabled(true);
+				fileStationsItem.setEnabled(true);
+				b.setText(" Starten ");
 			}
 		}
 	}

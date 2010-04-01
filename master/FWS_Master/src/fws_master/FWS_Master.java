@@ -22,17 +22,14 @@ public class FWS_Master {
 		Input_Parameter i = new Input_Parameter("Temperatur",this.parameter_controller,Units.TEMPERATURE,Output_Formats.NK1,History_Functions.MAX);
 		this.parameter_controller.addParameter(i);
 		
-		Station s = new Station("Dach",this.station_controller);
-		s.uploadDeviceConfig("127.0.0.2");
-		s.setPollingIntervall(1);
+		Station s = new Station("Dach",this.station_controller,"192.168.2.7:30000",10);
 		this.station_controller.addStation(s);
 		
-		s = new Station("Dach2",this.station_controller);
-		s.uploadDeviceConfig("127.0.0.3");
-		s.setPollingIntervall(30);
-		this.station_controller.addStation(s);
+		Station_Config_Binding cb = new Station_Config_Binding(s,c,0,1);
+		Station_Input_Binding b = new Station_Input_Binding(s,i,1);
 		
-		
+		//s = new Station("Dach2",this.station_controller,"127.0.0.3",30);
+		//this.station_controller.addStation(s);
 	}
 	
 	private FWS_Master(Shell shell, Display display) {
@@ -55,7 +52,7 @@ public class FWS_Master {
 		
 		@SuppressWarnings("unused")
 		FWS_Master master = new FWS_Master(shell,display);
-		shell.setSize(250,500);
+		shell.setSize(400,500);
 		shell.open ();
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
