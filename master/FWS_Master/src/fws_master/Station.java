@@ -17,6 +17,8 @@ public class Station extends Thread{
 	private Station_Controller controller;
 	private volatile boolean suspended;
 	private ModBusWrapper wrapper;
+	private int lastCollected;
+	
 	public Station(String name,Station_Controller controller) {
 		this.setStationName(name);
 		this.controller = controller;
@@ -39,6 +41,7 @@ public class Station extends Thread{
 		this.parameters = new Vector<Binding>();
 		this.measurements = new Vector<Measurement>();
 		this.suspended = true;
+		this.lastCollected = 0;
 		
 	}
 	
@@ -100,7 +103,9 @@ public class Station extends Thread{
 			if (b instanceof Station_Input_Binding) {
 				int result = wrapper.sendReadRequest(b.getAddress());
 				Measurement m = new Measurement(this,(Input_Parameter) b.getParameter(),result);
-				this.measurements.add(m);
+				synchronized(this.measurements) {
+					this.measurements.add(m);
+				}
 			}
 		}
 	}
@@ -233,16 +238,21 @@ public class Station extends Thread{
 		return tmp;
 	}
 	
-	public Vector<Measurement> getNMeasurements(int time) {
-		int params_count = this.getInputParamsCount();
-		int count = (time/this.polling_intervall)*params_count;
-		Vector<Measurement> tmp = new Vector<Measurement>(count);
-		int i = 0;
-		int size = this.measurements.size();
-		i = size-count;
-		while (i < size) {
-			tmp.add(this.measurements.get(i));
-			i++;
+	public Vector<Measurement> getLastMeasurements() {
+		Vector<Measurement> tmp;
+		
+		synchronized(this.measurements) {
+			int params_count = this.getInputParamsCount();
+
+			int i = params_count - this.lastCollected;
+
+			tmp = new Vector<Measurement>(i);
+
+			while (i < params_count) {
+				tmp.add(this.measurements.get(i));
+				i++;
+			}
+			this.lastCollected = params_count;
 		}
 		return tmp;
 	}

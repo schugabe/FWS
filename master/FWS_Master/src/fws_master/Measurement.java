@@ -41,4 +41,18 @@ public class Measurement {
 	public int getValue() {
 		return value;
 	}
+	
+	public double getConvValue() {
+		double tmp = value;
+		switch (this.parameter.getFormat()) {
+		case NK0: break;
+		case NK1: tmp /= 10; break;
+		case NK2: tmp /= 100; break;
+		case NK3: tmp /= 1000; break;
+		case NK4: tmp /= 10000; break;
+		case NK5: tmp /= 100000; break;
+		
+		}
+		return tmp;
+	}
 }

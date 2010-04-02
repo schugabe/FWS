@@ -1,8 +1,20 @@
 package fws_master;
 
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
+/*import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
+import org.jfree.data.*;
+import org.jfree.data.xml.*;
+import org.jfree.data.xy.DefaultXYDataset;*/
 
 public class FWS_Master {
 
@@ -14,6 +26,9 @@ public class FWS_Master {
 	@SuppressWarnings("unused")
 	private ViewMain view;
 	private Display display;
+	private Shell shell;
+	private MeasurementCollector collector;
+	private String outDir;
 	
 	private void generateParameters() {
 		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
@@ -25,21 +40,25 @@ public class FWS_Master {
 		Station s = new Station("Dach",this.station_controller,"192.168.2.7:30000",10);
 		this.station_controller.addStation(s);
 		
+		@SuppressWarnings("unused")
 		Station_Config_Binding cb = new Station_Config_Binding(s,c,0,1);
+		@SuppressWarnings("unused")
 		Station_Input_Binding b = new Station_Input_Binding(s,i,1);
 		
 		//s = new Station("Dach2",this.station_controller,"127.0.0.3",30);
 		//this.station_controller.addStation(s);
 	}
 	
-	private FWS_Master(Shell shell, Display display) {
+	private FWS_Master(Shell shell, Display display,String outDir) {
+		this.outDir = outDir;
 		this.parameter_controller = new Parameter_Controller();
 		this.station_controller = new Station_Controller();
+		this.collector = new MeasurementCollector(this.station_controller,10,this.outDir);
 		this.generateParameters();
 		view = new ViewMain(shell,display,this);
-		
+		this.shell = shell;
 		this.display = display;
-		
+		this.collector.start();
 	}
 	
 	public Station_Controller getStationController() {
@@ -50,14 +69,40 @@ public class FWS_Master {
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		
+		// TODO output erstellen...
+		/*DefaultXYDataset data = new DefaultXYDataset();
+		
+		double [][] tmp = new double[2][8];
+		
+		
+			for(int y=0;y<8;y++)
+			{
+				tmp[0][y] = y;
+				tmp[1][y] = y;
+			}
+	
+		
+		data.addSeries("bla", tmp);
+		
+		JFreeChart chart = ChartFactory.createXYLineChart("Bla", "hui", "test", data, PlotOrientation.HORIZONTAL, true, false, false);
+		ChartRenderingInfo info = new ChartRenderingInfo();
+		try {
+			ChartUtilities.saveChartAsPNG(new File("freespace.png"),chart,600,400,info);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		
 		@SuppressWarnings("unused")
-		FWS_Master master = new FWS_Master(shell,display);
+		FWS_Master master = new FWS_Master(shell,display,".");
 		shell.setSize(400,500);
 		shell.open ();
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
 		}
-		display.dispose ();
+		display.dispose();
+		System.exit(0);
 	}
 	
 	public void ParameterClicked() {
@@ -87,6 +132,14 @@ public class FWS_Master {
 		
 		return;
 		
+	}
+	
+	public void FolderClicked() {
+		DirectoryDialog dialog = new DirectoryDialog(shell);
+		String platform = SWT.getPlatform();
+		dialog.setFilterPath (platform.equals("win32") || platform.equals("wpf") ? "c:\\" : "/");
+		this.outDir =  dialog.open();
+		this.collector.setOutDir(this.outDir);
 	}
 	
 	public void StartClicked(boolean start) {

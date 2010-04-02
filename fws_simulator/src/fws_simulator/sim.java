@@ -2,7 +2,7 @@ package fws_simulator;
 
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.procimg.*;
-import net.wimpi.modbus.Modbus;
+//import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.ModbusCoupler;
 
 //java -classpath ./jamod-1.2-SNAPSHOT.jar:. -Dnet.wimpi.modbus.debug=true fws_simulator.sim

@@ -15,7 +15,7 @@ public class ViewMain {
 	
 	private Menu menuBar, fileMenu;
 	private MenuItem fileMenuHeader;
-	private MenuItem fileExitItem, fileParamsItem, fileStationsItem;
+	private MenuItem fileExitItem, fileParamsItem, fileStationsItem,fileOutDirItem;
 	
 	public ViewMain(Shell shell, Display display,FWS_Master master) {
 		this.shell = shell;
@@ -97,6 +97,9 @@ public class ViewMain {
 
 	    fileMenu = new Menu(shell, SWT.DROP_DOWN);
 	    fileMenuHeader.setMenu(fileMenu);
+	    
+	    fileOutDirItem = new MenuItem(fileMenu, SWT.PUSH);
+	    fileOutDirItem.setText("Ausgabe Ordner wählen");
 
 	    fileStationsItem= new MenuItem(fileMenu, SWT.PUSH);
 	    fileStationsItem.setText("Stationen bearbeiten");
@@ -110,6 +113,7 @@ public class ViewMain {
 	    fileExitItem.addSelectionListener(l);
 	    fileParamsItem.addSelectionListener(l);
 	    fileStationsItem.addSelectionListener(l);
+	    fileOutDirItem.addSelectionListener(l);
 	    
 	    shell.setMenuBar(menuBar);
 	}
@@ -142,6 +146,9 @@ public class ViewMain {
 			}
 			else if (((MenuItem) event.widget) == fileStationsItem) {
 				master.StationClicked();
+			}
+			else if (((MenuItem) event.widget) == fileOutDirItem) {
+				master.FolderClicked();
 			}
 			
 			
