@@ -14,7 +14,7 @@ public class Binding {
 	public Binding(Station station, Parameter parameter, int address) {
 		this.setParameter(parameter);
 		this.setStation(station);
-		this.parameter = parameter;
+		this.address = address;
 	}
 	
 	public void releaseParameter() {
