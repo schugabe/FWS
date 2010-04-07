@@ -28,7 +28,7 @@ static uint8_t mymac[6] = {0x54,0x55,0x58,0x10,0x00,0x29};
 static uint8_t myip[4] = {10,0,0,29};
 
 // server listen port for www
-#define MYWWWPORT 80
+#define MYWWWPORT 502
 
 #define BUFFER_SIZE 550
 static uint8_t buf[BUFFER_SIZE+1];
@@ -51,6 +51,8 @@ uint16_t print_webpage(uint8_t *buf)
 
 int main(void){
         uint16_t dat_p;
+        uint8_t modbus_len;
+        uint8_t *ptr;
         
         
         //initialize the hardware driver for the enc28j60
@@ -65,14 +67,27 @@ int main(void){
         while(1){
                 // read packet, handle ping and wait for a tcp packet:
                 dat_p=packetloop_icmp_tcp(buf,enc28j60PacketReceive(BUFFER_SIZE, buf));
-
-                /* dat_p will be unequal to zero if there is a valid 
-                 * http get */
                 if(dat_p==0){
-                        // no http request
+                        // no data
                         continue;
                 }
-                // tcp port 80 begin
+                
+                if (buf[dat_p+2])
+                        continue; // not a modbus msg
+                modbus_len = buf[dat_p+5];
+                ptr = &buf[dat_p+7];
+                if (*ptr == 0x04) {
+                        ptr++;
+                        *ptr = 2;
+                        ptr++;
+                        *ptr = 0x41;
+                        ptr++;
+                        *ptr = 0x14;
+                        ptr++;
+                        buf[dat_p+5] = modbus_len-1;
+                }
+                www_server_reply(buf,11);
+                /*
                 if (strncmp("GET ",(char *)&(buf[dat_p]),4)!=0){
                         // head, post and other methods:
                         dat_p=http200ok();
@@ -88,8 +103,10 @@ int main(void){
                         goto SENDTCP;
                 }
 SENDTCP:
+                
                 www_server_reply(buf,dat_p); // send web page data
                 // tcp port 80 end
+                */
         }
         return (0);
 }

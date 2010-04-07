@@ -16,7 +16,7 @@
 // an NTP client (ntp clock):
 #undef NTP_client
 // a spontanious sending UDP client
-#define UDP_client
+#undef UDP_client
 //
 
 // to send out a ping:
@@ -29,9 +29,9 @@
 // a "web browser". This can be use to upload data
 // to a web server on the internet by encoding the data 
 // into the url (like a Form action of type GET):
-#define WWW_client
+//#define WWW_client
 // if you do not need a browser and just a server:
-//#undef WWW_client
+#undef WWW_client
 //
 //------------- functions in websrv_help_functions.c --------------
 //

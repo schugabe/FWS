@@ -1,20 +1,19 @@
 package fws_master;
 
 
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
-/*import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.DefaultXYDataset;
-import org.jfree.chart.*;
-import org.jfree.chart.plot.*;
-import org.jfree.data.*;
-import org.jfree.data.xml.*;
-import org.jfree.data.xy.DefaultXYDataset;*/
+
 
 public class FWS_Master {
 
@@ -72,6 +71,26 @@ public class FWS_Master {
 		
 		shell.setSize(400,500);
 		shell.open ();
+		
+		
+		DefaultXYDataset data = new DefaultXYDataset();
+		double [][] tmp = new double[2][8];
+		for(int y=0;y<8;y++)
+		{
+		tmp[0][y] = y;
+		tmp[1][y] = y;
+		}
+		data.addSeries("bla", tmp);
+		JFreeChart chart = ChartFactory.createXYLineChart("Bla", "hui", "test", data, PlotOrientation.HORIZONTAL, true, false, false);
+		/*ChartRenderingInfo info = new ChartRenderingInfo();
+		try {
+		ChartUtilities.saveChartAsPNG(new File("freespace.png"),chart,600,400,info);
+		} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}*/
+		
+		
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
 		}

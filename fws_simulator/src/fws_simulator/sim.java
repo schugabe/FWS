@@ -15,7 +15,7 @@ public class sim {
 		try {
 			ModbusTCPListener listener = null;
 			SimpleProcessImage spi = null;
-			int port = 30000;
+			int port = 502;
 
 			SimpleRegister reg = new SimpleRegister();
 			reg.setValue(101);
@@ -36,10 +36,10 @@ public class sim {
 			listener.setPort(port);
 			listener.start();  
 			
-			while(true) {
+			/*while(true) {
 				System.out.println(reg.getValue());
 				Thread.sleep(1000);
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 

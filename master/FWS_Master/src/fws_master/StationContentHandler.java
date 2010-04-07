@@ -18,22 +18,17 @@ public class StationContentHandler implements ContentHandler {
 		this.lastStation = null;
 	}
 	@Override
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
-		// TODO Auto-generated method stub
+	public void characters(char[] ch, int start, int length) throws SAXException {
 
 	}
 
 	@Override
 	public void endDocument() throws SAXException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		// TODO Auto-generated method stub
+	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (localName.equals("station")) 
 		{
 			this.lastStation = null;
@@ -43,39 +38,30 @@ public class StationContentHandler implements ContentHandler {
 
 	@Override
 	public void endPrefixMapping(String prefix) throws SAXException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void ignorableWhitespace(char[] ch, int start, int length)
-			throws SAXException {
-		// TODO Auto-generated method stub
+	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
 
 	}
 
 	@Override
-	public void processingInstruction(String target, String data)
-			throws SAXException {
-		// TODO Auto-generated method stub
+	public void processingInstruction(String target, String data) throws SAXException {
 
 	}
 
 	@Override
 	public void setDocumentLocator(Locator locator) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void skippedEntity(String name) throws SAXException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -113,7 +99,6 @@ public class StationContentHandler implements ContentHandler {
 			address = value = bufferSize= -1;
 			for(int i=0;i<atts.getLength();i++) {
 				String tmpName = atts.getLocalName(i);
-				String tmpValue = atts.getValue(i);
 				if (tmpName.equals("type")) {
 					type = atts.getValue(i);
 				}

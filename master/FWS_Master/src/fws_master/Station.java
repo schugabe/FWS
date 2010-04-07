@@ -42,6 +42,7 @@ public class Station extends Thread{
 		this.measurements = new Vector<Measurement>();
 		this.suspended = true;
 		this.lastCollected = 0;
+		this.setName(this.name);
 		
 	}
 	
@@ -94,10 +95,10 @@ public class Station extends Thread{
 	
 	private void getMeasurements() {
 		
-		if (!wrapper.hasConnection()) {
+		/*if (!wrapper.hasConnection()) {
 			this.setLabel("Keine Verbindung");
 			return;
-		}
+		}*/
 		this.setLabel("Online");
 		for(Binding b:this.parameters) {
 			if (b instanceof Station_Input_Binding) {

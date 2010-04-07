@@ -17,10 +17,11 @@ import java.util.logging.Logger;
 public class ModBusWrapper {
 	private TCPMasterConnection connection = null; 
 	private static Logger log = Logger.getLogger("fws_master.modbus");
+	private ModbusTCPTransaction transaction;
+	private InetAddress address = null;
+	private int port = Modbus.DEFAULT_PORT;
 	
 	public ModBusWrapper(String ip) {
-		InetAddress address = null;
-		int port = Modbus.DEFAULT_PORT;
 	    int idx = ip.indexOf(':');
 	    
 	    log.info("Baue Verbindung zu "+ip+" auf");
@@ -40,18 +41,13 @@ public class ModBusWrapper {
 	    }
 	    
 	    
-	    try {
-	    	connection = new TCPMasterConnection(address);
-		    connection.setPort(port);
-			connection.connect();
-			log.info("Verbindung zu "+ip+" aufgebaut");
-		} catch (Exception e) {
-			log.info("Fehler aufgetreten "+e.getMessage());
-		}
+	   
 		
 	}
 	
 	public boolean hasConnection() {
+		if (this.connection == null)
+			return false;
 		return this.connection.isConnected();
 	}
 
@@ -90,7 +86,9 @@ public class ModBusWrapper {
 	}
 	
 	private ModbusResponse sendRequest(ModbusRequest request) {
-		ModbusTCPTransaction transaction  = new ModbusTCPTransaction(this.connection);
+		prepareConnection();
+		//this.connection.setTimeout(300);
+		
 		ModbusResponse response = null;
 		transaction.setRequest(request);
 		
@@ -102,7 +100,25 @@ public class ModBusWrapper {
 		} catch (Exception e) {
 			log.throwing("ModBusWrapper", "sendRequest", e);
 		}
+		this.connection.close();
 		
 		return response;
+	}
+
+
+	private void prepareConnection() {
+		try {
+			connection = new TCPMasterConnection(address);
+		    connection.setPort(port);
+		    
+			connection.connect();
+			int tmp = this.connection.getTimeout();
+			transaction  = new ModbusTCPTransaction(this.connection);
+			log.info("Verbindung zu "+address+" aufgebaut");
+			
+		} catch (Exception e) {
+			log.info("Fehler aufgetreten "+e.getMessage());
+		}
+		
 	}
 }
