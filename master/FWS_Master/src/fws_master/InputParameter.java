@@ -1,16 +1,16 @@
 package fws_master;
 
-public class Input_Parameter extends Parameter{
+public class InputParameter extends Parameter{
 	private Units unit;
-	private Output_Formats format;
-	private History_Functions history_function;
+	private OutputFormats format;
+	private HistoryFunctions history_function;
 	
-	public Input_Parameter(String name,Parameter_Controller controller) {
+	public InputParameter(String name,ParameterController controller) {
 		super(name,controller);
 		
 	}
 	
-	public Input_Parameter(String name,Parameter_Controller controller, Units unit,Output_Formats format, History_Functions history_function) {
+	public InputParameter(String name,ParameterController controller, Units unit,OutputFormats format, HistoryFunctions history_function) {
 		super(name,controller);
 		this.format = format;
 		this.unit = unit;
@@ -34,28 +34,28 @@ public class Input_Parameter extends Parameter{
 	/**
 	 * @param format the format to set
 	 */
-	public void setFormat(Output_Formats format) {
+	public void setFormat(OutputFormats format) {
 		this.format = format;
 	}
 
 	/**
 	 * @return the format
 	 */
-	public Output_Formats getFormat() {
+	public OutputFormats getFormat() {
 		return format;
 	}
 
 	/**
 	 * @param history_function the history_function to set
 	 */
-	public void setHistory_function(History_Functions history_function) {
+	public void setHistory_function(HistoryFunctions history_function) {
 		this.history_function = history_function;
 	}
 
 	/**
 	 * @return the history_function
 	 */
-	public History_Functions getHistory_function() {
+	public HistoryFunctions getHistory_function() {
 		return history_function;
 	}
 

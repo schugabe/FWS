@@ -7,16 +7,16 @@ import org.xml.sax.SAXException;
 
 public class ParameterContentHandler implements ContentHandler {
 
-	private Parameter_Controller params;
+	private ParameterController params;
 	private States state;
 	private SubStates substate;
 	private String name;
 	private Units unit;
-	private History_Functions hist;
-	private Output_Formats format;
+	private HistoryFunctions hist;
+	private OutputFormats format;
 	private int fields;
 	
-	public ParameterContentHandler(Parameter_Controller params) {
+	public ParameterContentHandler(ParameterController params) {
 		this.params = params;
 		this.state = States.IDLE;
 		this.substate = SubStates.IDLE;
@@ -26,8 +26,8 @@ public class ParameterContentHandler implements ContentHandler {
 	private void reInitFields() {
 		this.name = null;
 		this.unit = Units.UNKNOWN;
-		this.format = Output_Formats.UNKNOWN;
-		this.hist = History_Functions.AVG;
+		this.format = OutputFormats.UNKNOWN;
+		this.hist = HistoryFunctions.AVG;
 		this.substate = SubStates.IDLE;
 		this.state = States.IDLE;
 		fields = 0;
@@ -47,9 +47,9 @@ public class ParameterContentHandler implements ContentHandler {
 		fields++;
 		switch(substate) {
 			case NAME: this.name = content; break;
-			case FORMAT: this.format = Output_Formats.getFormat(content); break;
+			case FORMAT: this.format = OutputFormats.getFormat(content); break;
 			case UNIT: this.unit = Units.getUnit(content); break;
-			case FUNC: this.hist = History_Functions.getHist(content); break;
+			case FUNC: this.hist = HistoryFunctions.getHist(content); break;
 		}
 		
 	}
@@ -65,13 +65,13 @@ public class ParameterContentHandler implements ContentHandler {
 		if (name!=null && !this.name.equals("")) {
 			Parameter p = null;
 			if (state == States.CP && fields==1) {
-				p = new Config_Parameter(this.name,this.params);
+				p = new ConfigParameter(this.name,this.params);
 				this.params.addParameter(p);
 				this.reInitFields();
 			}
 			if (state == States.IP && fields==4) {
-				if (this.unit != Units.UNKNOWN && this.format != Output_Formats.UNKNOWN) {
-					p= new Input_Parameter(this.name,this.params,unit,format,hist);
+				if (this.unit != Units.UNKNOWN && this.format != OutputFormats.UNKNOWN) {
+					p= new InputParameter(this.name,this.params,unit,format,hist);
 					this.params.addParameter(p);
 					this.reInitFields();
 				}

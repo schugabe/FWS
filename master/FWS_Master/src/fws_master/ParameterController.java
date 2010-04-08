@@ -2,10 +2,10 @@ package fws_master;
 
 import java.util.Vector;
 
-public class Parameter_Controller {
+public class ParameterController {
 	private Vector<Parameter> parameters;
 	
-	public Parameter_Controller() {
+	public ParameterController() {
 		parameters = new Vector<Parameter>();
 	}
 

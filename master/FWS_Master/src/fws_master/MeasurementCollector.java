@@ -11,11 +11,11 @@ import java.util.logging.Logger;
 
 
 public class MeasurementCollector extends Thread {
-	private Station_Controller controller;
+	private StationController controller;
 	private int intervall;
 	private String outDir;
 	
-	public MeasurementCollector(Station_Controller controller, int intervall,String outDir) {
+	public MeasurementCollector(StationController controller, int intervall,String outDir) {
 		this.intervall = intervall;
 		this.controller = controller;
 		this.outDir = outDir;

@@ -14,12 +14,12 @@ public class Station extends Thread{
 	private int polling_intervall;
 	private String name;
 	private Label statusLabel;
-	private Station_Controller controller;
+	private StationController controller;
 	private volatile boolean suspended;
 	private ModBusWrapper wrapper;
 	private int lastCollected;
 	
-	public Station(String name,Station_Controller controller) {
+	public Station(String name,StationController controller) {
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_intervall = 60;
@@ -28,7 +28,7 @@ public class Station extends Thread{
 		this.init();
 	}
 	
-	public Station(String name,Station_Controller controller,String ip,int polling_intervall) {
+	public Station(String name,StationController controller,String ip,int polling_intervall) {
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_intervall = polling_intervall;
@@ -101,9 +101,9 @@ public class Station extends Thread{
 		}*/
 		this.setLabel("Online");
 		for(Binding b:this.parameters) {
-			if (b instanceof Station_Input_Binding) {
+			if (b instanceof StationInputBinding) {
 				int result = wrapper.sendReadRequest(b.getAddress());
-				Measurement m = new Measurement(this,(Input_Parameter) b.getParameter(),result);
+				Measurement m = new Measurement(this,(InputParameter) b.getParameter(),result);
 				synchronized(this.measurements) {
 					this.measurements.add(m);
 				}
@@ -233,7 +233,7 @@ public class Station extends Thread{
 	public int getInputParamsCount() {
 		int tmp = 0;
 		for(Binding b:this.parameters) {
-			if (b instanceof Station_Input_Binding)
+			if (b instanceof StationInputBinding)
 				tmp++;
 		}
 		return tmp;

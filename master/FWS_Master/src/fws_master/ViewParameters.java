@@ -12,13 +12,13 @@ public class ViewParameters {
 	private Text nameText;
 	private Combo typeCombo,unitCombo,formatCombo,funcCombo;
 	
-	private Parameter_Controller controller;
+	private ParameterController controller;
 	
 	private Parameter selected_parameter;
 	private boolean new_parameter;
 
 	
-	public ViewParameters(Shell shell,Parameter_Controller controller) {
+	public ViewParameters(Shell shell,ParameterController controller) {
 		this.shell = shell;
 		this.controller = controller;
 		this.selected_parameter = null;
@@ -76,8 +76,8 @@ public class ViewParameters {
 		
 		String tmpName = this.nameText.getText();
 		Units u = Units.SPEEDMS;
-		Output_Formats f = Output_Formats.NK0;
-		History_Functions func = History_Functions.MAX;
+		OutputFormats f = OutputFormats.NK0;
+		HistoryFunctions func = HistoryFunctions.MAX;
 		int last_sel = -1;
 		boolean is_input = false;
 		
@@ -104,8 +104,8 @@ public class ViewParameters {
 			}
 			
 			u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
-			f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
-			func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+			f = OutputFormats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
+			func = HistoryFunctions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
 			is_input = true;
 		}
 		
@@ -118,7 +118,7 @@ public class ViewParameters {
 			}
 			this.selected_parameter.setName(tmpName);
 			if (is_input) {
-				Input_Parameter tmp_input = (Input_Parameter)this.selected_parameter;
+				InputParameter tmp_input = (InputParameter)this.selected_parameter;
 				tmp_input.setFormat(f);
 				tmp_input.setHistory_function(func);
 				tmp_input.setUnit(u);
@@ -128,14 +128,14 @@ public class ViewParameters {
 		else {
 			Parameter p;
 			if (this.typeCombo.getSelectionIndex() == 0) {
-				p = new Config_Parameter(tmpName,this.controller);
+				p = new ConfigParameter(tmpName,this.controller);
 			}
 			else {
 				u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
-				f = Output_Formats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
-				func = History_Functions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+				f = OutputFormats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
+				func = HistoryFunctions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
 				
-				p = new Input_Parameter(tmpName,this.controller,u,f,func);
+				p = new InputParameter(tmpName,this.controller,u,f,func);
 			}
 			this.controller.addParameter(p);
 			
@@ -156,7 +156,7 @@ public class ViewParameters {
 			this.nameText.setText(sel.getName());
 			this.typeCombo.setEnabled(false);
 			
-			if (sel instanceof Config_Parameter) {
+			if (sel instanceof ConfigParameter) {
 				this.typeCombo.select(0);
 				this.unitCombo.select(0);
 				this.formatCombo.select(0);
@@ -164,12 +164,12 @@ public class ViewParameters {
 				this.disableInputCombos();
 			}
 			else {
-				Input_Parameter input = (Input_Parameter)sel;
+				InputParameter input = (InputParameter)sel;
 				this.typeCombo.select(1);
 				this.enableInputCombos();
 				
 				this.unitCombo.select(unitCombo.indexOf(Units.getString(input.getUnit())));
-				this.formatCombo.select(formatCombo.indexOf(Output_Formats.getString(input.getFormat())));
+				this.formatCombo.select(formatCombo.indexOf(OutputFormats.getString(input.getFormat())));
 				this.funcCombo.select(funcCombo.indexOf(input.getHistory_function().toString()));
 			}
 		}
@@ -276,8 +276,8 @@ public class ViewParameters {
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		formatCombo.setLayoutData(gridData);
-		for (Output_Formats format:Output_Formats.values()) {
-			formatCombo.add(Output_Formats.getString(format));
+		for (OutputFormats format:OutputFormats.values()) {
+			formatCombo.add(OutputFormats.getString(format));
 		}
 		
 		Label funcLabel = new Label(shell, SWT.NONE);
@@ -290,7 +290,7 @@ public class ViewParameters {
 		gridData.grabExcessHorizontalSpace = true;
 		funcCombo.setLayoutData(gridData);
 		funcCombo.add("");
-		for (History_Functions func:History_Functions.values()) {
+		for (HistoryFunctions func:HistoryFunctions.values()) {
 			funcCombo.add(func.toString());
 		}
 		

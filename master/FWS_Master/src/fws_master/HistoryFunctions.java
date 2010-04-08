@@ -1,8 +1,8 @@
 package fws_master;
 
-public enum History_Functions {
+public enum HistoryFunctions {
 AVG,MAX,MIN;
-	static public History_Functions getHist(String name) {
+	static public HistoryFunctions getHist(String name) {
 		if (name.equals("AVG"))
 			return AVG;
 		if (name.equals("MAX"))

@@ -1,8 +1,8 @@
 package fws_master;
 
-public enum Output_Formats {
+public enum OutputFormats {
 	UNKNOWN,NK0,NK1,NK2,NK3,NK4,NK5;
-	static public String getString(Output_Formats format) {
+	static public String getString(OutputFormats format) {
 		switch(format) {
 		case NK0: return "65536";
 		case NK1: return "6553.6";
@@ -14,7 +14,7 @@ public enum Output_Formats {
 		}
 	}
 
-	static public Output_Formats getFormat(String format) {
+	static public OutputFormats getFormat(String format) {
 		if (format.equals("65536"))
 			return NK0;
 		else if (format.equals("6553.6"))

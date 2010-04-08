@@ -6,12 +6,12 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 public class StationContentHandler implements ContentHandler {
-	private Station_Controller controller;
-	private Parameter_Controller pcontroller;
+	private StationController controller;
+	private ParameterController pcontroller;
 	private Station lastStation;
 	private States state;
 	
-	public StationContentHandler(Station_Controller controller,Parameter_Controller pcontroller) {
+	public StationContentHandler(StationController controller,ParameterController pcontroller) {
 		this.controller = controller;
 		this.pcontroller = pcontroller;
 		this.state = States.IDLE;
@@ -127,10 +127,10 @@ public class StationContentHandler implements ContentHandler {
 				return;
 			
 			if (type.equals("input") && address != -1 && bufferSize != -1) {
-				new Station_Input_Binding(this.lastStation,(Input_Parameter) p,address,bufferSize);
+				new StationInputBinding(this.lastStation,(InputParameter) p,address,bufferSize);
 			} 
 			else if (type.equals("config") && address != -1 & value != -1) {
-				new Station_Config_Binding(this.lastStation, (Config_Parameter)p,address,value);
+				new StationConfigBinding(this.lastStation, (ConfigParameter)p,address,value);
 			}
 		}
 

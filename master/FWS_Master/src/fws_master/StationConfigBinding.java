@@ -1,14 +1,14 @@
 package fws_master;
 
-public class Station_Config_Binding extends Binding {
+public class StationConfigBinding extends Binding {
 	private int value;
 	
-	public Station_Config_Binding(Station station,Config_Parameter parameter,int address) {
+	public StationConfigBinding(Station station,ConfigParameter parameter,int address) {
 		super(station,parameter,address);
 		this.value = 0;
 	}
 	
-	public Station_Config_Binding(Station station,Config_Parameter parameter,int address,int value) {
+	public StationConfigBinding(Station station,ConfigParameter parameter,int address,int value) {
 		super(station,parameter,address);
 		this.value = value;
 		

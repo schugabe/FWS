@@ -1,13 +1,13 @@
 package fws_master;
 
-public class Station_Input_Binding extends Binding {
+public class StationInputBinding extends Binding {
 	private int buffer_size;
 	
-	public Station_Input_Binding(Station station, Input_Parameter parameter, int address) {
+	public StationInputBinding(Station station, InputParameter parameter, int address) {
 		super(station,parameter,address);
 		this.buffer_size = 100;
 	}
-	public Station_Input_Binding(Station station, Input_Parameter parameter, int address, int buffer_size) {
+	public StationInputBinding(Station station, InputParameter parameter, int address, int buffer_size) {
 		super(station,parameter,address);
 		this.setBuffer_size(buffer_size);
 	}

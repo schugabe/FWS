@@ -15,13 +15,13 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.DefaultXYDataset;*/
 
 
-public class FWS_Master {
+public class FWSMaster {
 
 	/**
 	 * @param args
 	 */
-	private Parameter_Controller parameter_controller;
-	private Station_Controller station_controller;
+	private ParameterController parameter_controller;
+	private StationController station_controller;
 	@SuppressWarnings("unused")
 	private ViewMain view;
 	private Display display;
@@ -46,7 +46,7 @@ public class FWS_Master {
 		
 	}*/
 	
-	private FWS_Master(Shell shell, Display display,String configDir) {
+	private FWSMaster(Shell shell, Display display,String configDir) {
 		this.configDir = configDir;
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		
@@ -73,7 +73,7 @@ public class FWS_Master {
 		this.collector.start();
 	}
 	
-	public Station_Controller getStationController() {
+	public StationController getStationController() {
 		return this.station_controller;
 	}
 	
@@ -91,10 +91,11 @@ public class FWS_Master {
 			if(!configDir.isDirectory())
 				configDir.mkdir();
 		}
-		FWS_Master master = new FWS_Master(shell,display,configDirPath);
+		FWSMaster master = new FWSMaster(shell,display,configDirPath);
 		
 		shell.setSize(400,500);
 		shell.open ();
+		shell.setText("FWS Master");
 		
 		
 		/*DefaultXYDataset data = new DefaultXYDataset();

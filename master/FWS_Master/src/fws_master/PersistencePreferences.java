@@ -32,15 +32,15 @@ public class PersistencePreferences {
 		this.log = Logger.getLogger("FWS.xml");
 	}
 	
-	public Station_Controller loadStations(Parameter_Controller params) {
-		Station_Controller stations = new Station_Controller();
+	public StationController loadStations(ParameterController params) {
+		StationController stations = new StationController();
 		StationContentHandler h = new StationContentHandler(stations,params);
 		this.startParsing(h);
 		return stations;
 	}
 	
-	public Parameter_Controller loadParameters() {
-		Parameter_Controller params = new Parameter_Controller();
+	public ParameterController loadParameters() {
+		ParameterController params = new ParameterController();
 		ParameterContentHandler h = new ParameterContentHandler(params);
 		this.startParsing(h);
 		return params ;
@@ -52,7 +52,7 @@ public class PersistencePreferences {
 		return h;
 	}
 	
-	public void saveSettings(Parameter_Controller params,Station_Controller stations,String outDir, int generatorTime) {
+	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
@@ -82,11 +82,11 @@ public class PersistencePreferences {
 			nameEl.appendChild(document.createTextNode(p.getName()));
 			tmp.appendChild(nameEl);
 			
-			if (p instanceof Config_Parameter) {
+			if (p instanceof ConfigParameter) {
 				tmp.setAttribute("typ", "config");
 			}
-			else if (p instanceof Input_Parameter) {
-				Input_Parameter ip = (Input_Parameter)p;
+			else if (p instanceof InputParameter) {
+				InputParameter ip = (InputParameter)p;
 				tmp.setAttribute("typ", "input");
 				
 				Element tmpEl = document.createElement("unit");
@@ -94,7 +94,7 @@ public class PersistencePreferences {
 				tmp.appendChild(tmpEl);
 				
 				tmpEl = document.createElement("format");
-				tmpEl.appendChild(document.createTextNode(Output_Formats.getString(ip.getFormat())));
+				tmpEl.appendChild(document.createTextNode(OutputFormats.getString(ip.getFormat())));
 				tmp.appendChild(tmpEl);
 				
 				tmpEl = document.createElement("history");
@@ -112,13 +112,13 @@ public class PersistencePreferences {
 			
 			for(Binding b:s.getParameters()) {
 				Element bel = document.createElement("binding");
-				if (b instanceof Station_Config_Binding) {
+				if (b instanceof StationConfigBinding) {
 					bel.setAttribute("type", "config");
-					bel.setAttribute("value", ""+((Station_Config_Binding)b).getValue());
+					bel.setAttribute("value", ""+((StationConfigBinding)b).getValue());
 				}
-				if (b instanceof Station_Input_Binding) {
+				if (b instanceof StationInputBinding) {
 					bel.setAttribute("type", "input");
-					bel.setAttribute("buffersize", ""+((Station_Input_Binding)b).getBuffer_size());
+					bel.setAttribute("buffersize", ""+((StationInputBinding)b).getBuffer_size());
 				}
 				bel.setAttribute("address", ""+b.getAddress());
 				bel.setAttribute("parameter", b.getParameter().getName());

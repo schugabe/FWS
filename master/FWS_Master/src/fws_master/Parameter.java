@@ -5,9 +5,9 @@ import java.util.Vector;
 public class Parameter {
 	private String name;
 	private Vector<Binding> stations;
-	private Parameter_Controller controller;
+	private ParameterController controller;
 	
-	public Parameter(String name,Parameter_Controller controller) {
+	public Parameter(String name,ParameterController controller) {
 		this.controller = controller;
 		this.setName(name);
 		stations = new Vector<Binding>();

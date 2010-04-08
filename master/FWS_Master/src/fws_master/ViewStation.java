@@ -11,8 +11,8 @@ import org.eclipse.swt.widgets.*;
 @SuppressWarnings("unused")
 public class ViewStation {
 	private Shell shell;
-	private Station_Controller station_controller;
-	private Parameter_Controller parameter_controller;
+	private StationController station_controller;
+	private ParameterController parameter_controller;
 	private Station selected_station;
 	private Parameter selected_parameter;
 	
@@ -20,7 +20,7 @@ public class ViewStation {
 	private List station_list,parameter_list;
 	private Text nameText,ipText,pollingText,addressText,valueText,bufferText;
 	
-	public ViewStation(Shell shell,Station_Controller sc,Parameter_Controller p) {
+	public ViewStation(Shell shell,StationController sc,ParameterController p) {
 		this.shell = shell;
 		this.station_controller = sc;
 		this.parameter_controller = p;
@@ -284,14 +284,14 @@ public class ViewStation {
 		} catch (Exception ex) {return;}
 		current_binding.setAddress(address);
 		
-		if (this.selected_parameter instanceof Config_Parameter) {
+		if (this.selected_parameter instanceof ConfigParameter) {
 			int value;
 			try {
 				value = Integer.parseInt(this.valueText.getText());
 				
 			} catch (Exception ex) {return;}
 			
-			Station_Config_Binding cfg = (Station_Config_Binding)current_binding;
+			StationConfigBinding cfg = (StationConfigBinding)current_binding;
 			cfg.setValue(value);
 			
 		} else {
@@ -300,7 +300,7 @@ public class ViewStation {
 				buffer = Integer.parseInt(this.bufferText.getText());
 				
 			} catch (Exception ex) {return;}
-			Station_Input_Binding ip = (Station_Input_Binding)current_binding;
+			StationInputBinding ip = (StationInputBinding)current_binding;
 			ip.setBuffer_size(buffer);
 		}
 		
@@ -318,26 +318,26 @@ public class ViewStation {
 				}
 			}
 			if (current_binding==null) {
-				if (this.selected_parameter instanceof Config_Parameter) {
-					current_binding = new Station_Config_Binding(this.selected_station,(Config_Parameter)this.selected_parameter,0);
+				if (this.selected_parameter instanceof ConfigParameter) {
+					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,0);
 				}
 				else {
-					current_binding = new Station_Input_Binding(this.selected_station,(Input_Parameter)this.selected_parameter,0,0);
+					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,0,0);
 				}
 			}
 			
 			this.addressText.setText(""+current_binding.getAddress());
 			
-			if (this.selected_parameter instanceof Config_Parameter) {
+			if (this.selected_parameter instanceof ConfigParameter) {
 				this.rCombo.setEnabled(false);
 				this.bufferText.setEnabled(false);
 				this.bufferText.setText("");
-				Station_Config_Binding cfg = (Station_Config_Binding)current_binding;
+				StationConfigBinding cfg = (StationConfigBinding)current_binding;
 				this.valueText.setText(""+cfg.getValue());	
 			} else {
 				this.valueText.setEnabled(false);
 				this.valueText.setText("");
-				Station_Input_Binding ip = (Station_Input_Binding)current_binding;
+				StationInputBinding ip = (StationInputBinding)current_binding;
 				this.bufferText.setText(""+ip.getBuffer_size());
 			}
 		} catch (Exception e) 

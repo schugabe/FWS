@@ -11,13 +11,13 @@ public class ViewMain {
 	@SuppressWarnings("unused")
 	private Display display;
 	private ScrolledComposite scroll;
-	private FWS_Master master;
+	private FWSMaster master;
 	
 	private Menu menuBar, fileMenu;
 	private MenuItem fileMenuHeader;
 	private MenuItem fileExitItem, fileParamsItem, fileStationsItem,fileOutDirItem;
 	
-	public ViewMain(Shell shell, Display display,FWS_Master master) {
+	public ViewMain(Shell shell, Display display,FWSMaster master) {
 		this.shell = shell;
 		this.display = display;
 		this.master = master;

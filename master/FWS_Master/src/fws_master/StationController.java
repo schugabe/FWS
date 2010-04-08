@@ -2,10 +2,10 @@ package fws_master;
 
 import java.util.Vector;
 
-public class Station_Controller {
+public class StationController {
 	private Vector<Station> stations;
 	
-	public Station_Controller() {
+	public StationController() {
 		stations = new Vector<Station>();
 	}
 
