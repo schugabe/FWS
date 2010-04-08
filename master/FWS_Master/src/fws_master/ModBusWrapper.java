@@ -65,9 +65,9 @@ public class ModBusWrapper {
 		try {
 			value = response.getRegisterValue(0);
 		} catch (Exception ex) {
-			log.log(Level.WARNING, "Fehler beim auslesen");
+			//log.log(Level.WARNING, "Fehler beim auslesen");
 		}
-		log.info("Wert: "+value);
+		//log.info("Wert: "+value);
 		return value;
 	}
 	
@@ -78,7 +78,7 @@ public class ModBusWrapper {
 		WriteSingleRegisterResponse response = (WriteSingleRegisterResponse)this.sendRequest(request);
 		
 		if (value !=response.getRegisterValue()) {
-			log.log(Level.WARNING, "Der gesendete Wert passt mit dem Empfangenen nicht zusammen");
+			//log.log(Level.WARNING, "Der gesendete Wert passt mit dem Empfangenen nicht zusammen");
 			return false;
 		}
 		
@@ -92,13 +92,13 @@ public class ModBusWrapper {
 		ModbusResponse response = null;
 		transaction.setRequest(request);
 		
-		log.info("Sende Anfrage an "+this.connection.getAddress().toString()+" Anfrage "+request.toString());
+		//log.info("Sende Anfrage an "+this.connection.getAddress().toString()+" Anfrage "+request.toString());
 		try {
 			transaction.execute();
 			response = transaction.getResponse();
-			log.info("Antwort erhalten"+response.toString());
+			//log.info("Antwort erhalten"+response.toString());
 		} catch (Exception e) {
-			log.throwing("ModBusWrapper", "sendRequest", e);
+			//log.throwing("ModBusWrapper", "sendRequest", e);
 		}
 		this.connection.close();
 		
@@ -114,10 +114,10 @@ public class ModBusWrapper {
 			connection.connect();
 			int tmp = this.connection.getTimeout();
 			transaction  = new ModbusTCPTransaction(this.connection);
-			log.info("Verbindung zu "+address+" aufgebaut");
+			//log.info("Verbindung zu "+address+" aufgebaut");
 			
 		} catch (Exception e) {
-			log.info("Fehler aufgetreten "+e.getMessage());
+			//log.info("Fehler aufgetreten "+e.getMessage());
 		}
 		
 	}

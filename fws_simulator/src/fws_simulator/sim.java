@@ -1,11 +1,13 @@
 package fws_simulator;
 
+import java.util.Random;
+
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.procimg.*;
 //import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.ModbusCoupler;
 
-//java -classpath ./jamod-1.2-SNAPSHOT.jar:. -Dnet.wimpi.modbus.debug=true fws_simulator.sim
+//java -classpath ./jamod-1.2.jar:. -Dnet.wimpi.modbus.debug=true fws_simulator.sim
 public class sim {
 
 	/**
@@ -15,16 +17,20 @@ public class sim {
 		try {
 			ModbusTCPListener listener = null;
 			SimpleProcessImage spi = null;
-			int port = 502;
+			int port = 30000;
 
 			SimpleRegister reg = new SimpleRegister();
 			reg.setValue(101);
+			
+			SimpleInputRegister reg1 = new SimpleInputRegister();
+			reg1.setValue(201);
 			
 			SimpleInputRegister reg2 = new SimpleInputRegister();
 			reg2.setValue(201);
 			
 			spi = new SimpleProcessImage();
 			spi.addRegister(reg);
+			spi.addInputRegister(reg1);
 			spi.addInputRegister(reg2);
 			
 			//3. Set the image on the coupler
@@ -36,10 +42,18 @@ public class sim {
 			listener.setPort(port);
 			listener.start();  
 			
-			/*while(true) {
-				System.out.println(reg.getValue());
+			while(true) {
+				Random asdf  =new Random();
+				int next = Math.abs(asdf.nextInt(20));
+				reg1.setValue((short)next);
+				
+				next = Math.abs(asdf.nextInt(50));
+				reg2.setValue((short)next);
+				
+				//System.out.println(reg.getValue());
+				
 				Thread.sleep(1000);
-			}*/
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 

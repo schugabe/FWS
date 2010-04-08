@@ -17,7 +17,7 @@ public class Station extends Thread{
 	private StationController controller;
 	private volatile boolean suspended;
 	private ModBusWrapper wrapper;
-	private int lastCollected;
+	//private int lastCollected;
 	
 	public Station(String name,StationController controller) {
 		this.setStationName(name);
@@ -41,7 +41,7 @@ public class Station extends Thread{
 		this.parameters = new Vector<Binding>();
 		this.measurements = new Vector<Measurement>();
 		this.suspended = true;
-		this.lastCollected = 0;
+		//this.lastCollected = 0;
 		this.setName(this.name);
 		
 	}
@@ -106,6 +106,7 @@ public class Station extends Thread{
 				Measurement m = new Measurement(this,(InputParameter) b.getParameter(),result);
 				synchronized(this.measurements) {
 					this.measurements.add(m);
+					System.out.println(this.name+" "+m.getParameter().getName()+" "+m.getConvValue());
 				}
 			}
 		}
@@ -243,17 +244,18 @@ public class Station extends Thread{
 		Vector<Measurement> tmp;
 		
 		synchronized(this.measurements) {
-			int params_count = this.getInputParamsCount();
+			//int params_count = this.getInputParamsCount();
 
-			int i = params_count - this.lastCollected;
+			int size = this.measurements.size(); //- this.lastCollected;
 
-			tmp = new Vector<Measurement>(i);
-
-			while (i < params_count) {
+			tmp = new Vector<Measurement>(size);
+			int i = 0;
+			while (i < size) {
 				tmp.add(this.measurements.get(i));
 				i++;
 			}
-			this.lastCollected = params_count;
+			this.measurements.clear();
+			//this.lastCollected = size;
 		}
 		return tmp;
 	}

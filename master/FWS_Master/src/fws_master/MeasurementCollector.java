@@ -42,7 +42,7 @@ public class MeasurementCollector extends Thread {
 						tmp.add(m);
 					}
 					
-					result.add(s.getStationName()+": "+this.buildOutput(params));
+					result.add(s.getStationName()+"\n"+this.buildOutput(params));
  				}
 				if(result.size()>0)
 					this.WriteOutput("result.txt", result);
@@ -54,8 +54,12 @@ public class MeasurementCollector extends Thread {
 	
 	private String buildOutput(HashMap<String,Vector<Measurement>> data) {
 		String res = "";
+		//PlotController p = new PlotController(this.outDir);
 		for(Entry<String, Vector<Measurement>> e:data.entrySet()) {
 			Vector<Measurement> ms = e.getValue();
+			
+			//p.getPlot("Zeitverlauf").createPlot(ms);
+			
 			double avg = 0;
 			
 			for(Measurement m : ms) {
@@ -71,7 +75,7 @@ public class MeasurementCollector extends Thread {
 			}
 			
 			sd = Math.sqrt(sd/(ms.size()-1));
-			res+=""+avg+":"+sd+";";
+			res+=ms.get(0).getParameter().getName()+":"+avg+";"+sd+";\n";
 		}
 		return res;
 	}

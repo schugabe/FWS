@@ -5,6 +5,7 @@ public class Measurement {
 	private Station station;
 	private long timestamp;
 	private int value;
+
 	
 	public Measurement(Station station,InputParameter parameter,int value) {
 		this.parameter = parameter;
@@ -12,6 +13,9 @@ public class Measurement {
 		this.value = value;
 		this.timestamp = System.currentTimeMillis();
 	}
+	
+
+
 
 
 	/**
