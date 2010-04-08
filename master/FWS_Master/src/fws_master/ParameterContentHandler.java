@@ -5,7 +5,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-public class ConfigParameterHandler implements ContentHandler {
+public class ParameterContentHandler implements ContentHandler {
 
 	private Parameter_Controller params;
 	private States state;
@@ -16,7 +16,7 @@ public class ConfigParameterHandler implements ContentHandler {
 	private Output_Formats format;
 	private int fields;
 	
-	public ConfigParameterHandler(Parameter_Controller params) {
+	public ParameterContentHandler(Parameter_Controller params) {
 		this.params = params;
 		this.state = States.IDLE;
 		this.substate = SubStates.IDLE;
@@ -35,9 +35,15 @@ public class ConfigParameterHandler implements ContentHandler {
 	
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
+		
+		if (state== States.IDLE)
+			return;
+		
 		char [] conv = new char[length];
 		System.arraycopy(ch, start, conv, 0, length);
 		String content = new String(conv);
+		
+		
 		fields++;
 		switch(substate) {
 			case NAME: this.name = content; break;

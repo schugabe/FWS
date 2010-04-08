@@ -24,6 +24,8 @@ public class PersistencePreferences {
 	private String path;
 	private String filename;
 	private Logger log;
+	
+	
 	public PersistencePreferences(String path,String filename) {
 		this.path = path;
 		this.filename = filename;
@@ -39,12 +41,18 @@ public class PersistencePreferences {
 	
 	public Parameter_Controller loadParameters() {
 		Parameter_Controller params = new Parameter_Controller();
-		ConfigParameterHandler h = new ConfigParameterHandler(params);
+		ParameterContentHandler h = new ParameterContentHandler(params);
 		this.startParsing(h);
 		return params ;
 	}
 	
-	public void saveSettings(Parameter_Controller params,Station_Controller stations) {
+	public MasterContentHandler loadMasterConfig() {
+		MasterContentHandler h = new MasterContentHandler();
+		this.startParsing(h);
+		return h;
+	}
+	
+	public void saveSettings(Parameter_Controller params,Station_Controller stations,String outDir, int generatorTime) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
@@ -58,6 +66,15 @@ public class PersistencePreferences {
 		
 		Element rootElement = document.createElement("fws_config");
 		document.appendChild(rootElement);
+		
+		Element masterEl = document.createElement("path");
+		masterEl.appendChild(document.createTextNode(outDir));
+		rootElement.appendChild(masterEl);
+		
+		masterEl = document.createElement("generatorTime");
+		masterEl.appendChild(document.createTextNode(""+generatorTime));
+		rootElement.appendChild(masterEl);
+		
 		for (Parameter p:params.getParameters()) {
 			Element tmp = document.createElement("parameter");
 			

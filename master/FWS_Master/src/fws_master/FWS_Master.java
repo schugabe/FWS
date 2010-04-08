@@ -2,17 +2,17 @@ package fws_master;
 
 
 import java.io.File;
-import java.io.IOException;
+//import java.io.IOException;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
-import org.jfree.chart.ChartFactory;
+/*import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.DefaultXYDataset;*/
 
 
 public class FWS_Master {
@@ -27,7 +27,9 @@ public class FWS_Master {
 	private Display display;
 	private Shell shell;
 	private MeasurementCollector collector;
+	private String configDir;
 	private String outDir;
+	private int generatorTime;
 	
 	/*private void generateParameters() {
 		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
@@ -44,14 +46,25 @@ public class FWS_Master {
 		
 	}*/
 	
-	private FWS_Master(Shell shell, Display display,String outDir) {
-		this.outDir = outDir;
-		PersistencePreferences pref = new PersistencePreferences(".","settings.xml");
+	private FWS_Master(Shell shell, Display display,String configDir) {
+		this.configDir = configDir;
+		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		
 		this.parameter_controller = pref.loadParameters();
 		this.station_controller = pref.loadStations(this.parameter_controller);
 		
-		this.collector = new MeasurementCollector(this.station_controller,10,this.outDir);
+		MasterContentHandler config = pref.loadMasterConfig();
+		this.outDir = config.getPath();
+		if (outDir.equals("")) {
+			File outDirFile = new File(configDir,"output");
+			if (!outDirFile.isDirectory()) {
+				outDirFile.mkdir();
+			}
+			this.outDir = configDir+"/output";
+		}
+		
+		this.generatorTime = config.getGeneratorTime();
+		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir);
 		
 		//this.generateParameters();
 		view = new ViewMain(shell,display,this);
@@ -67,13 +80,24 @@ public class FWS_Master {
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);		
-		FWS_Master master = new FWS_Master(shell,display,".");
+		
+		
+		String os = System.getProperty("os.name");
+		String basePath = System.getProperty("user.home");
+		String configDirPath = basePath+"/.fwsmaster";
+		if (os.equals("Mac OS X")) {
+			configDirPath = basePath+"/Library/Application Support/FWSMaster";
+			File configDir = new File(configDirPath);
+			if(!configDir.isDirectory())
+				configDir.mkdir();
+		}
+		FWS_Master master = new FWS_Master(shell,display,configDirPath);
 		
 		shell.setSize(400,500);
 		shell.open ();
 		
 		
-		DefaultXYDataset data = new DefaultXYDataset();
+		/*DefaultXYDataset data = new DefaultXYDataset();
 		double [][] tmp = new double[2][8];
 		for(int y=0;y<8;y++)
 		{
@@ -82,11 +106,10 @@ public class FWS_Master {
 		}
 		data.addSeries("bla", tmp);
 		JFreeChart chart = ChartFactory.createXYLineChart("Bla", "hui", "test", data, PlotOrientation.HORIZONTAL, true, false, false);
-		/*ChartRenderingInfo info = new ChartRenderingInfo();
+		ChartRenderingInfo info = new ChartRenderingInfo();
 		try {
 		ChartUtilities.saveChartAsPNG(new File("freespace.png"),chart,600,400,info);
 		} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 		}*/
 		
@@ -100,8 +123,8 @@ public class FWS_Master {
 	}
 	
 	private void Shutdown() {
-		PersistencePreferences pref = new PersistencePreferences(".","settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller);
+		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime);
 		
 	}
 
