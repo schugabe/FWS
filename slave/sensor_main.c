@@ -10,13 +10,14 @@
  * Chip type           : Atmega88/168/328 with ENC28J60
  *********************************************/
 #include <avr/io.h>
-#include <stdlib.h>
-#include <string.h>
+#include <avr/interrupt.h>
 
 #include "tcp/ip_arp_udp_tcp.h"
 #include "tcp/enc28j60.h"
 #include "tcp/timeout.h"
 #include "tcp/net.h"
+
+#include "sensor_main.h"
 
 // This software is a web server only. 
 //
@@ -30,30 +31,22 @@ static uint8_t myip[4] = {10,0,0,29};
 // server listen port for www
 #define MYWWWPORT 502
 
-#define BUFFER_SIZE 550
+#define BUFFER_SIZE 800
 static uint8_t buf[BUFFER_SIZE+1];
 
-uint16_t http200ok(void)
-{
-        return(fill_tcp_data_p(buf,0,PSTR("HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nPragma: no-cache\r\n\r\n")));
-}
+#define MODBUS_REGISTER_COUNT 1
+uint16_t* mb_register[MODBUS_REGISTER_COUNT];
 
-// prepare the webpage by writing the data to the tcp send buffer
-uint16_t print_webpage(uint8_t *buf)
-{
-        uint16_t plen;
-        plen=http200ok();
-        plen=fill_tcp_data_p(buf,plen,PSTR("<pre>"));
-        plen=fill_tcp_data_p(buf,plen,PSTR("Hi!\nYour web server works great."));
-        plen=fill_tcp_data_p(buf,plen,PSTR("</pre>\n"));
-        return(plen);
+uint16_t windspeed = 0x4114;
+
+uint8_t set_error(modbusmsg_t* msg,uint8_t err) {
+	msg->error.function |= 0x80;
+	msg->error.errorcode = err;
+	return sizeof(error_t);
 }
 
 int main(void){
         uint16_t dat_p;
-        uint8_t modbus_len;
-        uint8_t *ptr;
-        
         
         //initialize the hardware driver for the enc28j60
         enc28j60Init(mymac);
@@ -63,50 +56,70 @@ int main(void){
         
         //init the ethernet/ip layer:
         init_ip_arp_udp_tcp(mymac,myip,MYWWWPORT);
+        
+        PORTB &= ~_BV(PB1);
+        DDRB |= _BV(PB1);
+        
+        mb_register[0] = &windspeed;
+        
+        TIMSK0 |= _BV(TOIE0);
+        TCCR0A = 0x00;
+        TCCR0B = 0x05; // 1024 pres, normal mode
+        
+        sei();
 
-        while(1){
+        while (1) {
                 // read packet, handle ping and wait for a tcp packet:
                 dat_p=packetloop_icmp_tcp(buf,enc28j60PacketReceive(BUFFER_SIZE, buf));
-                if(dat_p==0){
-                        // no data
-                        continue;
-                }
                 
-                if (buf[dat_p+2])
-                        continue; // not a modbus msg
-                modbus_len = buf[dat_p+5];
-                ptr = &buf[dat_p+7];
-                if (*ptr == 0x04) {
-                        ptr++;
-                        *ptr = 2;
-                        ptr++;
-                        *ptr = 0x41;
-                        ptr++;
-                        *ptr = 0x14;
-                        ptr++;
-                        buf[dat_p+5] = modbus_len-1;
-                }
-                www_server_reply(buf,11);
-                /*
-                if (strncmp("GET ",(char *)&(buf[dat_p]),4)!=0){
-                        // head, post and other methods:
-                        dat_p=http200ok();
-                        dat_p=fill_tcp_data_p(buf,dat_p,PSTR("<h1>200 OK</h1>"));
-                        goto SENDTCP;
-                }
-                // just one web page in the "root directory" of the web server
-                if (strncmp("/ ",(char *)&(buf[dat_p+4]),2)==0){
-                        dat_p=print_webpage(buf);
-                        goto SENDTCP;
-                }else{
-                        dat_p=fill_tcp_data_p(buf,0,PSTR("HTTP/1.0 401 Unauthorized\r\nContent-Type: text/html\r\n\r\n<h1>401 Unauthorized</h1>"));
-                        goto SENDTCP;
-                }
-SENDTCP:
+                // check if data was received
+                if (dat_p == 0)
+                	goto ENDE;
                 
-                www_server_reply(buf,dat_p); // send web page data
-                // tcp port 80 end
-                */
+                // make structure pointer to buffer 
+		modbusmsg_t* msg = (modbusmsg_t*)&buf[dat_p];
+		
+		// check for modbus protocol
+		if (FROM_UINT16(msg->mbap.protoId) > 0)
+			goto ENDE;
+		
+		uint16_t amount, addr, len;
+		switch (msg->request.function) {
+			case MB_FUNC_READREG: // read register
+				amount = FROM_UINT16(msg->request.amount);
+				addr = FROM_UINT16(msg->request.start_address);
+				
+				if (amount == 0 || amount > 0x7D) {
+					len = set_error(msg,MB_ERR_AMOUNT);
+					break;
+				}
+				if (addr + amount <= MODBUS_REGISTER_COUNT) {
+					uint16_t *ptr = (uint16_t*)&(msg->response.function) + 1;
+					uint16_t cnt = 0;
+					for (; cnt < amount; cnt++) {
+						*ptr = TO_UINT16(*(mb_register[addr+cnt]));
+					}
+					msg->response.bytecount = cnt*sizeof(uint16_t);
+					len = sizeof(response_t)+cnt*sizeof(uint16_t);
+				} else
+					len = set_error(msg,MB_ERR_ADDR);
+				
+				break;
+			default: // set error
+				len = set_error(msg,MB_ERR_FUNC);
+				break;
+		}
+		msg->mbap.length = TO_UINT16(len+1);
+		www_server_reply(buf,sizeof(mbap_t)+len);
+		
+ENDE:
+		; // further code will come here maybe
         }
-        return (0);
+}
+
+ISR(TIMER0_OVF_vect) {
+	if (PORTB & _BV(PB1))
+		PORTB &= ~_BV(PB1);
+	else
+		PORTB |= _BV(PB1);
 }
