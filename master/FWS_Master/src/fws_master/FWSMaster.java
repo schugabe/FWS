@@ -141,7 +141,11 @@ public class FWSMaster {
 		DirectoryDialog dialog = new DirectoryDialog(shell);
 		String platform = SWT.getPlatform();
 		dialog.setFilterPath (platform.equals("win32") || platform.equals("wpf") ? "c:\\" : "/");
-		this.outDir =  dialog.open();
+		
+		String newOutDir = dialog.open();
+		if (newOutDir == null || newOutDir.equals(""))
+			return;
+		this.outDir = newOutDir;
 		this.collector.setOutDir(this.outDir);
 	}
 	

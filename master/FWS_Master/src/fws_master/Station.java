@@ -102,7 +102,9 @@ public class Station extends Thread{
 		this.setLabel("Online");
 		for(Binding b:this.parameters) {
 			if (b instanceof StationInputBinding) {
+				// TODO fehler überprüfung
 				int result = wrapper.sendReadRequest(b.getAddress());
+				
 				Measurement m = new Measurement(this,(InputParameter) b.getParameter(),result);
 				synchronized(this.measurements) {
 					this.measurements.add(m);
