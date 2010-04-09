@@ -99,7 +99,7 @@ public class ViewMain {
 	    fileMenuHeader.setMenu(fileMenu);
 	    
 	    fileOutDirItem = new MenuItem(fileMenu, SWT.PUSH);
-	    fileOutDirItem.setText("Ausgabe Ordner wählen");
+	    fileOutDirItem.setText("Ausgabe Ordner w√§hlen");
 
 	    fileStationsItem= new MenuItem(fileMenu, SWT.PUSH);
 	    fileStationsItem.setText("Stationen bearbeiten");

@@ -2,8 +2,6 @@ package fws_master;
 
 
 import java.io.File;
-//import java.io.IOException;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
@@ -55,7 +53,7 @@ public class FWSMaster {
 			if (!outDirFile.isDirectory()) {
 				outDirFile.mkdir();
 			}
-			this.outDir = configDir+"/output";
+			this.outDir = configDir+File.pathSeparator+"output";
 		}
 		
 		this.generatorTime = config.getGeneratorTime();
@@ -79,21 +77,21 @@ public class FWSMaster {
 		
 		String os = System.getProperty("os.name");
 		String basePath = System.getProperty("user.home");
-		String configDirPath = basePath+"/.fwsmaster";
+		String configDirPath = basePath+File.pathSeparator+".fwsmaster";
 		if (os.equals("Mac OS X")) {
 			configDirPath = basePath+"/Library/Application Support/FWSMaster";
-			File configDir = new File(configDirPath);
-			if(!configDir.isDirectory())
-				configDir.mkdir();
-		}
+			
+		} 
+		
+		File configDir = new File(configDirPath);
+		if(!configDir.isDirectory())
+			configDir.mkdir();
+		
 		FWSMaster master = new FWSMaster(shell,display,configDirPath);
 		
 		shell.setSize(400,500);
-		shell.open ();
+		shell.open();
 		shell.setText("FWS Master");
-		
-		
-		
 		
 		
 		while (!shell.isDisposed ()) {

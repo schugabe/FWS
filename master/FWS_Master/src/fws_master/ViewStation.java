@@ -162,7 +162,7 @@ public class ViewStation {
 		valueText.setText("");
 		
 		Label bufferLabel = new Label(params, SWT.NONE);
-		bufferLabel.setText("Buffergröße:");
+		bufferLabel.setText("Buffergr√∂√üe:");
 		
 		bufferText = new Text(params, SWT.BORDER);
 		gridData = new GridData();
@@ -235,7 +235,7 @@ public class ViewStation {
 			int tmp_p;
 			if (name.equals("") || ip.equals("") || polling.equals("")) {
 				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-				messageBox.setMessage("Es müssen alle Felder ausgefüllt sein!");
+				messageBox.setMessage("Es m√ºssen alle Felder ausgef√ºllt sein!");
 				messageBox.open();
 				return;
 			}
@@ -244,7 +244,7 @@ public class ViewStation {
 				tmp_p = Integer.parseInt(polling);
 			} catch (Exception e) {
 				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-				messageBox.setMessage("Keine gültige Zahl bei Polling Intervall eingegeben!");
+				messageBox.setMessage("Keine g√ºltige Zahl bei Polling Intervall eingegeben!");
 				messageBox.open();
 				return;
 			}

@@ -14,11 +14,13 @@ public class MeasurementCollector extends Thread {
 	private StationController controller;
 	private int intervall;
 	private String outDir;
+	private MeasurementHistoryController historyController;
 	
 	public MeasurementCollector(StationController controller, int intervall,String outDir) {
 		this.intervall = intervall;
 		this.controller = controller;
 		this.outDir = outDir;
+		historyController = new MeasurementHistoryController();
 	}
 	
 	public void run() {
@@ -40,6 +42,7 @@ public class MeasurementCollector extends Thread {
 							params.put(m.getParameter().getName(), tmp);
 						} 
 						tmp.add(m);
+						
 					}
 					
 					result.add(s.getStationName()+"\n"+this.buildOutput(params));

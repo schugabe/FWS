@@ -10,7 +10,7 @@ public class PlotController {
 		this.defaultPath = defaultPath;
 		
 		plots = new Vector<PlotBase>(3);
-		plots.add(new PlotTime("Zeitverlauf",defaultPath));
+		plots.add(new PlotTime("Zeitverlauf",this.defaultPath));
 	}
 	
 	public PlotBase getPlot(String name) {

@@ -63,7 +63,7 @@ public class ViewParameters {
 		
 		else if (!this.controller.removeParameter(selected_parameter)) {
 			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-			messageBox.setMessage("Dieser Parameter kann nicht gelöscht werden, da er in Verwendung ist.");
+			messageBox.setMessage("Dieser Parameter kann nicht gel√∂scht werden, da er in Verwendung ist.");
 			messageBox.open();
 		}
 		this.loadList();
@@ -98,7 +98,7 @@ public class ViewParameters {
 		if (this.typeCombo.getSelectionIndex() != 0) {
 			if (unitCombo.getSelectionIndex() == 0 || formatCombo.getSelectionIndex() == 0 || funcCombo.getSelectionIndex() == 0) {
 				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-				messageBox.setMessage("Es müssen überall gültige Werte ausgewählt werden!");
+				messageBox.setMessage("Es m√ºssen √ºberall g√ºltige Werte ausgew√§hlt werden!");
 				messageBox.open();
 				return;
 			}

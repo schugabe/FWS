@@ -2,10 +2,7 @@ package fws_master;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
@@ -22,30 +19,24 @@ public class PlotTime extends PlotBase {
 		super(name, path);
 	}
 
-	public void createPlot(Vector<Measurement> data) {
+	public void createPlot(MeasurementHistory data) {
 		
-		if (data.size() == 0)
+		if (data == null)
 			return;
 		
-		Measurement mT = data.firstElement();
-		InputParameter ip = mT.getParameter();
+		final TimeSeries s1 = new TimeSeries(data.getParameter());
 		
-		if (ip == null)
-			return;
-		
-		final TimeSeries s1 = new TimeSeries(ip.getName());
-		
-		for (Measurement m:data) {
-			Date d = (Date)new Time(m.getTimestamp());
-			s1.add(new Second(d), m.getConvValue());
+		for (MeasurementHistoryEntry m:data.getValues()) {
+			
+			s1.add(new Second(m.getTimestamp()), m.getValue());
 		}
 		
 		final TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(s1);
 
 		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-	            mT.getStation().getStationName()+" "+ip.getName(),
-	            "Zeitpunkt", Units.getString(ip.getUnit()),
+	            data.getStation()+" "+data.getParameter(),
+	            "Zeitpunkt", Units.getString(data.getUnit()),
 	            dataset,
 	            true,
 	            true,
@@ -58,28 +49,10 @@ public class PlotTime extends PlotBase {
         ChartRenderingInfo info = new ChartRenderingInfo();
         
         try {
-        	String fileName = mT.getStation().getStationName()+"_"+mT.getParameter().getName()+".png";
+        	String fileName = data.getStation()+"_"+data.getParameter()+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
-    		
-		/*DefaultXYDataset data = new DefaultXYDataset();
-		double [][] tmp = new double[2][8];
-		for(int y=0;y<8;y++)
-		{
-		tmp[0][y] = y;
-		tmp[1][y] = y;
-		}
-		data.addSeries("bla", tmp);
-		JFreeChart chart = ChartFactory.createXYLineChart("Bla", "hui", "test", data, PlotOrientation.HORIZONTAL, true, false, false);
-		ChartRenderingInfo info = new ChartRenderingInfo();
-		try {
-		ChartUtilities.saveChartAsPNG(new File("freespace.png"),chart,600,400,info);
-		} catch (IOException e) {
-		e.printStackTrace();
-		}*/
-
 	}
-
 }
