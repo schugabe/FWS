@@ -71,7 +71,7 @@ public class PersistencePreferences {
 		masterEl.appendChild(document.createTextNode(outDir));
 		rootElement.appendChild(masterEl);
 		
-		masterEl = document.createElement("generatorTime");
+		masterEl = document.createElement("generatortime");
 		masterEl.appendChild(document.createTextNode(""+generatorTime));
 		rootElement.appendChild(masterEl);
 		
@@ -118,7 +118,8 @@ public class PersistencePreferences {
 				}
 				if (b instanceof StationInputBinding) {
 					bel.setAttribute("type", "input");
-					bel.setAttribute("buffersize", ""+((StationInputBinding)b).getBuffer_size());
+					bel.setAttribute("plotconfig", ""+((StationInputBinding)b).getPlotConfig());
+					bel.setAttribute("active", ""+((StationInputBinding)b).isActive());
 				}
 				bel.setAttribute("address", ""+b.getAddress());
 				bel.setAttribute("parameter", b.getParameter().getName());

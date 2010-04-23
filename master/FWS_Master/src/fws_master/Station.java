@@ -103,6 +103,8 @@ public class Station extends Thread{
 		for(Binding b:this.parameters) {
 			if (b instanceof StationInputBinding) {
 				// TODO fehler überprüfung
+				if (!((StationInputBinding) b).isActive())
+					continue;
 				int result = wrapper.sendReadRequest(b.getAddress());
 				
 				Measurement m = new Measurement(this,(InputParameter) b.getParameter(),result);
@@ -113,6 +115,17 @@ public class Station extends Thread{
 			}
 		}
 	}
+	
+	public Binding getBinding(Parameter p) {
+		for (Binding b:this.getParameters()) {
+			if(b.getParameter() == p) 
+				return b;
+		}
+		return null;
+	}
+	
+	
+	
 	
 	public Vector<Binding> getParameters() {
 		return this.parameters;

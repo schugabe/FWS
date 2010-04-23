@@ -16,9 +16,10 @@ public class ViewStation {
 	private Station selected_station;
 	private Parameter selected_parameter;
 	
-	private Combo rCombo;
+
 	private List station_list,parameter_list;
-	private Text nameText,ipText,pollingText,addressText,valueText,bufferText;
+	private Text nameText,ipText,pollingText,addressText,valueText,plotText;
+	private Button boxActive;
 	
 	public ViewStation(Shell shell,StationController sc,ParameterController p) {
 		this.shell = shell;
@@ -37,7 +38,8 @@ public class ViewStation {
 	private void enableParams(boolean enabled) {
 		this.addressText.setEnabled(enabled);
 		this.valueText.setEnabled(enabled);
-		this.bufferText.setEnabled(enabled);
+		this.plotText.setEnabled(enabled);
+		this.boxActive.setEnabled(enabled);
 	}
 	private void select_first() {
 		if(this.station_list.getItemCount() >0) {
@@ -162,23 +164,20 @@ public class ViewStation {
 		valueText.setText("");
 		
 		Label bufferLabel = new Label(params, SWT.NONE);
-		bufferLabel.setText("Buffergröße:");
+		bufferLabel.setText("PlotConfig:");
 		
-		bufferText = new Text(params, SWT.BORDER);
+		plotText = new Text(params, SWT.BORDER);
 		gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
-		bufferText.setLayoutData(gridData);
-		bufferText.setText("");
+		plotText.setLayoutData(gridData);
+		plotText.setText("");
 		
-		Label rLabel = new Label(params, SWT.NONE);
-		rLabel.setText("R Skript:");
-		
-		rCombo = new Combo(params,SWT.NONE);
+		this.boxActive = new Button(params,SWT.CHECK);
+		this.boxActive.setText("Aktiv");
 		gridData = new GridData();
-		gridData.horizontalAlignment = SWT.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		rCombo.setLayoutData(gridData);
+		gridData.horizontalSpan=2;
+		boxActive.setLayoutData(gridData);
 		
 		Button saveButton2 = new Button(params, SWT.PUSH);
 		saveButton2.setText("Zuordnen");
@@ -295,13 +294,18 @@ public class ViewStation {
 			cfg.setValue(value);
 			
 		} else {
-			int buffer;
-			try {
-				buffer = Integer.parseInt(this.bufferText.getText());
-				
-			} catch (Exception ex) {return;}
+			
 			StationInputBinding ip = (StationInputBinding)current_binding;
-			ip.setBuffer_size(buffer);
+			
+			String plotConfig = this.plotText.getText();
+			
+			if (!ip.setPlotConfig(plotConfig)) {
+				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+				messageBox.setMessage("Ungültige Plot Konfiguration: Gültige Werte: d24;...!");
+				messageBox.open();
+				return;
+			}
+			ip.setActive(this.boxActive.getSelection());
 		}
 		
 	}
@@ -319,26 +323,27 @@ public class ViewStation {
 			}
 			if (current_binding==null) {
 				if (this.selected_parameter instanceof ConfigParameter) {
-					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,0);
+					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,-1);
 				}
 				else {
-					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,0,0);
+					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,-1,"h24",false);
 				}
 			}
 			
 			this.addressText.setText(""+current_binding.getAddress());
 			
 			if (this.selected_parameter instanceof ConfigParameter) {
-				this.rCombo.setEnabled(false);
-				this.bufferText.setEnabled(false);
-				this.bufferText.setText("");
+				this.boxActive.setEnabled(false);
+				this.plotText.setEnabled(false);
+				this.plotText.setText("");
 				StationConfigBinding cfg = (StationConfigBinding)current_binding;
 				this.valueText.setText(""+cfg.getValue());	
 			} else {
 				this.valueText.setEnabled(false);
 				this.valueText.setText("");
 				StationInputBinding ip = (StationInputBinding)current_binding;
-				this.bufferText.setText(""+ip.getBuffer_size());
+				this.plotText.setText(ip.getPlotConfig());
+				this.boxActive.setSelection(ip.isActive());
 			}
 		} catch (Exception e) 
 		{

@@ -1,5 +1,7 @@
 package fws_master;
 
+import java.util.Vector;
+
 
 
 public abstract class PlotBase {
@@ -39,5 +41,5 @@ public abstract class PlotBase {
 		return path;
 	}
 	
-	public abstract void createPlot(MeasurementHistory data);
+	public abstract void createPlot(Vector<MeasurementHistory> data,String preFix);
 }

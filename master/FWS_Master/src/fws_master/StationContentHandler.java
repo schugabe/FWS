@@ -95,8 +95,10 @@ public class StationContentHandler implements ContentHandler {
 		}
 		if (state==States.STATION && localName.equals("binding")) {
 			String type = null,param = null;
-			int address,value,bufferSize;
-			address = value = bufferSize= -1;
+			int address,value;
+			boolean active = false;
+			String plotConfig = "";
+			address = value = -1;
 			for(int i=0;i<atts.getLength();i++) {
 				String tmpName = atts.getLocalName(i);
 				if (tmpName.equals("type")) {
@@ -108,8 +110,11 @@ public class StationContentHandler implements ContentHandler {
 				else if (tmpName.equals("value")) {
 					value = Integer.parseInt(atts.getValue(i));
 				}
-				else if (tmpName.equals("buffersize")) {
-					bufferSize = Integer.parseInt(atts.getValue(i));
+				else if (tmpName.equals("plotconfig")) {
+					plotConfig = atts.getValue(i);
+				}
+				else if (tmpName.equals("active")) {
+					active = Boolean.parseBoolean(atts.getValue(i));
 				}
 				else if (tmpName.equals("parameter")) {
 					param = atts.getValue(i);
@@ -126,8 +131,8 @@ public class StationContentHandler implements ContentHandler {
 			if(type == null)
 				return;
 			
-			if (type.equals("input") && address != -1 && bufferSize != -1) {
-				new StationInputBinding(this.lastStation,(InputParameter) p,address,bufferSize);
+			if (type.equals("input") && address != -1 && !plotConfig.equals("")) {
+				new StationInputBinding(this.lastStation,(InputParameter) p,address,plotConfig,active);
 			} 
 			else if (type.equals("config") && address != -1 & value != -1) {
 				new StationConfigBinding(this.lastStation, (ConfigParameter)p,address,value);
