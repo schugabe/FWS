@@ -1,8 +1,8 @@
 OBJ = sensor_main.o 
 
-OBJ += enc28j60.o ip_arp_udp_tcp.o
+OBJ += modbus.o enc28j60.o ip_arp_udp_tcp.o
 
-VPATH = tcp
+VPATH =modbus modbus/tcp
 
 TARGET=sensor
 
