@@ -1,5 +1,9 @@
 package fws_master;
-
+/**
+ * A Measurement is a value received of a slave. When created the current time is saved. This is not the timestamp when the value was measured but it shouldn't be to old so this will be precise enough. 
+ * @author Johannes Kasberger
+ *
+ */
 public class Measurement {
 	private InputParameter parameter;
 	private Station station;
@@ -14,10 +18,6 @@ public class Measurement {
 		this.timestamp = System.currentTimeMillis();
 	}
 	
-
-
-
-
 	/**
 	 * @return the parameter
 	 */
@@ -46,6 +46,11 @@ public class Measurement {
 		return value;
 	}
 	
+	/**
+	 * Returns the Converted Value. The value is a short value. But the slave can embed a floating point value in a short by multiplying the value. So if the slave measures a temperature value with
+	 * a precision of 20.2 it saves the value 202. This functions converts it back to a double value. 
+	 * @return the converted value
+	 */
 	public double getConvValue() {
 		double tmp = value;
 		switch (this.parameter.getFormat()) {

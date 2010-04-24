@@ -5,6 +5,11 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+/**
+ * Loads the general configuration parameters of the master.
+ * @author Johannes Kasberger
+ *
+ */
 public class MasterContentHandler implements ContentHandler {
 	private States state;
 	private String path;

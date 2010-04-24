@@ -10,7 +10,7 @@ public class StationController {
 	}
 
 	/**
-	 * @param stations the stations to set
+	 * @param station the stations to set
 	 */
 	public void addStation(Station station) {
 		this.stations.add(station);;

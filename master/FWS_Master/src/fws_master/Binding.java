@@ -1,26 +1,52 @@
 package fws_master;
-
-public class Binding {
+/**
+ * Binding is the abstract base class for binding parameters to stations. 
+ * 
+ * @author Johannes Kasberger
+ * @see StationConfigBinding 
+ * @see StationInputBinding
+ * @see Parameter
+ * @see Station
+ */
+public abstract class Binding {
+	/** 
+	 * Address in the Memory of the Slave
+	 */
 	private int address;
 	private Parameter parameter;
 	private Station station;
 	
+	/**
+	 * Default constructor
+	 */
 	public Binding() {
 		this.address = -1;
 		this.station = null;
 		this.parameter = null;
 	}
 	
+	/**
+	 * Constructor for Binding a Parameter to a Station at a address.
+	 * @param station
+	 * @param parameter
+	 * @param address the address of the memory on the station 
+	 */
 	public Binding(Station station, Parameter parameter, int address) {
 		this.setParameter(parameter);
 		this.setStation(station);
 		this.address = address;
 	}
 	
+	/**
+	 * Removes the Binding from the Parameter
+	 */
 	public void releaseParameter() {
 		this.parameter.removeBinding(this);
 	}
 	
+	/**
+	 * Removes the Binding from the Station
+	 */
 	public void releaseStation() {
 		this.station.removeBinding(this);
 	}
@@ -53,6 +79,7 @@ public class Binding {
 		return parameter;
 	}
 	/**
+	 * Removes the binding from its old Station if there is an existing binding
 	 * @param station the station to set
 	 */
 	public void setStation(Station station) {

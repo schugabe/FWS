@@ -2,17 +2,23 @@ package fws_master;
 
 
 import java.io.File;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
 
 
-
+/**
+ * This is the main class of this program. It creates all the windows, loads the configuration and starts the data processing threads.
+ * The path of the configuration file is dependent of the operating system. 
+ * @author Johannes Kasberger
+ *
+ */
 public class FWSMaster {
-
-	/**
-	 * @param args
-	 */
 	private ParameterController parameter_controller;
 	private StationController station_controller;
 	@SuppressWarnings("unused")
@@ -23,6 +29,7 @@ public class FWSMaster {
 	private String configDir;
 	private String outDir;
 	private int generatorTime;
+	private static Logger log = Logger.getLogger("fws_master");
 	
 	/*private void generateParameters() {
 		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
@@ -39,15 +46,34 @@ public class FWSMaster {
 		
 	}*/
 	
+	/**
+	 * Constructor
+	 * @param shell The SWT Shell
+	 * @param display the SWT Display
+	 * @param configDir the os dependent config path
+	 */
 	private FWSMaster(Shell shell, Display display,String configDir) {
+		//Generate the Log File
+		try {
+			//max. 2 mb log file 
+			FileHandler fh = new FileHandler("%t/fws_master%g.log", 2000000,3,true);
+			log.addHandler(fh);
+			log.setLevel(Level.INFO);
+			SimpleFormatter formatter = new SimpleFormatter();
+			fh.setFormatter(formatter);
+		} catch (Exception ex) {
+			
+		}
+		
+		//Load the preferences 
 		this.configDir = configDir;
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		
 		this.parameter_controller = pref.loadParameters();
 		this.station_controller = pref.loadStations(this.parameter_controller);
-		
 		MasterContentHandler config = pref.loadMasterConfig();
+		
 		this.outDir = config.getPath();
+		//if there is no outDir given create on in the configDir
 		if (outDir.equals("")) {
 			File outDirFile = new File(configDir,"output");
 			if (!outDirFile.isDirectory()) {
@@ -55,6 +81,8 @@ public class FWSMaster {
 			}
 			this.outDir = configDir+File.pathSeparator+"output";
 		}
+		
+		log.config("Output Directory: "+this.outDir);
 		
 		this.generatorTime = config.getGeneratorTime();
 		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir);
@@ -66,27 +94,39 @@ public class FWSMaster {
 		this.collector.start();
 	}
 	
+	/**
+	 * Get the StationController
+	 * @return the controller
+	 */
 	public StationController getStationController() {
 		return this.station_controller;
 	}
 	
+	/**
+	 * Generates the configPath. Normally it's a folder .fwsmaster in the home directory.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);		
 		
-		
+		//Generate configPath
 		String os = System.getProperty("os.name");
 		String basePath = System.getProperty("user.home");
-		String configDirPath = basePath+File.pathSeparator+".fwsmaster";
+		String configDirPath;
+		
 		if (os.equals("Mac OS X")) {
 			configDirPath = basePath+"/Library/Application Support/FWSMaster";
-			
-		} 
+		} else {
+			configDirPath= basePath+File.pathSeparator+".fwsmaster";
+		}
 		
+		//Create configDir if not existent
 		File configDir = new File(configDirPath);
 		if(!configDir.isDirectory())
 			configDir.mkdir();
 		
+		//Create the Master
 		FWSMaster master = new FWSMaster(shell,display,configDirPath);
 		
 		shell.setSize(400,500);
@@ -98,16 +138,22 @@ public class FWSMaster {
 			if (!display.readAndDispatch ()) display.sleep();
 		}
 		display.dispose();
-		master.Shutdown();
+		master.shutdown();
 		System.exit(0);
 	}
 	
-	private void Shutdown() {
+	/**
+	 * Save the current settings in the xml config file
+	 */
+	private void shutdown() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime);
 		
 	}
 
+	/**
+	 * Open the parameter window
+	 */
 	public void ParameterClicked() {
 		Shell param_shall = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
@@ -122,6 +168,9 @@ public class FWSMaster {
 		return;
 	}
 
+	/**
+	 * Open the station window
+	 */
 	public void StationClicked() {
 		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
@@ -137,6 +186,9 @@ public class FWSMaster {
 		
 	}
 	
+	/**
+	 * Open the outDir config window
+	 */
 	public void FolderClicked() {
 		DirectoryDialog dialog = new DirectoryDialog(shell);
 		String platform = SWT.getPlatform();
@@ -149,6 +201,10 @@ public class FWSMaster {
 		this.collector.setOutDir(this.outDir);
 	}
 	
+	/**
+	 * Start or Stopp all stations
+	 * @param start if true start the stations, if false pause them
+	 */
 	public void StartClicked(boolean start) {
 		this.station_controller.startStation(start);
 	}

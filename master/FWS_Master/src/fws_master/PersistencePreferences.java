@@ -23,13 +23,13 @@ import org.xml.sax.helpers.*;
 public class PersistencePreferences {
 	private String path;
 	private String filename;
-	private Logger log;
+	private Logger log = Logger.getLogger("fws_master.config");
 	
 	
 	public PersistencePreferences(String path,String filename) {
 		this.path = path;
 		this.filename = filename;
-		this.log = Logger.getLogger("FWS.xml");
+		log.config("Konfiguration von "+path+"/"+filename+" einlesen");
 	}
 	
 	public StationController loadStations(ParameterController params) {

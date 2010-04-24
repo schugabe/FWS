@@ -53,7 +53,7 @@ public class PlotTime extends PlotBase {
         ChartRenderingInfo info = new ChartRenderingInfo();
         
         try {
-        	fileName +=/*System.currentTimeMillis()+*/prefix+".png";
+        	fileName += prefix+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
     	} catch (IOException e) {
     		e.printStackTrace();
