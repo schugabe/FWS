@@ -15,12 +15,25 @@ import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+/**
+ * Plot with x axis as time stamps and y axis the values of the measurements
+ * @author johannes
+ *
+ */
 public class PlotTime extends PlotBase {
 
+	/**
+	 * Call the base constructor
+	 * @param name
+	 * @param path
+	 */
 	public PlotTime(String name, String path) {
 		super(name, path);
 	}
 
+	/**
+	 * Create the Plot
+	 */
 	public void createPlot(Vector<MeasurementHistory> data,String prefix) {
 		
 		if (data == null)

@@ -1,7 +1,17 @@
 package fws_master;
 
+/**
+ * Possible conversation options of the input values 
+ * @author Johannes Kasberger
+ *
+ */
 public enum OutputFormats {
 	UNKNOWN,NK0,NK1,NK2,NK3,NK4,NK5;
+	/**
+	 * Get a String for the corresponding formating options
+	 * @param format
+	 * @return a String
+	 */
 	static public String getString(OutputFormats format) {
 		switch(format) {
 		case NK0: return "65536";
@@ -14,6 +24,11 @@ public enum OutputFormats {
 		}
 	}
 
+	/**
+	 * Convert the strings back to the OutputFormats value
+	 * @param format
+	 * @return OutputFormats
+	 */
 	static public OutputFormats getFormat(String format) {
 		if (format.equals("65536"))
 			return NK0;

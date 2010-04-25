@@ -5,6 +5,11 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+/**
+ * Load all parameters from the xml config file
+ * @author Johannes Kasberger
+ *
+ */
 public class ParameterContentHandler implements ContentHandler {
 
 	private ParameterController params;

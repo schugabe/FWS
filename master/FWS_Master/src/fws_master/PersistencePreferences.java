@@ -19,19 +19,33 @@ import org.w3c.dom.Element;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-
+/**
+ * Class for loading configuration file. Loads the handler to the requested information. The xml file is read with the help of sax.
+ * 
+ * @author Johannes Kasberger
+ *
+ */
 public class PersistencePreferences {
 	private String path;
 	private String filename;
 	private Logger log = Logger.getLogger("fws_master.config");
 	
-	
+	/**
+	 * The configuration is searched in the path
+	 * @param path
+	 * @param filename
+	 */
 	public PersistencePreferences(String path,String filename) {
 		this.path = path;
 		this.filename = filename;
-		log.config("Konfiguration von "+path+"/"+filename+" einlesen");
+		log.config("Reading config from "+path+"/"+filename);
 	}
 	
+	/**
+	 * Load the stations from the config file
+	 * @param params
+	 * @return a station controller with alle stations from the config
+	 */
 	public StationController loadStations(ParameterController params) {
 		StationController stations = new StationController();
 		StationContentHandler h = new StationContentHandler(stations,params);
@@ -39,6 +53,10 @@ public class PersistencePreferences {
 		return stations;
 	}
 	
+	/**
+	 * Loads all parameters of the configuration file
+	 * @return ParameterController with the loaded Parameters
+	 */
 	public ParameterController loadParameters() {
 		ParameterController params = new ParameterController();
 		ParameterContentHandler h = new ParameterContentHandler(params);
@@ -46,12 +64,23 @@ public class PersistencePreferences {
 		return params ;
 	}
 	
+	/**
+	 * The MasterConfig are all configuration values for the master itself (e.g. output file generation interval)
+	 * @return the Handler with all loaded values
+	 */
 	public MasterContentHandler loadMasterConfig() {
 		MasterContentHandler h = new MasterContentHandler();
 		this.startParsing(h);
 		return h;
 	}
 	
+	/**
+	 * Save all values to the xml file
+	 * @param params
+	 * @param stations
+	 * @param outDir
+	 * @param generatorTime
+	 */
 	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -59,7 +88,7 @@ public class PersistencePreferences {
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			log.info(e.getLocalizedMessage());
+			log.warning(e.getMessage());
 			return;
 		}
 		Document document = documentBuilder.newDocument();
@@ -133,29 +162,34 @@ public class PersistencePreferences {
 		try {
 			transformer = transformerFactory.newTransformer();
 		} catch (TransformerConfigurationException e) {
-			log.info(e.getLocalizedMessage());
+			log.warning(e.getMessage());
 		}
 		DOMSource source = new DOMSource(document);
 		StreamResult result = null;
 		try {
 			result =  new StreamResult(new File(this.path,this.filename));
 		} catch (Exception e) {
-			log.info(e.getLocalizedMessage());
+			log.warning(e.getMessage());
 		}
 		try {
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			log.info(e.getLocalizedMessage());
+			log.warning(e.getMessage());
 		}
 	}
 	
+	/**
+	 * For each kind of information the xml file is parsed.
+	 * @param h
+	 * @return if parsing was successful 
+	 */
 	private boolean startParsing(ContentHandler h) {
 		FileReader stream = null;
 		
 		try {
 			stream = new FileReader(new File(path,filename));
 		} catch(Exception ex) {
-			log.info("Config Datei nicht gefunden");
+			log.warning("Config file not found");
 			return false;
 		}
 		
@@ -164,13 +198,13 @@ public class PersistencePreferences {
 			parser = XMLReaderFactory.createXMLReader();
 			parser.setContentHandler(h);
 		} catch(SAXException e) {
-			log.info(e.getLocalizedMessage());
+			log.warning(e.getMessage());
 			return false;
 		}
 		try {
 			parser.parse(new InputSource(stream));
 		} catch(Exception e) {
-			log.info(e.getLocalizedMessage());return false;
+			log.warning(e.getMessage());return false;
 		}
 		return true;
 	}

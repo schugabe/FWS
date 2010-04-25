@@ -3,11 +3,20 @@ package fws_master;
 import java.util.Vector;
 
 
-
+/**
+ * Abstract base class for plots
+ * @author Johannes Kasberger
+ *
+ */
 public abstract class PlotBase {
 	private String name;
 	private String path;
 	
+	/**
+	 * Each Plot has a path where it saves the plot files
+	 * @param name
+	 * @param path
+	 */
 	public PlotBase(String name,String path) {
 		this.setName(name);
 		this.setPath(path);
@@ -41,5 +50,10 @@ public abstract class PlotBase {
 		return path;
 	}
 	
+	/**
+	 * This method creates the Plot using the data in the Vector data,
+	 * @param data measurements
+	 * @param preFix is added to the filename to avoid file name conflicts
+	 */
 	public abstract void createPlot(Vector<MeasurementHistory> data,String preFix);
 }

@@ -4,9 +4,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import org.eclipse.swt.widgets.Label;
 
+/**
+ * A Station represents a slave. It has a list of Parameters that can be configuration or input parameters. When the thread is started
+ * the input parameters are pulled from the slave and saved in a measurements list.
+ * The configuration is sent when requested.
+ * @author Johannes Kasberger
+ *
+ */
 public class Station extends Thread{
 	private Vector<Binding> parameters;
 	private Vector<Measurement> measurements;
@@ -17,8 +25,11 @@ public class Station extends Thread{
 	private StationController controller;
 	private volatile boolean suspended;
 	private ModBusWrapper wrapper;
-	//private int lastCollected;
+	private static Logger log = Logger.getLogger("fws_master.station");
 	
+	/**
+	 * The Station must belong to a controller and have a unique name.
+	 */
 	public Station(String name,StationController controller) {
 		this.setStationName(name);
 		this.controller = controller;
@@ -28,6 +39,13 @@ public class Station extends Thread{
 		this.init();
 	}
 	
+	/**
+	 * Create a Station with ip and polling_intervall
+	 * @param name
+	 * @param controller
+	 * @param ip
+	 * @param polling_intervall
+	 */
 	public Station(String name,StationController controller,String ip,int polling_intervall) {
 		this.setStationName(name);
 		this.controller = controller;
@@ -37,6 +55,9 @@ public class Station extends Thread{
 		this.init();
 	}
 	
+	/**
+	 * create the intern lists
+	 */
 	private void init() {
 		this.parameters = new Vector<Binding>();
 		this.measurements = new Vector<Measurement>();
@@ -46,15 +67,25 @@ public class Station extends Thread{
 		
 	}
 	
+	/**
+	 * Resume the data collection process
+	 */
 	public void resumeStation() {
 		this.suspended = false;
 		synchronized(this) {notify();}
 	}
 	
+	/**
+	 * Pause the data collection process
+	 */
 	public void pauseStation() {
 		this.suspended = true;
 	}
 	
+	/**
+	 * Setting the status Label must happen over this method. Otherwise it's executed in the wrong context.
+	 * @param msg
+	 */
 	private void setLabel(final String msg) {
 		this.statusLabel.getDisplay().asyncExec(new Runnable() {
 			public void run()
@@ -68,13 +99,15 @@ public class Station extends Thread{
 		});
 	}
 	
+	/**
+	 * Start the data collection thread
+	 */
 	public void run() {
 		this.suspended = false;
 		wrapper = new ModBusWrapper(this.ipAddress);
 		while (true) {
 			try {
 				if (this.suspended) {
-					this.wrapper.releaseConnection();
 					this.setLabel("Pause");
 					synchronized(this) {
 						while(this.suspended)
@@ -144,7 +177,6 @@ public class Station extends Thread{
 
 			config_wrapper.sendWriteRequest(0, int_ip[0]);
 			//config_wrapper.sendWriteRequest(1, int_ip[1]);
-			config_wrapper.releaseConnection();
 		}
 		this.ipAddress = newIP;
 		return true;

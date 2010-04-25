@@ -6,14 +6,13 @@ import net.wimpi.modbus.msg.*;
 import net.wimpi.modbus.io.*;
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.procimg.SimpleRegister;
-import net.wimpi.modbus.util.*;
-
-import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-@SuppressWarnings("unused")
+/**
+ * This class wraps the jaMod library. Connects to the slaves and reads the values.
+ * @author Johannes Kasberger
+ *
+ */
 public class ModBusWrapper {
 	private TCPMasterConnection connection = null; 
 	private static Logger log = Logger.getLogger("fws_master.modbus");
@@ -21,12 +20,14 @@ public class ModBusWrapper {
 	private InetAddress address = null;
 	private int port = Modbus.DEFAULT_PORT;
 	
+	/**
+	 * Creates the ModBusWrapper.
+	 * @param ip can contain the port information
+	 */
 	public ModBusWrapper(String ip) {
 	    int idx = ip.indexOf(':');
-	    
-	    log.info("Baue Verbindung zu "+ip+" auf");
-	    
-	    // Portangabe aus IP Adresse lesen
+	   
+	    // extract port information
 	    if(idx > 0) {
 	      port = Integer.parseInt(ip.substring(idx+1));
 	      ip = ip.substring(0,idx);
@@ -34,28 +35,17 @@ public class ModBusWrapper {
 	    
 	    try {
 	    	address = InetAddress.getByName(ip);
-	    	//address = InetAddress.getLocalHost();
 	    } catch (Exception e) {
-	    	log.throwing("ModBusWrapper", "Adresse erzeugen", e);
+	    	log.severe("Failed to create address: "+ip+";"+e.getMessage());
 	    	return;
 	    }
-	    
-	    
-	   
-		
 	}
 	
-	public boolean hasConnection() {
-		if (this.connection == null)
-			return false;
-		return this.connection.isConnected();
-	}
-
-	public void releaseConnection() {
-		if (this.hasConnection())
-			this.connection.close();
-	}
-	
+	/**
+	 * Read one value of the slave	
+	 * @param address Address of Memory of value in slave
+	 * @return the read value
+	 */
 	public int sendReadRequest(int address) {
 		ReadInputRegistersRequest request = new ReadInputRegistersRequest(address,1);
 		ReadInputRegistersResponse response = null;
@@ -65,12 +55,17 @@ public class ModBusWrapper {
 		try {
 			value = response.getRegisterValue(0);
 		} catch (Exception ex) {
-			//log.log(Level.WARNING, "Fehler beim auslesen");
+			log.warning("Error on reading value: "+ex.getMessage());
 		}
-		//log.info("Wert: "+value);
 		return value;
 	}
 	
+	/**
+	 * Write a configuration value to the slave
+	 * @param address Address of the configuration value
+	 * @param value Value to be set
+	 * @return true if value received correctly
+	 */
 	public boolean sendWriteRequest(int address,int value) {
 		SimpleRegister reg = new SimpleRegister(value);
 		
@@ -78,46 +73,49 @@ public class ModBusWrapper {
 		WriteSingleRegisterResponse response = (WriteSingleRegisterResponse)this.sendRequest(request);
 		
 		if (value !=response.getRegisterValue()) {
-			//log.log(Level.WARNING, "Der gesendete Wert passt mit dem Empfangenen nicht zusammen");
+			log.warning("The sent value isn't the same as the received value");
 			return false;
 		}
 		
 		return true;
 	}
 	
+	/**
+	 * Send a request to JAMod library. Opens and closes the connection each time. Otherwise the TCP Stack of the slaves seams to have problems
+	 * creating a response.
+	 * @param request
+	 * @return the response
+	 */
 	private ModbusResponse sendRequest(ModbusRequest request) {
 		prepareConnection();
-		//this.connection.setTimeout(300);
 		
 		ModbusResponse response = null;
 		transaction.setRequest(request);
 		
-		//log.info("Sende Anfrage an "+this.connection.getAddress().toString()+" Anfrage "+request.toString());
 		try {
 			transaction.execute();
 			response = transaction.getResponse();
-			//log.info("Antwort erhalten"+response.toString());
 		} catch (Exception e) {
-			//log.throwing("ModBusWrapper", "sendRequest", e);
+			log.warning("Sending request not successful: "+e.getMessage());
 		}
 		this.connection.close();
 		
 		return response;
 	}
 
-
+	/**
+	 * Opens a new connection to the slave.
+	 */
 	private void prepareConnection() {
 		try {
 			connection = new TCPMasterConnection(address);
 		    connection.setPort(port);
 		    
 			connection.connect();
-			int tmp = this.connection.getTimeout();
-			transaction  = new ModbusTCPTransaction(this.connection);
-			//log.info("Verbindung zu "+address+" aufgebaut");
 			
+			transaction  = new ModbusTCPTransaction(this.connection);
 		} catch (Exception e) {
-			//log.info("Fehler aufgetreten "+e.getMessage());
+			log.warning("Opening connection not successful: "+e.getMessage());
 		}
 		
 	}
