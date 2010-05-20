@@ -82,13 +82,13 @@ public class FWSMaster {
 		//Generate the Log File
 		try {
 			//max. 2 mb log file 
-			FileHandler fh = new FileHandler("%t/fws_master%g.log", 2000000,3,true);
+			FileHandler fh = new FileHandler(configDir+"/fws_master%g.log", 2000000,3,true);
 			log.addHandler(fh);
 			log.setLevel(Level.INFO);
 			SimpleFormatter formatter = new SimpleFormatter();
 			fh.setFormatter(formatter);
 		} catch (Exception ex) {
-			
+			System.out.println("Error during creating log Handler: "+ex.getLocalizedMessage());
 		}
 		
 		//Load the preferences 
@@ -105,7 +105,7 @@ public class FWSMaster {
 			if (!outDirFile.isDirectory()) {
 				outDirFile.mkdir();
 			}
-			this.outDir = configDir+File.pathSeparator+"output";
+			this.outDir = configDir+File.separatorChar+"output";
 		}
 		
 		log.config("Output Directory: "+this.outDir);
@@ -147,7 +147,7 @@ public class FWSMaster {
 		if (os.equals("Mac OS X")) {
 			configDirPath = basePath+"/Library/Application Support/FWSMaster";
 		} else {
-			configDirPath= basePath+File.pathSeparator+".fwsmaster";
+			configDirPath= basePath+File.separator+".fwsmaster";
 		}
 		
 		//Create configDir if not existent

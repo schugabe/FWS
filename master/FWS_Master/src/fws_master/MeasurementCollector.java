@@ -23,6 +23,7 @@ public class MeasurementCollector extends Thread {
 	private static Logger log = Logger.getLogger("fws_master.collector");
 	private boolean newDay;
 	private Date lastRun;
+	private static String eol = System.getProperty( "line.separator" );
 	
 	/**
 	 * Constructor
@@ -246,6 +247,8 @@ public class MeasurementCollector extends Thread {
 	 * @param result
 	 */
 	private void WriteOutput(String fileName,Vector<String> result) {
+		
+
 		try {
 			File file = new File(this.outDir,fileName);
 			
@@ -254,7 +257,7 @@ public class MeasurementCollector extends Thread {
 			String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
 		    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		    
-		    fw.write(sdf.format(new Date())+"\n");
+		    fw.write(sdf.format(new Date())+eol);
 
 			
 			for(String s:result) {

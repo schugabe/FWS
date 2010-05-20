@@ -333,7 +333,7 @@ public class ViewStation {
 					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,-1,false,false);
 				}
 				else {
-					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,-1,"h24",false);
+					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,-1,"h24;",false);
 				}
 			}
 			
