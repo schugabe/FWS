@@ -23,3 +23,4 @@ Makefile~
 *.backup
 *.class
 *\$*.class
+*.lnk
