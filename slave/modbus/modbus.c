@@ -12,9 +12,10 @@
 #include <avr/io.h>
 #include <stdlib.h>
 
+#include "../sensor_main.h"
+
 #include "tcp/ip_arp_udp_tcp.h"
 #include "tcp/enc28j60.h"
-#include "tcp/timeout.h"
 #include "tcp/net.h"
 
 #include "modbus_int.h"
@@ -42,7 +43,7 @@ void mb_init(void) {
 	//initialize the hardware driver for the enc28j60
 	enc28j60Init(mymac);
 	enc28j60clkout(2); // change clkout from 6.25MHz to 12.5MHz
-	_delay_loop_1(0); // 60us
+	_delay_us(60); // 60us
 	enc28j60PhyWrite(PHLCON,0x476);
 	
 	//init the ethernet/ip layer:
