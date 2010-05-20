@@ -46,16 +46,19 @@ public class ModBusWrapper {
 	 * @param address Address of Memory of value in slave
 	 * @return the read value
 	 */
-	public int sendReadRequest(int address) {
-		ReadInputRegistersRequest request = new ReadInputRegistersRequest(address,1);
+	public int sendReadRequest(int address) throws Exception {
+		
 		ReadInputRegistersResponse response = null;
 		int value = 0;
 		
-		response = (ReadInputRegistersResponse)this.sendRequest(request);
+		
 		try {
+			ReadInputRegistersRequest request = new ReadInputRegistersRequest(address,1);
+			response = (ReadInputRegistersResponse)this.sendRequest(request);
 			value = response.getRegisterValue(0);
 		} catch (Exception ex) {
 			log.warning("Error on reading value: "+ex.getMessage());
+			throw ex;
 		}
 		return value;
 	}
@@ -69,11 +72,16 @@ public class ModBusWrapper {
 	public boolean sendWriteRequest(int address,int value) {
 		SimpleRegister reg = new SimpleRegister(value);
 		
-		WriteSingleRegisterRequest request = new WriteSingleRegisterRequest(address,reg);
-		WriteSingleRegisterResponse response = (WriteSingleRegisterResponse)this.sendRequest(request);
-		
-		if (value !=response.getRegisterValue()) {
-			log.warning("The sent value isn't the same as the received value");
+		try {
+			WriteSingleRegisterRequest request = new WriteSingleRegisterRequest(address,reg);
+			WriteSingleRegisterResponse response = (WriteSingleRegisterResponse)this.sendRequest(request);
+			
+			if (value !=response.getRegisterValue()) {
+				log.warning("The sent value isn't the same as the received value");
+				return false;
+			} 
+		} catch (Exception ex) {
+			log.warning("Error on writing value: "+ex.getMessage());
 			return false;
 		}
 		
@@ -87,6 +95,8 @@ public class ModBusWrapper {
 	 * @return the response
 	 */
 	private ModbusResponse sendRequest(ModbusRequest request) {
+		if (request==null)
+			return null;
 		prepareConnection();
 		
 		ModbusResponse response = null;

@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * A Timestamp + Value. Are set on creation. Not changeable.
- * @author johannes
+ * @author Johannes Kasberger
  *
  */
 public class MeasurementHistoryEntry {

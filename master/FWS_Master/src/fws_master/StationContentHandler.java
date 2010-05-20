@@ -4,7 +4,11 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-
+/**
+ * Loads the Stations from the configuration files.
+ * @author Johannes Kasberger
+ *
+ */
 public class StationContentHandler implements ContentHandler {
 	private StationController controller;
 	private ParameterController pcontroller;
@@ -97,6 +101,7 @@ public class StationContentHandler implements ContentHandler {
 			String type = null,param = null;
 			int address,value;
 			boolean active = false;
+			boolean transfered = false;
 			String plotConfig = "";
 			address = value = -1;
 			for(int i=0;i<atts.getLength();i++) {
@@ -115,6 +120,9 @@ public class StationContentHandler implements ContentHandler {
 				}
 				else if (tmpName.equals("active")) {
 					active = Boolean.parseBoolean(atts.getValue(i));
+				}
+				else if (tmpName.equals("transfered")) {
+					transfered = Boolean.parseBoolean(atts.getValue(i));
 				}
 				else if (tmpName.equals("parameter")) {
 					param = atts.getValue(i);
@@ -135,7 +143,7 @@ public class StationContentHandler implements ContentHandler {
 				new StationInputBinding(this.lastStation,(InputParameter) p,address,plotConfig,active);
 			} 
 			else if (type.equals("config") && address != -1 & value != -1) {
-				new StationConfigBinding(this.lastStation, (ConfigParameter)p,address,value);
+				new StationConfigBinding(this.lastStation, (ConfigParameter)p,address,value,active,transfered);
 			}
 		}
 

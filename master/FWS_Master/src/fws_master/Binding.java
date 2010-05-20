@@ -15,6 +15,7 @@ public abstract class Binding {
 	private int address;
 	private Parameter parameter;
 	private Station station;
+	private boolean active;
 	
 	/**
 	 * Default constructor
@@ -23,6 +24,7 @@ public abstract class Binding {
 		this.address = -1;
 		this.station = null;
 		this.parameter = null;
+		this.active = false;
 	}
 	
 	/**
@@ -31,10 +33,11 @@ public abstract class Binding {
 	 * @param parameter
 	 * @param address the address of the memory on the station 
 	 */
-	public Binding(Station station, Parameter parameter, int address) {
+	public Binding(Station station, Parameter parameter, int address, boolean active) {
 		this.setParameter(parameter);
 		this.setStation(station);
 		this.address = address;
+		this.active = active;
 	}
 	
 	/**
@@ -96,5 +99,16 @@ public abstract class Binding {
 		return station;
 	}
 	
-	
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		return active;
+	}
 }

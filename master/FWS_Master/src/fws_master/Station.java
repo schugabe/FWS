@@ -19,7 +19,7 @@ public class Station extends Thread{
 	private Vector<Binding> parameters;
 	private Vector<Measurement> measurements;
 	private String ipAddress;
-	private int polling_intervall;
+	private int polling_interval;
 	private String name;
 	private Label statusLabel;
 	private StationController controller;
@@ -33,7 +33,7 @@ public class Station extends Thread{
 	public Station(String name,StationController controller) {
 		this.setStationName(name);
 		this.controller = controller;
-		this.polling_intervall = 60;
+		this.polling_interval = 60;
 		this.ipAddress = "127.0.0.1";
 		this.statusLabel = null;
 		this.init();
@@ -49,7 +49,7 @@ public class Station extends Thread{
 	public Station(String name,StationController controller,String ip,int polling_intervall) {
 		this.setStationName(name);
 		this.controller = controller;
-		this.polling_intervall = polling_intervall;
+		this.polling_interval = polling_intervall;
 		this.ipAddress = ip;
 		this.statusLabel = null;
 		this.init();
@@ -62,7 +62,6 @@ public class Station extends Thread{
 		this.parameters = new Vector<Binding>();
 		this.measurements = new Vector<Measurement>();
 		this.suspended = true;
-		//this.lastCollected = 0;
 		this.setName(this.name);
 		
 	}
@@ -113,12 +112,12 @@ public class Station extends Thread{
 						while(this.suspended)
 							wait();
 					}
-					this.wrapper = new ModBusWrapper(this.ipAddress);
 					setLabel("Gestartet");
 				}
+				log.fine(this.getStationName()+" start pulling values");
 				this.getMeasurements();
-				Thread.sleep(this.polling_intervall*1000);
-
+				Thread.sleep(this.polling_interval*1000);
+				
 			} catch (InterruptedException e) {
 				
 			}
@@ -126,48 +125,66 @@ public class Station extends Thread{
 
 	}
 	
+	/**
+	 * For each active StationInputBinding a value is transfered from the slave to the master.
+	 */
 	private void getMeasurements() {
-		
-		/*if (!wrapper.hasConnection()) {
-			this.setLabel("Keine Verbindung");
-			return;
-		}*/
 		this.setLabel("Online");
 		for(Binding b:this.parameters) {
 			if (b instanceof StationInputBinding) {
-				// TODO fehler überprüfung
 				if (!((StationInputBinding) b).isActive())
 					continue;
-				int result = wrapper.sendReadRequest(b.getAddress());
+				
+				int result;
+				try {
+					result = wrapper.sendReadRequest(b.getAddress());
+				} catch (Exception e) {
+					continue;
+				}
 				
 				Measurement m = new Measurement(this,(InputParameter) b.getParameter(),result);
 				synchronized(this.measurements) {
 					this.measurements.add(m);
-					System.out.println(this.name+" "+m.getParameter().getName()+" "+m.getConvValue());
+					log.fine("Measurement saved: "+this.name+" "+m.getParameter().getName()+" "+m.getConvValue());
 				}
 			}
 		}
 	}
 	
+	/**
+	 * Return the corresponding Binding for a Parameter
+	 * @param p the Parameter that is bound 
+	 * @return the binding of parameter p, null if parameter p is not bound to this station
+	 */
 	public Binding getBinding(Parameter p) {
-		for (Binding b:this.getParameters()) {
+		for (Binding b:this.getBindings()) {
 			if(b.getParameter() == p) 
 				return b;
 		}
 		return null;
 	}
 	
-	
-	
-	
-	public Vector<Binding> getParameters() {
+	/**
+	 * Get all Bindings that are bound to this Station
+	 * @return List of all Bindings
+	 */
+	public Vector<Binding> getBindings() {
 		return this.parameters;
 	}
 	
-	public boolean uploadDeviceConfig(String newIP) {
+	/**
+	 * If the ip address has changed it's saved after the transfer to the slave. The ip address is converted to two 16 bit values
+	 * and sent to the old ip address. Afterwards the newIP is saved. 
+	 * @param newIP The ip address of the slave after changing it. Must be unique.
+	 * @return false if changing of ip failed
+	 */
+	public boolean changeIPAddress(String newIP) {
 		
-		if(!this.ipAddress.equals(newIP)) {
-			ModBusWrapper config_wrapper = new ModBusWrapper(this.ipAddress);
+		ModBusWrapper config_wrapper = new ModBusWrapper(this.ipAddress);
+		
+		//Change ip address
+		if(newIP != null && !this.ipAddress.equals(newIP)) {
+			
 			for (Station s:this.controller.getStations()) {
 				if (s.getIpAddress().equals(newIP)) {
 					return false;
@@ -176,12 +193,18 @@ public class Station extends Thread{
 			int []int_ip = this.convertIP(newIP);
 
 			config_wrapper.sendWriteRequest(0, int_ip[0]);
-			//config_wrapper.sendWriteRequest(1, int_ip[1]);
+			config_wrapper.sendWriteRequest(1, int_ip[1]);
+			this.ipAddress = newIP;
 		}
-		this.ipAddress = newIP;
+		
 		return true;
 	}
 	
+	/**
+	 * Converts a string of an ip address to two int values
+	 * @param ip
+	 * @return array of two integer values representing the ip address. the ip address 127.0.0.1 will be converted to 127<<8|0 and 0<<8|1
+	 */
 	private int[] convertIP(String ip) {
 		int [] conv = new int[2];
 		int idx = ip.indexOf(':');
@@ -217,20 +240,51 @@ public class Station extends Thread{
 		return conv;
 	}
 	
+	/**
+	 * Transfer all changed configuration parameters to the slave. 
+	 * @return false upload was not successful
+	 */
 	public boolean uploadParamsConfig() {
+		ModBusWrapper config_wrapper = new ModBusWrapper(this.ipAddress);
+		// Send configuration to slave
+		for(Binding b:this.getBindings()) {
+			if (b instanceof StationConfigBinding) {
+				if (!b.isActive())
+					continue;
+				StationConfigBinding cb = (StationConfigBinding)b;
+				if (cb.isTransfered())
+					continue;
+				if (!config_wrapper.sendWriteRequest(cb.getAddress(),cb.getValue()))
+					log.warning("Transfering configuration value was not successful: "+this.name+":"+this.ipAddress+" Parameter"+cb.getParameter().getName()+" at address "+cb.getAddress()+" with value "+cb.getValue());
+				else
+					cb.setTransfered(true);
+			}
+		}
 		return true;
 	}
 	
+	/**
+	 * Releases all bindings
+	 */
 	public void deleteStation(){
 		for(Binding binding:this.parameters) {
 			binding.releaseParameter();
 		}
 	}
 	
+	/**
+	 * Add a Binding to this Station
+	 * @param binding
+	 */
 	public void addBinding(Binding binding) {
 		this.parameters.add(binding);
 	}
 	
+	/**
+	 * Remove a Binding from this Station
+	 * @param binding binding to be removed
+	 * @return true if binding was found an removed
+	 */
 	public boolean removeBinding(Binding binding) {
 		if (this.parameters.remove(binding)) {
 			binding.releaseParameter();
@@ -239,6 +293,10 @@ public class Station extends Thread{
 		return false;
 	}
 
+	/**
+	 * Change the Label Text of this station
+	 * @param l text for the label
+	 */
 	public void setStatusLabel(Label l) {
 		this.statusLabel = l;
 	}
@@ -251,58 +309,58 @@ public class Station extends Thread{
 	}
 
 	/**
-	 * @param polling_intervall the polling_intervall to set
+	 * PollingIntevall is the duration in seconds that is waited before the stations pulls the measurements of a slave.
+	 * @param polling_interval the interval
 	 */
-	public void setPollingIntervall(int polling_intervall) {
-		this.polling_intervall = polling_intervall;
+	public void setPollingInterval(int polling_interval) {
+		this.polling_interval = polling_interval;
 	}
 
 	/**
-	 * @return the polling_intervall
+	 * @return the PollingInterval
 	 */
-	public int getPollingIntervall() {
-		return polling_intervall;
+	public int getPollingInterval() {
+		return polling_interval;
 	}
 
 	/**
-	 * @param name the name to set
+	 * Set the Name of the Station
+	 * @param name Name of the Station
 	 */
 	public void setStationName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @return the name
+	 * @return the name of the Station
 	 */
 	public String getStationName() {
 		return name;
 	}
 	
+	/**
+	 * Get the count of the active input parameters of this station
+	 * @return count of active input parameters
+	 */
 	public int getInputParamsCount() {
 		int tmp = 0;
 		for(Binding b:this.parameters) {
-			if (b instanceof StationInputBinding)
+			if (b instanceof StationInputBinding && b.isActive())
 				tmp++;
 		}
 		return tmp;
 	}
 	
+	/**
+	 * Get a List of the received measurements since the last call of this function. After getting the measurements this list is cleared.
+	 * @return list of measurements
+	 */
 	public Vector<Measurement> getLastMeasurements() {
 		Vector<Measurement> tmp;
 		
 		synchronized(this.measurements) {
-			//int params_count = this.getInputParamsCount();
-
-			int size = this.measurements.size(); //- this.lastCollected;
-
-			tmp = new Vector<Measurement>(size);
-			int i = 0;
-			while (i < size) {
-				tmp.add(this.measurements.get(i));
-				i++;
-			}
+			tmp = new Vector<Measurement>(measurements);
 			this.measurements.clear();
-			//this.lastCollected = size;
 		}
 		return tmp;
 	}

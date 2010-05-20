@@ -3,23 +3,41 @@ package fws_master;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+/**
+ * Allows binding a InputParameter to a Station. This Parameter will be received from the slave. A InputBinding can have multiple plots configured. 
+ * @author Johannes Kasberger
+ *
+ */
 public class StationInputBinding extends Binding {
-
-	private boolean active;
 	private Vector<PlotConfig> plotConfig;
 	private String plotConfigString;
 	
-	public StationInputBinding(Station station, InputParameter parameter, int address) {
-		super(station,parameter,address);
-		this.setPlotConfig("h24;");
-		this.active = false;
-	}
-	public StationInputBinding(Station station, InputParameter parameter, int address,String plotConfig, boolean active) {
-		super(station,parameter,address);
-		this.setPlotConfig(plotConfig);
-		this.active = active;
-	}
 	/**
+	 * Class Constructor
+	 * @param station
+	 * @param parameter
+	 * @param address
+	 */
+	public StationInputBinding(Station station, InputParameter parameter, int address) {
+		super(station,parameter,address,false);
+		this.setPlotConfig("h24;");	
+	}
+	
+	/**
+	 * Class Constructor with more options
+	 * @param station
+	 * @param parameter
+	 * @param address
+	 * @param plotConfig
+	 * @param active
+	 */
+	public StationInputBinding(Station station, InputParameter parameter, int address,String plotConfig, boolean active) {
+		super(station,parameter,address,active);
+		this.setPlotConfig(plotConfig);
+	}
+	
+	/**
+	 * This config is checked for valid syntax. Then it's split into its separate plots and saved in a collection.
 	 * @param plotConfig the plotConfig to set
 	 */
 	public boolean setPlotConfig(String plotConfig) {
@@ -62,6 +80,10 @@ public class StationInputBinding extends Binding {
 		return true;
 	}
 	
+	/**
+	 * Get a List of all plots that have to be generated
+	 * @return plots
+	 */
 	public Vector<PlotConfig> getPlots() {
 		return this.plotConfig;
 	}
@@ -71,19 +93,5 @@ public class StationInputBinding extends Binding {
 	public String getPlotConfig() {
 		return plotConfigString;
 	}
-	/**
-	 * @param active the active to set
-	 */
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-	/**
-	 * @return the active
-	 */
-	public boolean isActive() {
-		return active;
-	}
-
-
 }
 

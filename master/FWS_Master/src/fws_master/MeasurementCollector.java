@@ -84,6 +84,9 @@ public class MeasurementCollector extends Thread {
 
 		for(Station s:this.controller.getStations()) {
 			Vector<Measurement> measurements = s.getLastMeasurements();
+			if (measurements==null)
+				continue;
+			
 			log.fine("Station "+s.getStationName()+" has "+measurements.size()+" new Measurements");
 			
 			if(measurements.size() == 0)
@@ -111,16 +114,19 @@ public class MeasurementCollector extends Thread {
 	 * Check if new Day started
 	 */
 	private void checkDayChanged() {
+		
 		Calendar runCal = Calendar.getInstance();
 		Date currentRun = new Date();
 		runCal.setTime(currentRun);
 		
-		Calendar lastRunCal = Calendar.getInstance();
-		lastRunCal.setTime(lastRun);
-		
-		if(runCal.get(Calendar.YEAR)!=lastRunCal.get(Calendar.YEAR) || runCal.get(Calendar.DAY_OF_YEAR)!=lastRunCal.get(Calendar.DAY_OF_YEAR)) {
-			this.newDay = true;
-			log.fine("New Day started");
+		if (lastRun != null) {
+			Calendar lastRunCal = Calendar.getInstance();
+			lastRunCal.setTime(lastRun);
+			
+			if(runCal.get(Calendar.YEAR)!=lastRunCal.get(Calendar.YEAR) || runCal.get(Calendar.DAY_OF_YEAR)!=lastRunCal.get(Calendar.DAY_OF_YEAR)) {
+				this.newDay = true;
+				log.fine("New Day started");
+			}
 		}
 		lastRun = currentRun;
 	}
@@ -157,7 +163,7 @@ public class MeasurementCollector extends Thread {
 			}
 			
 			sd = Math.sqrt(sd/(ms.size()-1));
-			res+=ms.get(0).getParameter().getName()+":"+avg+";"+sd+";\n";
+			res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";\n";
 		}
 		return res;
 	}
@@ -189,7 +195,7 @@ public class MeasurementCollector extends Thread {
 		
 		
 		for (Station s:this.controller.getStations()) {
-			for (Binding b:s.getParameters()) {
+			for (Binding b:s.getBindings()) {
 				if (b instanceof StationInputBinding) {
 					StationInputBinding ib = (StationInputBinding)b;
 					

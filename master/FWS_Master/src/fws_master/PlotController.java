@@ -2,7 +2,7 @@ package fws_master;
 
 import java.util.Vector;
 /**
- * List of all Plots
+ * List of all Classes that implement the PlotBase
  * @author Johannes Kasberger
  *
  */

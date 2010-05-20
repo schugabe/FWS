@@ -137,21 +137,22 @@ public class PersistencePreferences {
 			Element station = document.createElement("station");
 			station.setAttribute("name", s.getStationName());
 			station.setAttribute("ip", s.getIpAddress());
-			station.setAttribute("intervall", ""+s.getPollingIntervall());
+			station.setAttribute("intervall", ""+s.getPollingInterval());
 			
-			for(Binding b:s.getParameters()) {
+			for(Binding b:s.getBindings()) {
 				Element bel = document.createElement("binding");
 				if (b instanceof StationConfigBinding) {
 					bel.setAttribute("type", "config");
 					bel.setAttribute("value", ""+((StationConfigBinding)b).getValue());
+					bel.setAttribute("transfered", ""+((StationConfigBinding)b).isTransfered());
 				}
 				if (b instanceof StationInputBinding) {
 					bel.setAttribute("type", "input");
 					bel.setAttribute("plotconfig", ""+((StationInputBinding)b).getPlotConfig());
-					bel.setAttribute("active", ""+((StationInputBinding)b).isActive());
 				}
 				bel.setAttribute("address", ""+b.getAddress());
 				bel.setAttribute("parameter", b.getParameter().getName());
+				bel.setAttribute("active", ""+b.isActive());
 				station.appendChild(bel);
 			}
 			rootElement.appendChild(station);

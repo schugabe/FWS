@@ -117,6 +117,7 @@ public class FWSMaster {
 		view = new ViewMain(shell,display,this);
 		this.shell = shell;
 		this.display = display;
+		
 		this.collector.start();
 	}
 	
@@ -133,7 +134,9 @@ public class FWSMaster {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Display.setAppName("FWS Master");
 		Display display = new Display();
+		
 		Shell shell = new Shell(display);		
 		
 		//Generate configPath
@@ -232,7 +235,7 @@ public class FWSMaster {
 	 * @param start if true start the stations, if false pause them
 	 */
 	public void StartClicked(boolean start) {
-		this.station_controller.startStation(start);
+		this.station_controller.startStations(start);
 	}
 
 }

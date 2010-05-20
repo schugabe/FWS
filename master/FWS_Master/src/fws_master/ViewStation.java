@@ -20,6 +20,7 @@ public class ViewStation {
 	private List station_list,parameter_list;
 	private Text nameText,ipText,pollingText,addressText,valueText,plotText;
 	private Button boxActive;
+
 	
 	public ViewStation(Shell shell,StationController sc,ParameterController p) {
 		this.shell = shell;
@@ -163,8 +164,9 @@ public class ViewStation {
 		valueText.setLayoutData(gridData);
 		valueText.setText("");
 		
-		Label bufferLabel = new Label(params, SWT.NONE);
-		bufferLabel.setText("PlotConfig:");
+		
+		Label plotLabel = new Label(params, SWT.NONE);
+		plotLabel.setText("PlotConfig:");
 		
 		plotText = new Text(params, SWT.BORDER);
 		gridData = new GridData();
@@ -207,12 +209,14 @@ public class ViewStation {
 			this.selected_station = this.station_controller.findStation((this.station_list.getSelection()[0]));
 			this.nameText.setText(selected_station.getStationName());
 			this.ipText.setText(selected_station.getIpAddress());
-			this.pollingText.setText(""+selected_station.getPollingIntervall());
+			this.pollingText.setText(""+selected_station.getPollingInterval());
 			this.enableText(true);
 			this.enableParams(false);
+			//this.load_params_list();
 			this.parameter_list.setEnabled(true);
 			this.parameter_list.select(0);
 			this.plist_selected();
+			
 		} catch (Exception e) 
 		{
 			this.nameText.setText("");
@@ -255,9 +259,9 @@ public class ViewStation {
 				return;
 			}
 			this.selected_station.setStationName(name);
-			this.selected_station.setPollingIntervall(tmp_p);
+			this.selected_station.setPollingInterval(tmp_p);
 			
-			this.selected_station.uploadDeviceConfig(ip);
+			this.selected_station.changeIPAddress(ip);
 			int tmp_sel = this.station_list.getSelectionIndex();
 			this.loadList();
 			this.station_list.setSelection(tmp_sel);
@@ -282,15 +286,18 @@ public class ViewStation {
 			address = Integer.parseInt(this.addressText.getText());
 		} catch (Exception ex) {return;}
 		current_binding.setAddress(address);
-		
+		current_binding.setActive(this.boxActive.getSelection());
 		if (this.selected_parameter instanceof ConfigParameter) {
 			int value;
 			try {
 				value = Integer.parseInt(this.valueText.getText());
+	
 				
 			} catch (Exception ex) {return;}
 			
 			StationConfigBinding cfg = (StationConfigBinding)current_binding;
+			cfg.setTransfered(false);
+			
 			cfg.setValue(value);
 			
 		} else {
@@ -305,7 +312,7 @@ public class ViewStation {
 				messageBox.open();
 				return;
 			}
-			ip.setActive(this.boxActive.getSelection());
+			
 		}
 		
 	}
@@ -323,7 +330,7 @@ public class ViewStation {
 			}
 			if (current_binding==null) {
 				if (this.selected_parameter instanceof ConfigParameter) {
-					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,-1);
+					current_binding = new StationConfigBinding(this.selected_station,(ConfigParameter)this.selected_parameter,-1,false,false);
 				}
 				else {
 					current_binding = new StationInputBinding(this.selected_station,(InputParameter)this.selected_parameter,-1,"h24",false);
@@ -331,19 +338,20 @@ public class ViewStation {
 			}
 			
 			this.addressText.setText(""+current_binding.getAddress());
+			this.boxActive.setSelection(current_binding.isActive());
 			
 			if (this.selected_parameter instanceof ConfigParameter) {
-				this.boxActive.setEnabled(false);
 				this.plotText.setEnabled(false);
 				this.plotText.setText("");
 				StationConfigBinding cfg = (StationConfigBinding)current_binding;
 				this.valueText.setText(""+cfg.getValue());	
+				
 			} else {
 				this.valueText.setEnabled(false);
 				this.valueText.setText("");
 				StationInputBinding ip = (StationInputBinding)current_binding;
 				this.plotText.setText(ip.getPlotConfig());
-				this.boxActive.setSelection(ip.isActive());
+				
 			}
 		} catch (Exception e) 
 		{

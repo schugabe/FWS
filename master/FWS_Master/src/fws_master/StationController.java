@@ -2,20 +2,33 @@ package fws_master;
 
 import java.util.Vector;
 
+/**
+ * Manages a List of all Stations
+ * @author Johannes Kasberger
+ *
+ */
 public class StationController {
 	private Vector<Station> stations;
 	
+	/**
+	 * Just creates a new List
+	 */
 	public StationController() {
 		stations = new Vector<Station>();
 	}
 
 	/**
-	 * @param station the stations to set
+	 * @param station the stations to add
 	 */
 	public void addStation(Station station) {
 		this.stations.add(station);;
 	}
 	
+	/**
+	 * Removes a Station
+	 * @param station the station to be removed
+	 * @return true if removing was possible
+	 */
 	public boolean removeStation(Station station) {
 		if (this.stations.remove(station)) {
 			station.deleteStation();
@@ -24,6 +37,11 @@ public class StationController {
 		return false;
 	}
 
+	/**
+	 * Finds a Station 
+	 * @param name Name of the station that is searched
+	 * @return the station with the searched name
+	 */
 	public Station findStation(String name) {
 		for(Station s:this.stations) {
 			if(s.getStationName().equals(name))
@@ -31,6 +49,7 @@ public class StationController {
 		}
 		return null;
 	}
+	
 	/**
 	 * @return the stations
 	 */
@@ -38,7 +57,11 @@ public class StationController {
 		return stations;
 	}
 
-	public void startStation(boolean start) {
+	/**
+	 * Starts or Pauses all Stations of this controller
+	 * @param start if true the threads a started or continued, when false the threads are paused
+	 */
+	public void startStations(boolean start) {
 		
 		for (Station s:this.stations) {
 			if (start && !s.isAlive())
@@ -50,10 +73,6 @@ public class StationController {
 				s.pauseStation();
 				s.interrupt();
 			}
-				
 		}
-		
 	}
-	
-	
 }
