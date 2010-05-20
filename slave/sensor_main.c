@@ -12,33 +12,32 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include "modbus/modbus.h"
 #include "sensor_main.h"
+#include "modbus/modbus.h"
 
-uint16_t windspeed = 0x4114;
+volatile uint16_t winddir = 0x0; // 0 = N, 4 = O, 8 = S, 12 = W
 
 int main(void) {
 	mb_init();
 	
-	mb_registerRegister(0,&windspeed);
-        
-        PORTB &= ~_BV(PB1);
-        DDRB |= _BV(PB1);
-        
-        TIMSK0 |= _BV(TOIE0);
-        TCCR0A = 0x00;
-        TCCR0B = 0x05; // 1024 pres, normal mode
-        
-        sei();
+	mb_registerRegister(0,&winddir);
+	
+	PORTB &= ~_BV(PB1);
+	DDRB |= _BV(PB1);
+	
+	PORTD |= _BV(PD7);
+	DDRD |= _BV(PD7);
+	
+	ADMUX |= _BV(REFS0) | _BV(MUX0);
+	ADCSRA = 0xFF;
+	
+	sei();
 
-        while (1) {
-               mb_handleRequest();
-        }
+	while (1) {
+		mb_handleRequest();
+	}
 }
 
-ISR(TIMER0_OVF_vect) {
-	if (PORTB & _BV(PB1))
-		PORTB &= ~_BV(PB1);
-	else
-		PORTB |= _BV(PB1);
+ISR(ADC_vect) {
+	winddir = ADC / 48;
 }
