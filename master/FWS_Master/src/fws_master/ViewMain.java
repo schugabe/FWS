@@ -166,7 +166,7 @@ public class ViewMain {
 	class MenuItemListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			if (((MenuItem) event.widget)==fileExitItem) {
-				shell.close();
+				master.exitClicked();
 			}
 			else if (((MenuItem) event.widget) == configParamsItem) {
 				master.ParameterClicked();

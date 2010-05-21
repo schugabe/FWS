@@ -8,9 +8,12 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
+
 
 
 /**
@@ -41,6 +44,8 @@ import org.eclipse.swt.widgets.*;
  * long term history. It's also configurable how much data should be presented in the diagram. It's also possible to draw more one data series
  * in one diagram. 
  * 
+ * This Application can only be closed over the "Exit" entry in the Menus. Otherwise it's minimized to the tray.
+ * 
  *  The configuration is saved to a xml file (see PersistencePreferences, MasterContentHandler, ParameterContentHandler, StationContentHandler)
  * @author Johannes Kasberger
  *
@@ -56,7 +61,9 @@ public class FWSMaster {
 	private String configDir;
 	private String outDir;
 	private int generatorTime;
+	private static boolean closing = false;
 	private static Logger log = Logger.getLogger("fws_master");
+	private MenuItem trayHideItem, trayStartItem, trayExitItem;
 	
 	/*private void generateParameters() {
 		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
@@ -74,7 +81,7 @@ public class FWSMaster {
 	}*/
 	
 	/**
-	 * Constructor
+	 * Constructor creates a MainView and creates the Tray Icon
 	 * @param shell The SWT Shell
 	 * @param display the SWT Display
 	 * @param configDir the os dependent config path
@@ -92,6 +99,10 @@ public class FWSMaster {
 			System.out.println("Error during creating log Handler: "+ex.getLocalizedMessage());
 		}
 		
+		this.shell = shell;
+		this.display = display;
+		
+		this.createTray();
 		//Load the preferences 
 		this.configDir = configDir;
 		
@@ -99,12 +110,46 @@ public class FWSMaster {
 		
 		//this.generateParameters();
 		view = new ViewMain(shell,display,this);
-		this.shell = shell;
-		this.display = display;
 		
 		this.collector.start();
 	}
 	
+	/**
+	 * Creates a Tray Icon with some useful menu items
+	 */
+	private void createTray() {
+		Tray tray = display.getSystemTray();
+		
+		if(tray != null) {
+			TrayItem item = new TrayItem(tray, SWT.NONE);
+			TrayItemListener l = new TrayItemListener();
+			Image trayImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/tray.png") );
+			item.setImage(trayImg);
+			
+			final Menu menu = new Menu(shell, SWT.POP_UP);
+			trayHideItem = new MenuItem(menu, SWT.PUSH);
+			trayHideItem.setText("Hide");
+			trayHideItem.addSelectionListener(l);
+			
+			trayStartItem = new MenuItem(menu, SWT.PUSH);
+			trayStartItem.setText("Start");
+			trayStartItem.addSelectionListener(l);
+			
+			trayExitItem = new MenuItem(menu, SWT.PUSH);
+			trayExitItem.setText("Exit");
+			trayExitItem.addSelectionListener(l);
+			
+			item.addListener (SWT.MenuDetect, new Listener () {
+				public void handleEvent (Event event) {
+					menu.setVisible (true);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Loads the Configuration of the settings.xml
+	 */
 	private void loadConfig() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		this.parameter_controller = pref.loadParameters();
@@ -143,7 +188,8 @@ public class FWSMaster {
 		Display.setAppName("FWS Master");
 		Display display = new Display();
 		
-		final Shell shell = new Shell(display);		
+		final Shell shell = new Shell(display);
+		// Set the Application Image
 		Image appImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/logo.png") );
 		shell.setImage(appImg);
 		//Generate configPath
@@ -168,29 +214,20 @@ public class FWSMaster {
 		shell.setSize(400,500);
 		shell.open();
 		shell.setText("FWS Master");
-		Image trayImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/tray.png") );
 		
-		Tray tray = display.getSystemTray();
-		if(tray != null) {
-			TrayItem item = new TrayItem(tray, SWT.NONE);
-			item.setImage(trayImg);
-			final Menu menu = new Menu(shell, SWT.POP_UP);
-			MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-			menuItem.setText("Button A");
-			menuItem = new MenuItem(menu, SWT.PUSH);
-			menuItem.setText("Button B");
-			menuItem = new MenuItem(menu, SWT.PUSH);
-			menuItem.setText("Show Tooltip");
-			item.addListener (SWT.MenuDetect, new Listener () {
-				public void handleEvent (Event event) {
-					menu.setVisible (true);
+		
+		//only enable disposing when exit in menu was called. Otherwise hide the shell
+		shell.addListener(SWT.Close, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (!closing) {
+					event.doit = false;
 					shell.setVisible(false);
 				}
-			});
-		}
-
+			}
+		});
 		
-		
+				
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
 		}
@@ -264,6 +301,13 @@ public class FWSMaster {
 	 */
 	public void StartClicked(boolean start) {
 		this.station_controller.startStations(start);
+		if (start) {
+			trayStartItem.setText("Stop");
+			trayExitItem.setEnabled(false);
+		} else {
+			trayStartItem.setText("Start");
+			trayExitItem.setEnabled(true);
+		}
 	}
 
 	/**
@@ -288,7 +332,54 @@ public class FWSMaster {
 		this.loadConfig();
 	}
 	
+	/**
+	 * Called when the user selects the settings entry from the configMenu. Shows the Settings view.
+	 */
 	public void settingsClicked() {
 		
+	}
+
+	/**
+	 * Enables the disposing of the display and disposes it. Only allow closing when the Stations are stopped.
+	 */
+	public void exitClicked() {
+		if (!this.station_controller.isRunning()) {
+			closing = true;
+			display.dispose();
+		}
+	}
+	
+	/**
+	 * Listener for Tray Events
+	 * @author Johannes Kasberger
+	 *
+	 */
+	class TrayItemListener extends SelectionAdapter {
+		public void widgetSelected(SelectionEvent event) {
+			if (((MenuItem) event.widget)==trayHideItem) {
+				if (shell.isVisible()) {
+					shell.setVisible(false);
+					trayHideItem.setText("Show");
+				}
+				else {
+					shell.setVisible(true);
+					trayHideItem.setText("Hide");
+				}
+				
+			}
+			else if (((MenuItem) event.widget)==trayStartItem) {
+				if (station_controller.isRunning()) {
+					StartClicked(false);
+					
+				}
+				else {
+					StartClicked(true);
+					
+				}
+			}
+			else if (((MenuItem) event.widget)==trayExitItem) {
+				exitClicked();
+			}
+		}
 	}
 }

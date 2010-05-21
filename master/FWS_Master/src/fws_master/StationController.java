@@ -9,7 +9,7 @@ import java.util.Vector;
  */
 public class StationController {
 	private Vector<Station> stations;
-	
+	private boolean running = false;
 	/**
 	 * Just creates a new List
 	 */
@@ -64,15 +64,23 @@ public class StationController {
 	public void startStations(boolean start) {
 		
 		for (Station s:this.stations) {
-			if (start && !s.isAlive())
+			if (start && !s.isAlive()) {
 				s.start();
+				running = true;
+			}
 			else if (start && s.isAlive()) {
 				s.resumeStation();
+				running = true;
 			}
 			else if (!start && s.isAlive()){
 				s.pauseStation();
 				s.interrupt();
+				running = false;
 			}
 		}
+	}
+	
+	public boolean isRunning() {
+		return running;
 	}
 }
