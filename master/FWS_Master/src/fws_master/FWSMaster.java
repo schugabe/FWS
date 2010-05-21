@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
 
@@ -93,6 +94,18 @@ public class FWSMaster {
 		
 		//Load the preferences 
 		this.configDir = configDir;
+		
+		this.loadConfig();
+		
+		//this.generateParameters();
+		view = new ViewMain(shell,display,this);
+		this.shell = shell;
+		this.display = display;
+		
+		this.collector.start();
+	}
+	
+	private void loadConfig() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		this.parameter_controller = pref.loadParameters();
 		this.station_controller = pref.loadStations(this.parameter_controller);
@@ -111,14 +124,7 @@ public class FWSMaster {
 		log.config("Output Directory: "+this.outDir);
 		
 		this.generatorTime = config.getGeneratorTime();
-		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir);
-		
-		//this.generateParameters();
-		view = new ViewMain(shell,display,this);
-		this.shell = shell;
-		this.display = display;
-		
-		this.collector.start();
+		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir,configDir);
 	}
 	
 	/**
@@ -137,8 +143,9 @@ public class FWSMaster {
 		Display.setAppName("FWS Master");
 		Display display = new Display();
 		
-		Shell shell = new Shell(display);		
-		
+		final Shell shell = new Shell(display);		
+		Image appImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/logo.png") );
+		shell.setImage(appImg);
 		//Generate configPath
 		String os = System.getProperty("os.name");
 		String basePath = System.getProperty("user.home");
@@ -161,6 +168,27 @@ public class FWSMaster {
 		shell.setSize(400,500);
 		shell.open();
 		shell.setText("FWS Master");
+		Image trayImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/tray.png") );
+		
+		Tray tray = display.getSystemTray();
+		if(tray != null) {
+			TrayItem item = new TrayItem(tray, SWT.NONE);
+			item.setImage(trayImg);
+			final Menu menu = new Menu(shell, SWT.POP_UP);
+			MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
+			menuItem.setText("Button A");
+			menuItem = new MenuItem(menu, SWT.PUSH);
+			menuItem.setText("Button B");
+			menuItem = new MenuItem(menu, SWT.PUSH);
+			menuItem.setText("Show Tooltip");
+			item.addListener (SWT.MenuDetect, new Listener () {
+				public void handleEvent (Event event) {
+					menu.setVisible (true);
+					shell.setVisible(false);
+				}
+			});
+		}
+
 		
 		
 		while (!shell.isDisposed ()) {
@@ -238,4 +266,29 @@ public class FWSMaster {
 		this.station_controller.startStations(start);
 	}
 
+	/**
+	 * Called when User selects add station from the fileMenu
+	 */
+	public void addStationClicked() {
+		
+	}
+	
+	/**
+	 * Called when User selects save Config from the fileMenu
+	 */
+	public void saveConfigClicked() {
+		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime);
+	}
+	
+	/**
+	 * Called when User selects reload Config from the fileMenu
+	 */
+	public void reloadConfigClicked() {
+		this.loadConfig();
+	}
+	
+	public void settingsClicked() {
+		
+	}
 }

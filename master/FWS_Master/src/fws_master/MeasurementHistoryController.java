@@ -1,5 +1,6 @@
 package fws_master;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +14,12 @@ import java.util.Vector;
  * @author Johannes Kasberger
  *
  */
-public class MeasurementHistoryController {
+public class MeasurementHistoryController 
+implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6349167137559366556L;
 	private HashMap<String,MeasurementHistory> lastHours;
 	private HashMap<String,MeasurementHistory> lastYear;
 	

@@ -13,9 +13,9 @@ public class ViewMain {
 	private ScrolledComposite scroll;
 	private FWSMaster master;
 	
-	private Menu menuBar, fileMenu;
-	private MenuItem fileMenuHeader;
-	private MenuItem fileExitItem, fileParamsItem, fileStationsItem,fileOutDirItem;
+	private Menu menuBar, fileMenu,configMenu;
+	private MenuItem fileMenuHeader,configMenuHeader;
+	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig, fileExitItem, configParamsItem, configStationsItem, configOutDirItem, configSettingsItem;
 	
 	public ViewMain(Shell shell, Display display,FWSMaster master) {
 		this.shell = shell;
@@ -65,7 +65,7 @@ public class ViewMain {
 		rowLayout.marginTop = 5;
 		rowLayout.marginRight = 5;
 		rowLayout.marginBottom = 5;
-		rowLayout.spacing = 0;
+		rowLayout.spacing = 3;
 		rowLayout.justify = false;
 		rowLayout.pack = true;
 		
@@ -78,14 +78,14 @@ public class ViewMain {
 			Label ipLabel = new Label(c, SWT.NONE);
 			ipLabel.setText(s.getIpAddress());
 			Label statusLabel = new Label(c, SWT.NONE);
-			statusLabel.setText("Status:");
+			statusLabel.setText("State:");
 			
 			Label statusLabel2 = new Label(c, SWT.NONE);
-			statusLabel2.setText("stopp                                              ");
+			statusLabel2.setText("stop                                              ");
 			s.setStatusLabel(statusLabel2);
 		}
 		Button startButton = new Button(c_all, SWT.PUSH);
-		startButton.setText(" Starten ");
+		startButton.setText(" Start ");
 		startButton.addSelectionListener(new ButtonListener());
 	}
 	
@@ -93,28 +93,55 @@ public class ViewMain {
 		MenuItemListener l = new MenuItemListener();
 		menuBar = new Menu(shell, SWT.BAR);
 	    fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
-	    fileMenuHeader.setText("Datei");
+	    fileMenuHeader.setText("File");
 
 	    fileMenu = new Menu(shell, SWT.DROP_DOWN);
 	    fileMenuHeader.setMenu(fileMenu);
 	    
-	    fileOutDirItem = new MenuItem(fileMenu, SWT.PUSH);
-	    fileOutDirItem.setText("Ausgabe Ordner wählen");
-
-	    fileStationsItem= new MenuItem(fileMenu, SWT.PUSH);
-	    fileStationsItem.setText("Stationen bearbeiten");
+	    fileNewStationItem = new MenuItem(fileMenu, SWT.PUSH);
+	    fileNewStationItem.setText("Add Station");
 	    
-	    fileParamsItem = new MenuItem(fileMenu, SWT.PUSH);
-	    fileParamsItem.setText("Parameter bearbeiten");
+	    new MenuItem(fileMenu, SWT.SEPARATOR);
+	     
+	    fileSaveConfig = new MenuItem(fileMenu, SWT.PUSH);
+	    fileSaveConfig.setText("Save Configuration");
 	    
+	    fileReloadConfig = new MenuItem(fileMenu, SWT.PUSH);
+	    fileReloadConfig.setText("Reload Configuration");
+	    
+	    new MenuItem(fileMenu, SWT.SEPARATOR);
+	    	    
 	    fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
-	    fileExitItem.setText("Beenden");
+	    fileExitItem.setText("Exit");
 
 	    fileExitItem.addSelectionListener(l);
-	    fileParamsItem.addSelectionListener(l);
-	    fileStationsItem.addSelectionListener(l);
-	    fileOutDirItem.addSelectionListener(l);
+	    fileNewStationItem.addSelectionListener(l);
+	   
+	    fileSaveConfig.addSelectionListener(l);
+	    fileReloadConfig.addSelectionListener(l);
 	    
+	    configMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+	    configMenuHeader.setText("Configure");
+	    
+	    configMenu = new Menu(shell, SWT.DROP_DOWN);
+	    configMenuHeader.setMenu(configMenu);
+	    
+	    configStationsItem= new MenuItem(configMenu, SWT.PUSH);
+	    configStationsItem.setText("Edit Stations");
+	    
+	    configParamsItem = new MenuItem(configMenu, SWT.PUSH);
+	    configParamsItem.setText("Edit Parameters");
+	    
+	    configOutDirItem = new MenuItem(configMenu, SWT.PUSH);
+	    configOutDirItem.setText("Set Output Folder");
+   
+	    configSettingsItem = new MenuItem(configMenu, SWT.PUSH);
+	    configSettingsItem.setText("Settings");
+	    
+	    configParamsItem.addSelectionListener(l);
+	    configStationsItem.addSelectionListener(l);
+	    configOutDirItem.addSelectionListener(l);
+	    configSettingsItem.addSelectionListener(l);
 	    shell.setMenuBar(menuBar);
 	}
 	
@@ -122,17 +149,17 @@ public class ViewMain {
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			Button b = (Button)event.widget;
-			if (b.getText().equals(" Starten ")) {
+			if (b.getText().equals(" Start ")) {
 				master.StartClicked(true);
-				fileParamsItem.setEnabled(false);
-				fileStationsItem.setEnabled(false);
-				b.setText("Stoppen");
+				configMenu.setEnabled(false);
+				fileMenu.setEnabled(false);
+				b.setText(" Stop ");
 			}
-			else if (b.getText().equals("Stoppen")) {
+			else if (b.getText().equals(" Stop ")) {
 				master.StartClicked(false);
-				fileParamsItem.setEnabled(true);
-				fileStationsItem.setEnabled(true);
-				b.setText(" Starten ");
+				configMenu.setEnabled(true);
+				fileMenu.setEnabled(false);
+				b.setText(" Start ");
 			}
 		}
 	}
@@ -141,17 +168,24 @@ public class ViewMain {
 			if (((MenuItem) event.widget)==fileExitItem) {
 				shell.close();
 			}
-			else if (((MenuItem) event.widget) == fileParamsItem) {
+			else if (((MenuItem) event.widget) == configParamsItem) {
 				master.ParameterClicked();
 			}
-			else if (((MenuItem) event.widget) == fileStationsItem) {
+			else if (((MenuItem) event.widget) == configStationsItem) {
 				master.StationClicked();
 			}
-			else if (((MenuItem) event.widget) == fileOutDirItem) {
+			else if (((MenuItem) event.widget) == configOutDirItem) {
 				master.FolderClicked();
 			}
-			
-			
+			else if (((MenuItem) event.widget) == fileSaveConfig) {
+				master.saveConfigClicked();
+			}
+			else if (((MenuItem) event.widget) == fileReloadConfig) {
+				master.reloadConfigClicked();
+			}
+			else if (((MenuItem) event.widget) == configSettingsItem) {
+				master.settingsClicked();
+			}			
 		}
 	}
 }

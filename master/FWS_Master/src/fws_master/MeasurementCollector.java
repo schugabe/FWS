@@ -1,7 +1,13 @@
 package fws_master;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +30,7 @@ public class MeasurementCollector extends Thread {
 	private boolean newDay;
 	private Date lastRun;
 	private static String eol = System.getProperty( "line.separator" );
+	private String historyFile; 
 	
 	/**
 	 * Constructor
@@ -31,14 +38,17 @@ public class MeasurementCollector extends Thread {
 	 * @param interval
 	 * @param outDir Directory where plots and summary text file should be generated
 	 */
-	public MeasurementCollector(StationController controller, int interval,String outDir) {
+	public MeasurementCollector(StationController controller, int interval,String outDir, String historyDir) {
 		this.interval = 1000*interval;
 		this.controller = controller;
 		this.outDir = outDir;
+		this.historyFile =  historyDir+File.separator+"history.ser";
 		newDay = true;
-		historyController = new MeasurementHistoryController();
+		historyController = loadHistory(); 
 	}
 	
+
+
 	public void run() {
 		long sleepTime = this.interval;
 		long runTime;
@@ -60,6 +70,7 @@ public class MeasurementCollector extends Thread {
 				log.fine("Generating Plots");
 				this.buildPlots();
 				
+				saveHistory();
 				log.fine("Collector done");
 				
 				//calculate the runtime of the generation. Wait intervall-runtime to stick to the intervall.
@@ -72,6 +83,62 @@ public class MeasurementCollector extends Thread {
 				log.severe(ex.getMessage());
 			}
 		}
+	}
+
+	private void saveHistory() {
+		FileOutputStream fs;
+		ObjectOutputStream os;
+		
+		try {
+			fs = new FileOutputStream(historyFile);
+		} catch (FileNotFoundException e) {
+			log.severe("Creating History on Hard Disk failed: "+e.getLocalizedMessage());
+			return;
+		}
+		try {
+			os = new ObjectOutputStream(fs);
+		} catch (IOException e) {
+			log.severe("Creating ObjectOutputStream failed: "+e.getLocalizedMessage());
+			return;
+		}
+		try {
+			os.writeObject(this.historyController);
+		} catch (IOException e) {
+			log.severe("Writing History to Hard Disk failed: "+e.getLocalizedMessage());
+		}
+	}
+	
+	private MeasurementHistoryController loadHistory() {
+		
+		FileInputStream fs;
+		ObjectInputStream is;
+		MeasurementHistoryController controller;
+		
+		try {
+			fs = new FileInputStream(historyFile);
+		} catch (FileNotFoundException e) {
+			log.severe("Loading History: History not found : "+e.getLocalizedMessage());
+			return new MeasurementHistoryController();
+		}
+		
+		try {
+			is = new ObjectInputStream(fs);
+		} catch (IOException e) {
+			log.severe("Loading History: ObjectInputStream not created: "+e.getLocalizedMessage());
+			return new MeasurementHistoryController();
+		}
+
+		try {
+			controller = (MeasurementHistoryController)is.readObject();
+		} catch (IOException e) {
+			controller = new MeasurementHistoryController();
+			log.severe("Loading History: I/O Exception: "+e.getLocalizedMessage());
+		} catch (ClassNotFoundException e) {
+			controller = new MeasurementHistoryController();
+			log.severe("Loading History: Error during loading History: "+e.getLocalizedMessage());
+		}
+		
+		return controller;
 	}
 
 	/**
