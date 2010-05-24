@@ -1,5 +1,6 @@
 package fws_master;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,12 @@ import java.util.Date;
  * @author Johannes Kasberger
  *
  */
-public class MeasurementHistoryEntry {
+public class MeasurementHistoryEntry  
+implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7010608165381950190L;
 	private double value;
 	private Date timestamp;
 		

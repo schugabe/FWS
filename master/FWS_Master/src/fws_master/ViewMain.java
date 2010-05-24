@@ -145,20 +145,21 @@ public class ViewMain {
 	    shell.setMenuBar(menuBar);
 	}
 	
+	public void enableMenu(boolean enable) {
+		configMenu.setEnabled(enable);
+		fileMenu.setEnabled(enable);
+		
+	}
 	
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			Button b = (Button)event.widget;
 			if (b.getText().equals(" Start ")) {
 				master.StartClicked(true);
-				configMenu.setEnabled(false);
-				fileMenu.setEnabled(false);
 				b.setText(" Stop ");
 			}
 			else if (b.getText().equals(" Stop ")) {
 				master.StartClicked(false);
-				configMenu.setEnabled(true);
-				fileMenu.setEnabled(false);
 				b.setText(" Start ");
 			}
 		}
@@ -185,7 +186,10 @@ public class ViewMain {
 			}
 			else if (((MenuItem) event.widget) == configSettingsItem) {
 				master.settingsClicked();
-			}			
+			}
+			else if (((MenuItem) event.widget) == fileNewStationItem) {
+				master.viewAddStationClicked();
+			}
 		}
 	}
 }

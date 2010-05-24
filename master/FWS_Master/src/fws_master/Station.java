@@ -26,7 +26,7 @@ public class Station extends Thread{
 	private volatile boolean suspended;
 	private ModBusWrapper wrapper;
 	private static Logger log = Logger.getLogger("fws_master.station");
-	
+	public static String defaultIP = "10.0.0.29:502";
 	/**
 	 * The Station must belong to a controller and have a unique name.
 	 */
@@ -34,7 +34,7 @@ public class Station extends Thread{
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_interval = 60;
-		this.ipAddress = "127.0.0.1";
+		this.ipAddress = defaultIP;
 		this.statusLabel = null;
 		this.init();
 	}
@@ -50,7 +50,10 @@ public class Station extends Thread{
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_interval = polling_intervall;
-		this.ipAddress = ip;
+		if (checkIP(ip))
+			this.ipAddress = ip;
+		else
+			this.ipAddress = defaultIP;
 		this.statusLabel = null;
 		this.init();
 	}
@@ -93,7 +96,7 @@ public class Station extends Thread{
 			    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 			    String date =  sdf.format(cal.getTime());
 
-				statusLabel.setText(""+msg+" um "+ date);
+				statusLabel.setText(""+msg+" at "+ date);
 			}
 		});
 	}
@@ -112,7 +115,7 @@ public class Station extends Thread{
 						while(this.suspended)
 							wait();
 					}
-					setLabel("Gestartet");
+					setLabel("Running");
 				}
 				log.fine(this.getStationName()+" start pulling values");
 				this.getMeasurements();
@@ -129,7 +132,8 @@ public class Station extends Thread{
 	 * For each active StationInputBinding a value is transfered from the slave to the master.
 	 */
 	private void getMeasurements() {
-		this.setLabel("Online");
+		String newLabel = "Online";
+		
 		for(Binding b:this.parameters) {
 			if (b instanceof StationInputBinding) {
 				if (!((StationInputBinding) b).isActive())
@@ -139,6 +143,7 @@ public class Station extends Thread{
 				try {
 					result = wrapper.sendReadRequest(b.getAddress());
 				} catch (Exception e) {
+					newLabel = "Read failed";
 					continue;
 				}
 				
@@ -149,6 +154,7 @@ public class Station extends Thread{
 				}
 			}
 		}
+		this.setLabel(newLabel);
 	}
 	
 	/**
@@ -179,6 +185,8 @@ public class Station extends Thread{
 	 * @return false if changing of ip failed
 	 */
 	public boolean changeIPAddress(String newIP) {
+		if (!checkIP(newIP))
+			return false;
 		
 		ModBusWrapper config_wrapper = new ModBusWrapper(this.ipAddress);
 		
@@ -363,5 +371,9 @@ public class Station extends Thread{
 			this.measurements.clear();
 		}
 		return tmp;
+	}
+	
+	private boolean checkIP(String ip) {
+		return ip.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\:[0-9]{1,5}");
 	}
 }

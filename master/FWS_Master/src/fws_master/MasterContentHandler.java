@@ -14,11 +14,13 @@ public class MasterContentHandler implements ContentHandler {
 	private States state;
 	private String path;
 	private int generatorTime;
+	private boolean autoStart;
 	
 	public MasterContentHandler() {
 		this.state = States.IDLE;
 		this.path = "";
 		this.generatorTime = 30;
+		this.autoStart = false;
 	}
 	
 	public int getGeneratorTime() {
@@ -28,6 +30,13 @@ public class MasterContentHandler implements ContentHandler {
 		return path;
 	}
 	
+
+	/**
+	 * @return the autoStart
+	 */
+	public boolean isAutoStart() {
+		return autoStart;
+	}
 
 	@Override
 	public void characters(char[] ch, int start, int length)
@@ -43,6 +52,7 @@ public class MasterContentHandler implements ContentHandler {
 		switch(state) {
 		case PATH: this.path = content; break;
 		case GENERATORTIME: try {this.generatorTime = Integer.parseInt(content);} catch(Exception e) {this.generatorTime = 30; } break;
+		case AUTOSTART: try {this.autoStart = Boolean.parseBoolean(content); } catch(Exception e) { this.autoStart = false; } break;
 		}
 	}
 
@@ -101,7 +111,10 @@ public class MasterContentHandler implements ContentHandler {
 				this.state = States.PATH;
 			} else if (localName.equals("generatortime")) {
 				this.state = States.GENERATORTIME;
-			}
+			} 
+			else if (localName.equals("autostart")) {
+				this.state = States.AUTOSTART;
+			} 
 		} else {
 			this.state = States.IDLE;
 		}
@@ -115,7 +128,7 @@ public class MasterContentHandler implements ContentHandler {
 	}
 	
 	private enum States {
-		IDLE,PATH,GENERATORTIME;
+		IDLE,PATH,GENERATORTIME,AUTOSTART;
 	}
 
 }

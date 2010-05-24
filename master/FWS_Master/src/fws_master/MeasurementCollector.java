@@ -104,7 +104,7 @@ public class MeasurementCollector extends Thread {
 		try {
 			os.writeObject(this.historyController);
 		} catch (IOException e) {
-			log.severe("Writing History to Hard Disk failed: "+e.getLocalizedMessage());
+			log.severe("Writing History to Hard Disk failed: "+e.getStackTrace());
 		}
 	}
 	
