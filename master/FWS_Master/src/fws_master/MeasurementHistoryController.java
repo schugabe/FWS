@@ -16,6 +16,7 @@ import java.util.Vector;
  */
 public class MeasurementHistoryController 
 implements Serializable {
+
 	/**
 	 * 
 	 */

@@ -1,6 +1,7 @@
 package fws_master;
 
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -9,7 +10,13 @@ import java.util.LinkedList;
  * @author Johannes Kasberger
  *
  */
-public class MeasurementHistory {
+public class MeasurementHistory  
+implements Serializable  {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3023342558174695841L;
 	private String station;
 	private String parameter;
 	private Units unit;

@@ -81,7 +81,7 @@ public class PersistencePreferences {
 	 * @param outDir
 	 * @param generatorTime
 	 */
-	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime) {
+	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime, boolean autostart) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
@@ -102,6 +102,10 @@ public class PersistencePreferences {
 		
 		masterEl = document.createElement("generatortime");
 		masterEl.appendChild(document.createTextNode(""+generatorTime));
+		rootElement.appendChild(masterEl);
+		
+		masterEl = document.createElement("autostart");
+		masterEl.appendChild(document.createTextNode(""+autostart));
 		rootElement.appendChild(masterEl);
 		
 		for (Parameter p:params.getParameters()) {

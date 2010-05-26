@@ -53,7 +53,6 @@ import org.eclipse.swt.widgets.*;
 public class FWSMaster {
 	private ParameterController parameter_controller;
 	private StationController station_controller;
-	@SuppressWarnings("unused")
 	private ViewMain view;
 	private Display display;
 	private Shell shell;
@@ -64,6 +63,7 @@ public class FWSMaster {
 	private static boolean closing = false;
 	private static Logger log = Logger.getLogger("fws_master");
 	private MenuItem trayHideItem, trayStartItem, trayExitItem;
+	private boolean autoStart;
 	
 	/*private void generateParameters() {
 		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
@@ -86,7 +86,7 @@ public class FWSMaster {
 	 * @param display the SWT Display
 	 * @param configDir the os dependent config path
 	 */
-	private FWSMaster(Shell shell, Display display,String configDir) {
+	private FWSMaster(final Shell shell, Display display,String configDir) {
 		//Generate the Log File
 		try {
 			//max. 2 mb log file 
@@ -102,6 +102,18 @@ public class FWSMaster {
 		this.shell = shell;
 		this.display = display;
 		
+		//only enable disposing when exit in menu was called. Otherwise hide the shell
+		shell.addListener(SWT.Close, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (!closing) {
+					event.doit = false;
+					trayHideItem.setText("Show");
+					shell.setVisible(false);
+				}
+			}
+		});
+		
 		this.createTray();
 		//Load the preferences 
 		this.configDir = configDir;
@@ -112,6 +124,15 @@ public class FWSMaster {
 		view = new ViewMain(shell,display,this);
 		
 		this.collector.start();
+		if (this.autoStart) {
+			this.StartClicked(true);
+			this.shell.setVisible(true);
+			HideShow();
+		}
+		else {
+			this.shell.setVisible(false);
+			HideShow();
+		}
 	}
 	
 	/**
@@ -141,7 +162,7 @@ public class FWSMaster {
 			
 			item.addListener (SWT.MenuDetect, new Listener () {
 				public void handleEvent (Event event) {
-					menu.setVisible (true);
+					menu.setVisible(true);
 				}
 			});
 		}
@@ -169,6 +190,7 @@ public class FWSMaster {
 		log.config("Output Directory: "+this.outDir);
 		
 		this.generatorTime = config.getGeneratorTime();
+		this.autoStart = config.isAutoStart();
 		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir,configDir);
 	}
 	
@@ -208,6 +230,8 @@ public class FWSMaster {
 		if(!configDir.isDirectory())
 			configDir.mkdir();
 		
+		
+		
 		//Create the Master
 		FWSMaster master = new FWSMaster(shell,display,configDirPath);
 		
@@ -215,19 +239,8 @@ public class FWSMaster {
 		shell.open();
 		shell.setText("FWS Master");
 		
-		
-		//only enable disposing when exit in menu was called. Otherwise hide the shell
-		shell.addListener(SWT.Close, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (!closing) {
-					event.doit = false;
-					shell.setVisible(false);
-				}
-			}
-		});
-		
-				
+		if (master.isAutoStart())
+			shell.setVisible(false);
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
 		}
@@ -241,7 +254,7 @@ public class FWSMaster {
 	 */
 	private void shutdown() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime);
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart);
 		
 	}
 
@@ -252,7 +265,7 @@ public class FWSMaster {
 		Shell param_shall = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
 		param_shall.setLocation (pt.x, pt.y);
-		param_shall.setText ("Parameter Verwalten");
+		param_shall.setText ("Configure Parameters");
 		param_shall.setSize (600, 400);
 		
 		@SuppressWarnings("unused")
@@ -269,7 +282,7 @@ public class FWSMaster {
 		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
 		tmp_shell.setLocation (pt.x, pt.y);
-		tmp_shell.setText ("Stationen verwalten");
+		tmp_shell.setText ("Configure Stations");
 		tmp_shell.setSize (600, 400);
 		
 		@SuppressWarnings("unused")
@@ -301,6 +314,7 @@ public class FWSMaster {
 	 */
 	public void StartClicked(boolean start) {
 		this.station_controller.startStations(start);
+		this.view.enableMenu(!start);
 		if (start) {
 			trayStartItem.setText("Stop");
 			trayExitItem.setEnabled(false);
@@ -311,10 +325,24 @@ public class FWSMaster {
 	}
 
 	/**
+	 * Show the add station view
+	 */
+	public void viewAddStationClicked() {
+		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		Point pt = display.getCursorLocation();
+		tmp_shell.setLocation (pt.x, pt.y);
+		tmp_shell.setText ("Add new Station");
+		tmp_shell.setSize (300, 200);
+		
+		new ViewNew(tmp_shell,this);
+		tmp_shell.open();
+	}
+	/**
 	 * Called when User selects add station from the fileMenu
 	 */
-	public void addStationClicked() {
-		
+	public void addStationClicked(String name, String ip) {
+		Station newStation  = new Station(name, this.station_controller, ip, 60);
+		this.station_controller.addStation(newStation);
 	}
 	
 	/**
@@ -322,7 +350,7 @@ public class FWSMaster {
 	 */
 	public void saveConfigClicked() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime);
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart);
 	}
 	
 	/**
@@ -336,7 +364,16 @@ public class FWSMaster {
 	 * Called when the user selects the settings entry from the configMenu. Shows the Settings view.
 	 */
 	public void settingsClicked() {
+		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		Point pt = display.getCursorLocation();
+		tmp_shell.setLocation (pt.x, pt.y);
+		tmp_shell.setText ("Settings");
+		tmp_shell.setSize (200, 300);
 		
+		new ViewSettings(tmp_shell,this);
+		tmp_shell.open();
+		
+		return;
 	}
 
 	/**
@@ -357,14 +394,7 @@ public class FWSMaster {
 	class TrayItemListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			if (((MenuItem) event.widget)==trayHideItem) {
-				if (shell.isVisible()) {
-					shell.setVisible(false);
-					trayHideItem.setText("Show");
-				}
-				else {
-					shell.setVisible(true);
-					trayHideItem.setText("Hide");
-				}
+				HideShow();
 				
 			}
 			else if (((MenuItem) event.widget)==trayStartItem) {
@@ -380,6 +410,50 @@ public class FWSMaster {
 			else if (((MenuItem) event.widget)==trayExitItem) {
 				exitClicked();
 			}
+		}
+	}
+
+	/**
+	 * Get the Generator Time
+	 * @return
+	 */
+	public int getGeneratorTime() {
+		return generatorTime;
+	}
+
+	/**
+	 * The Generatortime is the time intervall after that the outputs are generated
+	 * @param generatorTime
+	 */
+	public void setGeneratorTime(int generatorTime) {
+		this.generatorTime = generatorTime;
+	}
+
+	/**
+	 * @param autoStart the autoStart to set
+	 */
+	public void setAutoStart(boolean autoStart) {
+		this.autoStart = autoStart;
+	}
+
+	/**
+	 * @return the autoStart
+	 */
+	public boolean isAutoStart() {
+		return autoStart;
+	}
+	
+	/**
+	 * Toggle the Main View
+	 */
+	private void HideShow() {
+		if (shell.isVisible()) {
+			shell.setVisible(false);
+			trayHideItem.setText("Show");
+		}
+		else {
+			shell.setVisible(true);
+			trayHideItem.setText("Hide");
 		}
 	}
 }
