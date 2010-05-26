@@ -1,6 +1,6 @@
 OBJ = sensor_main.o 
 
-OBJ += modbus.o enc28j60.o ip_arp_udp_tcp.o windspeed.o
+OBJ += modbus.o enc28j60.o ip_arp_udp_tcp.o windspeed.o winddir.o
 
 VPATH = modbus modbus/tcp sensors
 

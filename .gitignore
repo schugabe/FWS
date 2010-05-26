@@ -1,5 +1,6 @@
 .DS_Store
 Thumbs.db
+.config
 *.*~
 *.bak
 *~
@@ -13,12 +14,10 @@ Thumbs.db
 *.map
 *.io
 *.id
-Makefile~
 *.aux
 *.log
 *.toc
 *.synctex.gz
-.config
 *.out
 *.backup
 *.class

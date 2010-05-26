@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "../sensor_main.h"
 #include "windspeed.h"
 
 #define SPEED_PORT	PORTB
@@ -9,13 +10,14 @@
 
 #define TIMER_CRA	TCCR1A	
 #define TIMER_CRB	TCCR1B
+#define TIMSK		TIMSK1
 
 #define PRESC		1024
 #define COUNT_RANGE	65536L
 #define OVERFLOW_PERIOD_MS (uint16_t)((10000.0f * COUNT_RANGE * PRESC) / F_CPU)
 #define PERIOD_MS 	(uint16_t)(10000000.0f * PRESC / F_CPU)
 
-static void (*callback)(uint8_t) = NULL;
+static volatile uint16_t* windspeed;
 static volatile uint8_t overflows;
 
 /*========================*/
@@ -24,7 +26,6 @@ static volatile uint8_t overflows;
 
 /*
  * Interrupt Handler
- *
 */
 ISR(TIMER1_OVF_vect) {
 	overflows++;
@@ -32,7 +33,6 @@ ISR(TIMER1_OVF_vect) {
 
 /*
  * Interrupt Handler
- *
 */
 ISR(TIMER1_CAPT_vect) {
 	static uint16_t old_start = 0;
@@ -44,18 +44,18 @@ ISR(TIMER1_CAPT_vect) {
 	overflows = 0;
 
 	starttime = ICR1;
-	if (callback != NULL){
-		diff = starttime-old_start;
-		if(ov) {
-			ov--;
-			time_overflow = ov*OVERFLOW_PERIOD_MS;
-			time_difference = (COUNT_RANGE+diff)*PERIOD_MS / 1000L;
-		} else {
-			time_overflow = 0;
-			time_difference = diff*PERIOD_MS / 1000L;
-		}
-		callback(time_overflow+time_difference);
+
+	diff = starttime-old_start;
+	if(ov) {
+		ov--;
+		time_overflow = ov*OVERFLOW_PERIOD_MS;
+		time_difference = (COUNT_RANGE+diff)*PERIOD_MS / 1000L;
+	} else {
+		time_overflow = 0;
+		time_difference = diff*PERIOD_MS / 1000L;
 	}
+	*windspeed = time_overflow+time_difference;
+	
 	old_start = starttime;
 }
 
@@ -64,8 +64,8 @@ ISR(TIMER1_CAPT_vect) {
 /*     Procedures         */
 /*========================*/
 
-void windspeed_init(void (*indexfn)(uint8_t ms)) {
-	callback = indexfn;
+void windspeed_init(const volatile uint16_t* mem) {
+	windspeed = mem;
 	overflows = 0;
 	
 	SPEED_PORT |= _BV(SPEED_PIN);
@@ -73,7 +73,7 @@ void windspeed_init(void (*indexfn)(uint8_t ms)) {
 	
 	/* Pre Scaler 1024 = 12.207,03125 Hz = 81,92 µs */ 
 	TIMER_CRB &= ~_BV(ICNC1);
-	TIMER_CRB |= _BV(CS10) | _BV(CS12);
-	TIMSK |= (1<<TICIE1) | (1<<TOIE1);
+	TIMER_CRB |= _BV(CS12) | _BV(CS10);
+	TIMSK |= _BV(TOIE1);
 }
 

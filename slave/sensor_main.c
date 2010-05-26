@@ -1,43 +1,38 @@
-/*********************************************
- * vim:sw=8:ts=8:si:et
- * To use the above modeline in vim you must have "set modeline" in your .vimrc
- * Author: Guido Socher
- * Copyright: GPL V2
- *
- * Tuxgraphics AVR webserver/ethernet board
- *
- * http://tuxgraphics.org/electronics/
- * Chip type           : Atmega88/168/328 with ENC28J60
- *********************************************/
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 #include "sensor_main.h"
 #include "modbus/modbus.h"
+#include "sensors/winddir.h"
+#include "sensors/windspeed.h"
 
-volatile uint16_t winddir = 0x0; // 0 = N, 4 = O, 8 = S, 12 = W
+static volatile uint16_t winddir = 0x0; // in ° x10
+static volatile uint16_t temperature = 0x0; // in °C
+static volatile uint16_t windspeed = 0x0; // in ms
+
+void winddir(void) {
+	winddir = ADC / 48;
+}
+
+void temperature(void) {
+	temperature = ADC;
+}
 
 int main(void) {
+	adc_init(&winddir);
+	windspeed_init(&windspeed);
+	
 	mb_init();
-	
-	mb_registerRegister(0,&winddir);
-	
+	mb_registerRegister(0,(uint16_t*)&winddir);
+	mb_registerRegister(1,(uint16_t*)&windspeed);
+		
+	// Activate LED
 	PORTB &= ~_BV(PB1);
 	DDRB |= _BV(PB1);
-	
-	PORTD |= _BV(PD7);
-	DDRD |= _BV(PD7);
-	
-	ADMUX |= _BV(REFS0) | _BV(MUX0);
-	ADCSRA = 0xFF;
 	
 	sei();
 
 	while (1) {
 		mb_handleRequest();
 	}
-}
-
-ISR(ADC_vect) {
-	winddir = ADC / 48;
 }
