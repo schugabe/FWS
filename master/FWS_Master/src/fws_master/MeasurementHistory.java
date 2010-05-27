@@ -101,4 +101,8 @@ implements Serializable  {
 		this.values.remove(m);
 		
 	}
+	
+	public void removeAll() {
+		this.values = new LinkedList<MeasurementHistoryEntry>();
+	}
 }

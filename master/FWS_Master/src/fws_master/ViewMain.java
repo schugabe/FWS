@@ -15,7 +15,7 @@ public class ViewMain {
 	
 	private Menu menuBar, fileMenu,configMenu;
 	private MenuItem fileMenuHeader,configMenuHeader;
-	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig, fileExitItem, configParamsItem, configStationsItem, configOutDirItem, configSettingsItem;
+	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, configParamsItem, configStationsItem, configOutDirItem, configSettingsItem;
 	
 	public ViewMain(Shell shell, Display display,FWSMaster master) {
 		this.shell = shell;
@@ -110,10 +110,14 @@ public class ViewMain {
 	    fileReloadConfig.setText("Reload Configuration");
 	    
 	    new MenuItem(fileMenu, SWT.SEPARATOR);
-	    	    
+	    
+	    fileViewData = new MenuItem(fileMenu, SWT.PUSH);
+	    fileViewData.setText("View Data");
+	    
 	    fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
 	    fileExitItem.setText("Exit");
 
+	    fileViewData.addSelectionListener(l);
 	    fileExitItem.addSelectionListener(l);
 	    fileNewStationItem.addSelectionListener(l);
 	   
@@ -190,6 +194,10 @@ public class ViewMain {
 			else if (((MenuItem) event.widget) == fileNewStationItem) {
 				master.viewAddStationClicked();
 			}
+			else if (((MenuItem) event.widget) == fileViewData) {
+				master.viewDataClicked();
+			}
+			
 		}
 	}
 }

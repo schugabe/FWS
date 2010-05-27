@@ -325,8 +325,7 @@ public class MeasurementCollector extends Thread {
 		    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		    
 		    fw.write(sdf.format(new Date())+eol);
-
-			
+		    			
 			for(String s:result) {
 				fw.write(s+"\n");
 			}
@@ -350,5 +349,11 @@ public class MeasurementCollector extends Thread {
 	 */
 	public void setOutDir(String outDir) {
 		this.outDir = outDir;
+	}
+
+
+
+	public MeasurementHistoryController getMeasurementHistoryController() {
+		return this.historyController;
 	}
 }

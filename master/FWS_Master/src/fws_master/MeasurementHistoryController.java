@@ -209,4 +209,13 @@ implements Serializable {
 		return station+parameter;
 	}
 
+	public HashMap<String,MeasurementHistory>  getDataHours() {
+		return this.lastHours;
+		
+	}
+	
+	public HashMap<String,MeasurementHistory>  getDataDays() {
+		return this.lastYear;
+		
+	}
 }
