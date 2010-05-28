@@ -17,8 +17,8 @@
 #define OVERFLOW_PERIOD_MS (uint16_t)((10000.0f * COUNT_RANGE * PRESC) / F_CPU)
 #define PERIOD_MS 	(uint16_t)(10000000.0f * PRESC / F_CPU)
 
-static volatile uint16_t* windspeed;
-static volatile uint8_t overflows;
+static uint16_t volatile* windspeed;
+static uint8_t volatile overflows;
 
 /*========================*/
 /*     Interrupts         */
@@ -64,16 +64,24 @@ ISR(TIMER1_CAPT_vect) {
 /*     Procedures         */
 /*========================*/
 
-void windspeed_init(const volatile uint16_t* mem) {
+void windspeed_init(uint16_t volatile* mem) {
 	windspeed = mem;
-	overflows = 0;
 	
-	SPEED_PORT |= _BV(SPEED_PIN);
+	// disable pullup (externally provided)
+	SPEED_PORT &= ~_BV(SPEED_PIN);
 	SPEED_DDR &= ~_BV(SPEED_PIN);
-	
-	/* Pre Scaler 1024 = 12.207,03125 Hz = 81,92 µs */ 
+
 	TIMER_CRB &= ~_BV(ICNC1);
-	TIMER_CRB |= _BV(CS12) | _BV(CS10);
 	TIMSK |= _BV(TOIE1);
 }
 
+void windspeed_start(void) {
+	overflows = 0;
+	/* Pre Scaler 1024 = 12.207,03125 Hz = 81,92 µs */ 
+	TIMER_CRB |= _BV(CS12) | _BV(CS10);
+}
+
+void windspeed_stop(void) {
+	TIMER_CRB &= ~0x07;
+	*windspeed = 0xFFFF;
+}

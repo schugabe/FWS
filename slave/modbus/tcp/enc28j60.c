@@ -15,7 +15,7 @@
 #include <avr/io.h>
 #include "enc28j60.h"
 //
-#define F_CPU 12500000UL  // 12.5 MHz
+#define F_CPU 1562500UL
 #ifndef ALIBC_OLD
 #include <util/delay_basic.h>
 #else

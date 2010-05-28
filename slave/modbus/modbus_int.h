@@ -1,6 +1,8 @@
 #ifndef _modbus_int_h_
 #define _modbus_int_h_
 
+#include "modbus.h"
+
 // server listen port
 #define MODBUSPORT 502
 
@@ -14,17 +16,6 @@ typedef struct {
 
 typedef struct {
 	uint8_t function;
-	uint16_t start_address;
-	uint16_t amount;
-} request_t;
-
-typedef struct {
-	uint8_t function;
-	uint8_t bytecount;
-} response_t;
-
-typedef struct {
-	uint8_t function;
 	uint8_t errorcode;
 } error_t;
 
@@ -32,8 +23,7 @@ typedef struct {
 typedef struct {
 	mbap_t mbap;
 	union {
-		request_t request;
-		response_t response;
+		uint8_t function;
 		error_t error;
 	};
 } modbusmsg_t;
@@ -41,10 +31,51 @@ typedef struct {
 // Modbus error codes
 #define MB_ERR_FUNC 1
 #define MB_ERR_ADDR 2
-#define MB_ERR_AMOUNT 3
+#define MB_ERR_DATA 3
 #define MB_ERR_PROC 4
 
 #define MB_FUNC_READREG 0x04
+#define MB_FUNC_WRITEREG 0x06
+#define MB_FUNC_DEV_ID 0x2B
+
+typedef struct {
+	uint8_t function;
+	uint16_t start_address;
+	uint16_t amount;
+} readreg_req_t;
+
+typedef struct {
+	uint8_t function;
+	uint8_t bytecount;
+} readreg_res_t;
+
+typedef struct {
+	uint8_t function;
+	uint16_t start_address;
+	uint16_t value;
+} writereg_req_t;
+
+typedef struct {
+	uint8_t function;
+	uint8_t type;
+	uint8_t code;
+	uint8_t objid;
+} devid_req_t;
+
+typedef struct {
+	uint8_t id;
+	uint8_t length;
+} devid_obj_t;
+
+typedef struct {
+	uint8_t function;
+	uint8_t type;
+	uint8_t code;
+	uint8_t conflevel;
+	uint8_t more;
+	uint8_t nextobjid;
+	uint8_t amount;
+} devid_res_t;
 
 /*
    The following macros are used to convert from node 

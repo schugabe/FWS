@@ -10,6 +10,7 @@
  * Chip type           : Atmega88/168/328 with ENC28J60
  *********************************************/
 #include <avr/io.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "../sensor_main.h"
@@ -31,7 +32,8 @@ static uint8_t buf[BUFFER_SIZE+1];
 
 // Register file for indirect addressing of values
 #define MODBUS_REGISTER_COUNT 8
-static uint16_t* registers[MODBUS_REGISTER_COUNT];
+static uint16_t* registers[MODBUS_REGISTER_COUNT] = {NULL};
+static mb_writecb_t writecbs[MODBUS_REGISTER_COUNT] = {NULL};
 
 static uint8_t mb_set_error(modbusmsg_t* msg,uint8_t err) {
 	msg->error.function |= 0x80;
@@ -48,19 +50,19 @@ void mb_init(void) {
 	
 	//init the ethernet/ip layer:
 	init_ip_arp_udp_tcp(mymac,myip,MODBUSPORT);
-	
-	uint8_t i = 0;
-	for (; i < MODBUS_REGISTER_COUNT; i++)
-		registers[i] = (uint16_t*)NULL;
 }
 
 // Register the address of a register
-void mb_registerRegister(uint8_t num, uint16_t* addr) {
+void mb_addReadRegister(uint8_t num, uint16_t* addr) {
+	if (num >= MODBUS_REGISTER_COUNT)
+		return;
 	registers[num] = addr;
 }
-// Unregister a register
-void mb_removeRegister(uint8_t num) {
-	registers[num] = (uint16_t*)NULL;
+
+void mb_addWriteRegister(uint8_t num, mb_writecb_t cb) {
+	if (num >= MODBUS_REGISTER_COUNT)
+		return;
+	writecbs[num] = cb;
 }
 
 // Handle data
@@ -79,35 +81,84 @@ void mb_handleRequest(void) {
 	if (FROM_UINT16(msg->mbap.protoId) > 0)
 		return;
 
-	uint16_t amount, addr, len;
-	switch (msg->request.function) {
-		case MB_FUNC_READREG:
-			amount = FROM_UINT16(msg->request.amount);
-			addr = FROM_UINT16(msg->request.start_address);
+	uint16_t len;
+	switch (msg->function) {
+		case MB_FUNC_READREG: {
+			readreg_req_t* req = (readreg_req_t*)&(msg->function);
+			readreg_res_t* res = (readreg_res_t*)&(msg->function);
+			uint16_t amount = FROM_UINT16(req->amount);
+			uint16_t addr = FROM_UINT16(req->start_address);
 			
 			if (amount == 0 || amount > 0x7D) {
-				len = mb_set_error(msg,MB_ERR_AMOUNT);
+				len = mb_set_error(msg,MB_ERR_DATA);
 				break;
 			}
 			if (addr + amount <= MODBUS_REGISTER_COUNT) {
-				uint16_t *ptr = (uint16_t*)&(msg->response.function) + 1;
+				uint16_t *ptr = (uint16_t*)&(res->function);
 				uint16_t cnt = 0;
 				for (; cnt < amount; cnt++) {
 					if (registers[addr+cnt] == NULL) {
 						len = mb_set_error(msg,MB_ERR_PROC);
 						break;
 					}
+					++ptr;
 					*ptr = TO_UINT16(*(registers[addr+cnt]));
 				}
 				// if an error occurred
 				if (cnt < amount)
 					break;
 				
-				msg->response.bytecount = cnt*sizeof(uint16_t);
-				len = sizeof(response_t)+cnt*sizeof(uint16_t);
+				res->bytecount = cnt*sizeof(uint16_t);
+				len = sizeof(readreg_res_t)+cnt*sizeof(uint16_t);
 			} else
 				len = mb_set_error(msg,MB_ERR_ADDR);
 			break;
+			}
+		case MB_FUNC_WRITEREG: {
+			writereg_req_t* req = (writereg_req_t*)&(msg->function);
+			uint16_t addr = FROM_UINT16(req->start_address);
+			uint16_t value = FROM_UINT16(req->value);
+			
+			if (addr >= MODBUS_REGISTER_COUNT || writecbs[addr] == NULL) {
+				len = mb_set_error(msg,MB_ERR_ADDR);
+				break;
+			}
+			if (writecbs[addr](addr,value))
+				len = sizeof(writereg_req_t);
+			else
+				len = mb_set_error(msg,MB_ERR_PROC);
+			break;
+			}
+		case MB_FUNC_DEV_ID: {
+			devid_req_t* req = (devid_req_t*)&(msg->function);
+			devid_res_t* res = (devid_res_t*)&(msg->function);
+			devid_obj_t* obj = (devid_obj_t*)&(res->nextobjid);
+			uint8_t i = req->objid;
+			
+			if (req->type != 0x0E) {
+				len = mb_set_error(msg,MB_ERR_FUNC);
+				break;
+			}
+			if (!req->code || req->code > 4) {
+				len = mb_set_error(msg,MB_ERR_DATA);
+				break;
+			}
+			res->conflevel = 0x01;
+			res->more = 0x00;
+			res->nextobjid = 0x00;
+			res->amount = 3;
+			len = sizeof(devid_res_t);
+			if (i > 2)
+				i = 0;
+			// add requested objects
+			for (; i < 3; i++) {
+				++obj;
+				obj->id = i;
+				obj->length = 0;
+				len += sizeof(devid_obj_t)+obj->length;
+			}
+			break;
+			}
 		default: // set error
 			len = mb_set_error(msg,MB_ERR_FUNC);
 			break;

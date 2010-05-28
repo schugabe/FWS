@@ -1,37 +1,81 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
-#include "sensor_main.h"
 #include "modbus/modbus.h"
-#include "sensors/winddir.h"
+#include "sensors/adc.h"
+#include "sensors/led.h"
 #include "sensors/windspeed.h"
 
-static volatile uint16_t winddir = 0x0; // in ° x10
-static volatile uint16_t temperature = 0x0; // in °C
-static volatile uint16_t windspeed = 0x0; // in ms
+#define SENS_PORT	PORTD
+#define SENS_DDR	DDRD
+#define SENS_PIN	PD7
 
-void winddir(void) {
-	winddir = ADC / 48;
+static volatile uint16_t winddir = 0x0; // in ° x10
+static volatile uint16_t windspeed = 0x0; // in ms
+static volatile uint16_t temperature = 0x0; // in °C
+
+static uint8_t enable = 0;
+
+void read_winddir(uint16_t value) {
+	// if error occured
+	if (value == 0xffff)
+		winddir = value;
+	else {
+		// ADC in [0..720]
+		// ADC / 48 in [0..15] = 16 directions = 22,5° per direction
+		winddir = (value / 48) * 225;
+	}
 }
 
-void temperature(void) {
-	temperature = ADC;
+void read_temperature(uint16_t value) {
+	// if error occured
+	if (value == 0xffff)
+		temperature = value;
+	else {
+		// TODO: calibration
+		temperature = value;
+	}
+}
+
+void enableSensor(void) {
+	// Set port for sensor on/off
+	SENS_DDR |= _BV(SENS_PIN);
+	
+	if (enable) {
+		SENS_PORT |= _BV(SENS_PIN);
+		adc_start();
+		windspeed_start();
+		led_on();
+	} else {
+		SENS_PORT &= ~_BV(SENS_PIN);
+		adc_stop();
+		windspeed_stop();
+		led_blink();
+	}
 }
 
 int main(void) {
-	adc_init(&winddir);
+	// load values from eeprom
+	// TODO: eeprom
+	
+	led_init();
+		
+	adc_init();
+	adc_register(0,read_temperature);
+	adc_register(1,read_winddir);
+	
 	windspeed_init(&windspeed);
 	
 	mb_init();
-	mb_registerRegister(0,(uint16_t*)&winddir);
-	mb_registerRegister(1,(uint16_t*)&windspeed);
-		
-	// Activate LED
-	PORTB &= ~_BV(PB1);
-	DDRB |= _BV(PB1);
+	mb_addReadRegister(0,(uint16_t*)&winddir);
+	mb_addReadRegister(1,(uint16_t*)&windspeed);
+	mb_addReadRegister(2,(uint16_t*)&temperature);
 	
 	sei();
-
+	
+	enableSensor();
+	
 	while (1) {
 		mb_handleRequest();
 	}
