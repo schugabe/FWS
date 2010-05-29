@@ -14,14 +14,8 @@
  *********************************************/
 #include <avr/io.h>
 #include "enc28j60.h"
-//
-#define F_CPU 1562500UL
-#ifndef ALIBC_OLD
-#include <util/delay_basic.h>
-#else
-#include <avr/delay.h>
-#endif
 
+#include <util/delay_basic.h>
 
 static uint8_t Enc28j60Bank;
 static int16_t gNextPacketPtr;

@@ -76,7 +76,23 @@ int main(void) {
 	
 	enableSensor();
 	
+	//uint8_t val;
 	while (1) {
 		mb_handleRequest();
+		/*
+		val = PIND & _BV(PD6);
+		if (val) {
+			if (enable != 1) {
+				enable = 1;
+				enableSensor();
+			}
+		} else {
+			if (enable != 0) {
+				enable = 0;
+				enableSensor();
+			}
+		}
+		*/
+		// Wenn enable = 0 dann messen, ob eh kein Bezug zu Masse im Sensor, weil + auf 6.6 V
 	}
 }

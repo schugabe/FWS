@@ -9,15 +9,16 @@ TARGET=$(OUTDIR)sensor
 
 MCU=atmega328p
 DUDECPUTYPE=m328p
+DEF=F_CPU=12500000UL
 
 LOADCMD=avrdude
 LOADARG=-p $(DUDECPUTYPE) -c stk500v2 -e -U flash:w:
-FUSEARG=-p $(DUDECPUTYPE) -v -c stk500v2 -U efuse:r:-:m
+FUSEARG=-p $(DUDECPUTYPE) -v -c stk500v2
 
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 # optimize for size:
-CFLAGS=-g -mmcu=$(MCU) -Wall -W -Os -mcall-prologues
+CFLAGS=-g -D$(DEF) -mmcu=$(MCU) -Wall -W -Os -mcall-prologues
 
 all: $(TARGET).hex
 

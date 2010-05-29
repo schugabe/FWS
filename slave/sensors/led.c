@@ -12,11 +12,11 @@
 #define TIMER_CRA	TCCR0A
 #define TIMER_CRB	TCCR0B
 #define TIMSK		TIMSK0
-#define TIMER_RANGE	256
-#define TIMER_PRESC	1024
+
+#define _NENN		524288UL
 
 #define	BLINK_FREQ	1
-#define OVERFLOWS	(uint8_t)(10*F_CPU/(2*BLINK_FREQ*TIMER_RANGE*TIMER_PRESC) + 5)/10
+#define OVERFLOWS	(uint8_t)(10*F_CPU/(BLINK_FREQ*_NENN) + 5)/10
 
 static volatile uint8_t overflows;
 
