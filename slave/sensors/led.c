@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
-#include "../sensor_main.h"
 #include "led.h"
 
 #define LED_PORT	PORTB

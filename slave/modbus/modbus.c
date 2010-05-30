@@ -12,8 +12,7 @@
 #include <avr/io.h>
 #include <string.h>
 #include <stdlib.h>
-
-#include "../sensor_main.h"
+#include <util/delay.h>
 
 #include "tcp/ip_arp_udp_tcp.h"
 #include "tcp/enc28j60.h"

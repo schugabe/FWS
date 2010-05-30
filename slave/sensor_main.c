@@ -7,15 +7,17 @@
 #include "sensors/led.h"
 #include "sensors/windspeed.h"
 
+#include "sensor_main.h"
+
 #define SENS_PORT	PORTD
 #define SENS_DDR	DDRD
 #define SENS_PIN	PD7
 
-static volatile uint16_t winddir = 0x0; // in ° x10
+static volatile uint16_t winddir = 0x0; // in Â° x10
 static volatile uint16_t windspeed = 0x0; // in ms
-static volatile uint16_t temperature = 0x0; // in °C
+static volatile uint16_t temperature = 0x0; // in Â°C
 
-static uint8_t enable = 0;
+static uint16_t enable = 1;
 
 void read_winddir(uint16_t value) {
 	// if error occured
@@ -23,7 +25,7 @@ void read_winddir(uint16_t value) {
 		winddir = value;
 	else {
 		// ADC in [0..720]
-		// ADC / 48 in [0..15] = 16 directions = 22,5° per direction
+		// ADC / 48 in [0..15] = 16 directions = 22,5Â° per direction
 		winddir = (value / 48) * 225;
 	}
 }
@@ -36,6 +38,15 @@ void read_temperature(uint16_t value) {
 		// TODO: calibration
 		temperature = value;
 	}
+}
+
+uint8_t write_enable(uint8_t num, uint16_t value) {
+	if (num != 3)
+		return 0;
+	enable = value ? 1 : 0;
+	// TODO: store in eeprom
+	enableSensor();
+	return 1;
 }
 
 void enableSensor(void) {
@@ -71,28 +82,16 @@ int main(void) {
 	mb_addReadRegister(0,(uint16_t*)&winddir);
 	mb_addReadRegister(1,(uint16_t*)&windspeed);
 	mb_addReadRegister(2,(uint16_t*)&temperature);
+	mb_addReadRegister(3,&enable);
+	mb_addWriteRegister(3,write_enable);
 	
 	sei();
 	
 	enableSensor();
 	
-	//uint8_t val;
 	while (1) {
 		mb_handleRequest();
-		/*
-		val = PIND & _BV(PD6);
-		if (val) {
-			if (enable != 1) {
-				enable = 1;
-				enableSensor();
-			}
-		} else {
-			if (enable != 0) {
-				enable = 0;
-				enableSensor();
-			}
-		}
-		*/
 		// Wenn enable = 0 dann messen, ob eh kein Bezug zu Masse im Sensor, weil + auf 6.6 V
 	}
 }
+
