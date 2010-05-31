@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 /**
  * This class handles the collection of HistoryValues. It has two collections one for recent history an one for the history of the last year.
@@ -16,7 +17,7 @@ import java.util.Vector;
  */
 public class MeasurementHistoryController 
 implements Serializable {
-
+	private static Logger log = Logger.getLogger("fws_master.historycontroller");
 	/**
 	 * 
 	 */
@@ -46,6 +47,7 @@ implements Serializable {
 		if (data.size() == 0)
 			return false;
 		
+		log.fine("Adding new Data to Station "+station+"/"+parameter);
 		if (tmpHours == null) {	
 			tmpHours = new MeasurementHistory(station,parameter, data.firstElement().getParameter().getUnit());
 			lastHours.put(key, tmpHours);
@@ -69,6 +71,7 @@ implements Serializable {
 		catch (Exception ex) {
 			
 		}
+		tmpHours = lastHours.get(key);
 		tmpHours.addMeasurements(data);
 		
 		return isnewDay;
@@ -146,7 +149,8 @@ implements Serializable {
 	 * @param oldDate
 	 */
 	private void changeDay(String station,String parameter,HistoryFunctions historyFunction, Date oldDate) {
-			
+		log.fine("change day");
+		
 		String key = generateKey(station,parameter);
 		
 		//Calculate the Begin and End of the oldDate
@@ -197,7 +201,7 @@ implements Serializable {
 				newCurrent.addMeasurement(m);
 			
 			//If value was created on oldDate aggregate it with its history function
-			else if (m.getTimestamp().after(beginDay) && m.getTimestamp().before(endDay)) {
+			if (m.getTimestamp().after(beginDay) && m.getTimestamp().before(endDay)) {
 				switch(historyFunction) {
 				case AVG: calc += m.getValue(); break;
 				case MIN: if ( m.getValue() < calc) calc = m.getValue(); break;
@@ -216,8 +220,10 @@ implements Serializable {
 		
 		boolean exists = false;
 		for (MeasurementHistoryEntry find : year.getValues()) {
-			if (find.getTimestamp().getTime() == endDay.getTime() && find.getValue() == calc)
+			if (find.getTimestamp().getTime() == endDay.getTime() && find.getValue() == calc) {
 				exists = true;
+				log.severe("Value exists in days history:"+station+"/"+parameter+"/"+endDay+"/"+calc);
+			}
 		}
 		
 		if (!exists) {

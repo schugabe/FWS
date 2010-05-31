@@ -77,19 +77,19 @@ public class ViewData {
 		
 		ButtonListener bl = new ButtonListener();
 		
-		Button refreshButton = new Button(buttonsComp, SWT.BORDER);
+		Button refreshButton = new Button(buttonsComp, SWT.NONE);
 		refreshButton.setText("Refresh");
 		refreshButton.addSelectionListener(bl);
 		
-		Button exportButton = new Button(buttonsComp, SWT.BORDER);
+		Button exportButton = new Button(buttonsComp, SWT.NONE);
 		exportButton.setText("Export");
 		exportButton.addSelectionListener(bl);
 		
-		Button deleteButton = new Button(buttonsComp, SWT.BORDER);
+		Button deleteButton = new Button(buttonsComp, SWT.NONE);
 		deleteButton.setText("Delete Selection");
 		deleteButton.addSelectionListener(bl);
 		
-		Button deleteallButton = new Button(buttonsComp, SWT.BORDER);
+		Button deleteallButton = new Button(buttonsComp, SWT.NONE);
 		deleteallButton.setText("Delete all");
 		deleteallButton.addSelectionListener(bl);
 		
@@ -145,6 +145,7 @@ public class ViewData {
 		
 		
 		Collections.sort(newData);
+		Collections.reverse(newData);
 		dataTable.removeAll();
 		String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
 	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);

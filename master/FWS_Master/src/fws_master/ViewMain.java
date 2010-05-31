@@ -150,9 +150,16 @@ public class ViewMain {
 	}
 	
 	public void enableMenu(boolean enable) {
-		configMenu.setEnabled(enable);
-		fileMenu.setEnabled(enable);
 		
+		fileNewStationItem.setEnabled(enable);
+		fileSaveConfig.setEnabled(enable);
+		fileReloadConfig.setEnabled(enable);
+		
+		fileExitItem.setEnabled(enable);
+		configStationsItem.setEnabled(enable);
+		configParamsItem.setEnabled(enable);
+		configOutDirItem.setEnabled(enable);
+		configSettingsItem.setEnabled(enable);
 	}
 	
 	class ButtonListener extends SelectionAdapter {
