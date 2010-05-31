@@ -3,6 +3,7 @@ package fws_master;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 /**
@@ -100,5 +101,13 @@ implements Serializable  {
 	public void removeEntry(MeasurementHistoryEntry m) {
 		this.values.remove(m);
 		
+	}
+	
+	public void removeAll() {
+		this.values = new LinkedList<MeasurementHistoryEntry>();
+	}
+
+	public void sort() {
+		Collections.sort(this.values);
 	}
 }

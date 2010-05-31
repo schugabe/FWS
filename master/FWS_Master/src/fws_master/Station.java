@@ -200,8 +200,11 @@ public class Station extends Thread{
 			}
 			int []int_ip = this.convertIP(newIP);
 
-			config_wrapper.sendWriteRequest(0, int_ip[0]);
-			config_wrapper.sendWriteRequest(1, int_ip[1]);
+			if (!config_wrapper.sendWriteRequest(0, int_ip[0]))
+				return false;
+			if (!config_wrapper.sendWriteRequest(1, int_ip[1]))
+				return false;
+			
 			this.ipAddress = newIP;
 		}
 		

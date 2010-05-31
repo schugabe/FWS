@@ -456,4 +456,21 @@ public class FWSMaster {
 			trayHideItem.setText("Hide");
 		}
 	}
+
+	public void viewDataClicked() {
+		Shell tmp_shell = new Shell(this.display, SWT.RESIZE | SWT.CLOSE | SWT.TITLE);
+		Point pt = display.getCursorLocation();
+		tmp_shell.setLocation (pt.x, pt.y);
+		tmp_shell.setText ("Collected Data");
+		tmp_shell.setSize (700, 800);
+		
+		new ViewData(this,tmp_shell);
+		tmp_shell.open();
+		
+		return;
+	}
+	
+	public MeasurementHistoryController getHistoryController() {
+		return this.collector.getMeasurementHistoryController();
+	}
 }

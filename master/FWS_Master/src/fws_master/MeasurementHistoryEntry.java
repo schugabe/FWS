@@ -9,7 +9,7 @@ import java.util.Date;
  *
  */
 public class MeasurementHistoryEntry  
-implements Serializable {
+implements Serializable, Comparable<MeasurementHistoryEntry	> {
 	/**
 	 * 
 	 */
@@ -40,5 +40,14 @@ implements Serializable {
 	 */
 	public Date getTimestamp() {
 		return timestamp;
+	}
+
+	@Override
+	public int compareTo(MeasurementHistoryEntry o) {
+		if (this.getTimestamp() == o.getTimestamp() && this.getValue() == o.getValue())
+			return 0;
+		if (this.getTimestamp().before(o.getTimestamp()))
+			return -1;
+		return 1;
 	}
 }

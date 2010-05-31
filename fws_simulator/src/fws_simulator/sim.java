@@ -1,6 +1,5 @@
 package fws_simulator;
 
-import java.util.Random;
 
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.procimg.*;
@@ -8,6 +7,7 @@ import net.wimpi.modbus.procimg.*;
 import net.wimpi.modbus.ModbusCoupler;
 
 //java -classpath ../../master/FWS_Master/libs/jamod-1.2.jar:. -Dnet.wimpi.modbus.debug=true fws_simulator.sim
+//java -classpath ../../master/FWS_Master/libs/jamod-1.2.jar:.  fws_simulator.sim
 public class sim {
 
 	/**
@@ -41,16 +41,17 @@ public class sim {
 			listener = new ModbusTCPListener(3);
 			listener.setPort(port);
 			listener.start();  
-			
+			double x = 0;
 			while(true) {
-				Random asdf  =new Random();
-				int next = Math.abs(asdf.nextInt(20));
-				reg1.setValue((short)next);
+				double tmp = Math.sin(x/200)+1.0f;
+				tmp *= 10.0;
+				reg1.setValue((short)tmp);
 				
-				next = Math.abs(asdf.nextInt(50));
-				reg2.setValue((short)next);
-				
-				//System.out.println(reg.getValue());
+				tmp = Math.cos(x/200)+1.0f;
+				tmp *= 10.0;
+				reg2.setValue((short)tmp);
+				x++;
+				System.out.println(reg1.getValue()+";"+reg2.getValue());
 				
 				Thread.sleep(1000);
 			}

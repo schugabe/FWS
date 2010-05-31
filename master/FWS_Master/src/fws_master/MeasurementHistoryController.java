@@ -38,18 +38,40 @@ implements Serializable {
 	 * @param parameter Name of the Parameter
 	 * @param data Vector of Measurements
 	 */
-	public void addData(String station,String parameter,Vector<Measurement> data) {
-		if (data.size() == 0)
-			return;
-		
+	public boolean addData(String station,String parameter,Vector<Measurement> data) {
 		//Find Data in recent history
 		String key = generateKey(station,parameter);
-		MeasurementHistory tmp = lastHours.get(key);
-		if (tmp == null) {	
-			tmp = new MeasurementHistory(station,parameter, data.firstElement().getParameter().getUnit());
-			lastHours.put(key, tmp);
+		MeasurementHistory tmpHours = lastHours.get(key);
+		
+		if (data.size() == 0)
+			return false;
+		
+		if (tmpHours == null) {	
+			tmpHours = new MeasurementHistory(station,parameter, data.firstElement().getParameter().getUnit());
+			lastHours.put(key, tmpHours);
 		}
-		tmp.addMeasurements(data);
+		
+		MeasurementHistoryEntry lastEntry;
+		boolean isnewDay = false;
+		
+		try {
+			lastEntry = tmpHours.getValues().getLast();
+			Calendar now,last;
+			last  = Calendar.getInstance();
+			last.setTime(lastEntry.getTimestamp());
+			
+			now = Calendar.getInstance();
+			if (last.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR) || last.get(Calendar.YEAR) != last.get(Calendar.YEAR)) {
+				this.changeDay(station, parameter, data.firstElement().getParameter().getHistory_function(), lastEntry.getTimestamp());
+				isnewDay = true;
+			}
+		}
+		catch (Exception ex) {
+			
+		}
+		tmpHours.addMeasurements(data);
+		
+		return isnewDay;
 	}
 	
 	
@@ -123,7 +145,7 @@ implements Serializable {
 	 * @param historyFunction
 	 * @param oldDate
 	 */
-	public void changeDay(String station,String parameter,HistoryFunctions historyFunction, Date oldDate) {
+	private void changeDay(String station,String parameter,HistoryFunctions historyFunction, Date oldDate) {
 			
 		String key = generateKey(station,parameter);
 		
@@ -174,7 +196,7 @@ implements Serializable {
 			if (m.getTimestamp().after(beginDay))
 				newCurrent.addMeasurement(m);
 			
-			//If value was created on oldDate aggregate it with historyfunction
+			//If value was created on oldDate aggregate it with its history function
 			else if (m.getTimestamp().after(beginDay) && m.getTimestamp().before(endDay)) {
 				switch(historyFunction) {
 				case AVG: calc += m.getValue(); break;
@@ -183,7 +205,8 @@ implements Serializable {
 				}
 			}
 		}
-		
+		lastHours.remove(key);
+		newCurrent.sort();
 		//Save the cleaned up recent history
 		lastHours.put(key,newCurrent);
 		
@@ -191,10 +214,18 @@ implements Serializable {
 			calc /= current.getValues().size();
 		}
 		
-		//Save calculated value to long term history
-		MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,endDay);
-		year.addMeasurement(entry);
-		if (year.getValues().size() > 355) {
+		boolean exists = false;
+		for (MeasurementHistoryEntry find : year.getValues()) {
+			if (find.getTimestamp().getTime() == endDay.getTime() && find.getValue() == calc)
+				exists = true;
+		}
+		
+		if (!exists) {
+			//Save calculated value to long term history
+			MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,endDay);
+			year.addMeasurement(entry);
+		}
+		while (year.getValues().size() > 355) {
 			year.removeFirstEntry();
 		}
 	}
@@ -209,4 +240,13 @@ implements Serializable {
 		return station+parameter;
 	}
 
+	public HashMap<String,MeasurementHistory>  getDataHours() {
+		return this.lastHours;
+		
+	}
+	
+	public HashMap<String,MeasurementHistory>  getDataDays() {
+		return this.lastYear;
+		
+	}
 }

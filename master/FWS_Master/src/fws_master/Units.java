@@ -18,7 +18,7 @@ public enum Units {
 			case SPEEDMS: return "m/s";
 			case FREQUENCY: return "Hz";
 			case DIRECTION: return "Richtung";
-			case TEMPERATURE: return "GradC";
+			case TEMPERATURE: return "°C";
 			default: return "";
 		}
 	}
@@ -37,7 +37,7 @@ public enum Units {
 			return FREQUENCY;
 		if (unit.equals("Richtung"))
 			return DIRECTION;
-		if (unit.equals("GradC"))
+		if (unit.equals("°C"))
 			return TEMPERATURE;
 		 return UNKNOWN;
 	}

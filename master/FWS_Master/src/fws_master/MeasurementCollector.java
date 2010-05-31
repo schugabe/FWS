@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
@@ -27,8 +26,7 @@ public class MeasurementCollector extends Thread {
 	private String outDir;
 	private MeasurementHistoryController historyController;
 	private static Logger log = Logger.getLogger("fws_master.collector");
-	private boolean newDay;
-	private Date lastRun;
+	private boolean newDay = false;
 	private static String eol = System.getProperty( "line.separator" );
 	private String historyFile; 
 	
@@ -43,7 +41,7 @@ public class MeasurementCollector extends Thread {
 		this.controller = controller;
 		this.outDir = outDir;
 		this.historyFile =  historyDir+File.separator+"history.ser";
-		newDay = true;
+		
 		historyController = loadHistory(); 
 	}
 	
@@ -57,8 +55,6 @@ public class MeasurementCollector extends Thread {
 				Thread.sleep(sleepTime);
 				runTime = System.currentTimeMillis();
 				
-				checkDayChanged();
-				
 				// Start collecting Data
 				log.fine("Getting Data from Stations");
 				
@@ -71,6 +67,7 @@ public class MeasurementCollector extends Thread {
 				this.buildPlots();
 				
 				saveHistory();
+				newDay = false;
 				log.fine("Collector done");
 				
 				//calculate the runtime of the generation. Wait intervall-runtime to stick to the intervall.
@@ -80,7 +77,7 @@ public class MeasurementCollector extends Thread {
 				if (sleepTime <= 0)
 					sleepTime = 1;
 			} catch (Exception ex) {
-				log.severe(ex.getMessage());
+				log.severe("Exception collecting Data: "+ex.getMessage()+ "\n"+ex.getStackTrace());
 			}
 		}
 	}
@@ -179,27 +176,6 @@ public class MeasurementCollector extends Thread {
 	}
 
 	/**
-	 * Check if new Day started
-	 */
-	private void checkDayChanged() {
-		
-		Calendar runCal = Calendar.getInstance();
-		Date currentRun = new Date();
-		runCal.setTime(currentRun);
-		
-		if (lastRun != null) {
-			Calendar lastRunCal = Calendar.getInstance();
-			lastRunCal.setTime(lastRun);
-			
-			if(runCal.get(Calendar.YEAR)!=lastRunCal.get(Calendar.YEAR) || runCal.get(Calendar.DAY_OF_YEAR)!=lastRunCal.get(Calendar.DAY_OF_YEAR)) {
-				this.newDay = true;
-				log.fine("New Day started");
-			}
-		}
-		lastRun = currentRun;
-	}
-	
-	/**
 	 * Builds the Output for the current status message. Adds the measurements to the History.
 	 * @param data Measurements of a slave, all of the same sensor (e.g. temperature of station 1)
 	 * @return Parameter Name:Average Value;Standard deviation of value;
@@ -211,11 +187,10 @@ public class MeasurementCollector extends Thread {
 			Vector<Measurement> ms = e.getValue();
 			
 			Measurement tmp = ms.firstElement();
+			if (ms.size() == 0)
+				continue;
+			newDay = this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms);
 			
-			this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms);
-			if (newDay) {
-				this.historyController.changeDay(tmp.getStation().getStationName(), tmp.getParameter().getName(), tmp.getParameter().getHistory_function(), new Date());
-			}
 			double avg = 0;
 			
 			for(Measurement m : ms) {
@@ -230,7 +205,11 @@ public class MeasurementCollector extends Thread {
 				sd = sd + ((m.getConvValue()-avg)*(m.getConvValue()-avg));
 			}
 			
-			sd = Math.sqrt(sd/(ms.size()-1));
+			int div = ms.size()-1;
+			if (ms.size() == 1)
+				div = 1;
+			
+			sd = Math.sqrt(sd/(div));
 			res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";\n";
 		}
 		return res;
@@ -325,8 +304,7 @@ public class MeasurementCollector extends Thread {
 		    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		    
 		    fw.write(sdf.format(new Date())+eol);
-
-			
+		    			
 			for(String s:result) {
 				fw.write(s+"\n");
 			}
@@ -350,5 +328,11 @@ public class MeasurementCollector extends Thread {
 	 */
 	public void setOutDir(String outDir) {
 		this.outDir = outDir;
+	}
+
+
+
+	public MeasurementHistoryController getMeasurementHistoryController() {
+		return this.historyController;
 	}
 }

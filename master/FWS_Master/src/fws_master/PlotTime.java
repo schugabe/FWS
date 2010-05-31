@@ -51,7 +51,7 @@ public class PlotTime extends PlotBase {
 			fileName += hist.getStation()+"_"+hist.getParameter();
 			for (MeasurementHistoryEntry m:hist.getValues()) {
 				
-				s1.add(new Second(m.getTimestamp()), m.getValue());
+				s1.addOrUpdate(new Second(m.getTimestamp()), m.getValue());
 			}
 	        dataset.addSeries(s1);
 		}
