@@ -2,6 +2,7 @@ package fws_master;
 
 import java.text.SimpleDateFormat;
 
+import java.util.Collections;
 import java.util.Vector;
 
 import org.eclipse.swt.*;
@@ -94,13 +95,10 @@ public class ViewData {
 		
 	}
 	
-	private void addKeys(Vector<String> tmp) {
-		String last = "";
+	private void addKeys(Vector<String> tmp, String postfix) {
+		
 		for(String key : tmp) {
-			if (!key.equals(last)) {
-				this.dataList.add(key);
-				last = key;
-			}
+			this.dataList.add(key+";"+postfix);
 		}
 	}
 	
@@ -109,10 +107,12 @@ public class ViewData {
 		this.dataList.removeAll();
 		Vector<String> tmp = new Vector<String>();
 		tmp.addAll(hist.getDataHours().keySet());
+		this.addKeys(tmp,"hours");
 		
+		tmp.removeAllElements();
 		tmp.addAll(hist.getDataDays().keySet());
+		this.addKeys(tmp,"days");
 		
-		this.addKeys(tmp);
 	}
 	
 	class ListListener implements Listener{
@@ -129,13 +129,22 @@ public class ViewData {
 			return;
 		}
 		MeasurementHistoryController hist = master.getHistoryController();
-		MeasurementHistory data = hist.getDataHours().get(key);
-		MeasurementHistory data2 = hist.getDataDays().get(key);
-		Vector<MeasurementHistoryEntry> newData = new Vector<MeasurementHistoryEntry>(data.getValues().size()+data2.getValues().size());
+		MeasurementHistory data;
+		try {
+			if (getCurrentTimeBase().equals("hours"))
+				data = hist.getDataHours().get(key);
+			else
+				data = hist.getDataDays().get(key);
+			}
+		catch (Exception ex) {
+			return;
+		}
 		
+		Vector<MeasurementHistoryEntry> newData = new Vector<MeasurementHistoryEntry>(data.getValues().size());
 		newData.addAll(data.getValues());
-		newData.addAll(data2.getValues());
 		
+		
+		Collections.sort(newData);
 		dataTable.removeAll();
 		String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
 	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
@@ -146,11 +155,14 @@ public class ViewData {
 		}
 	}
 
+	private String getCurrentTimeBase() throws Exception {
+		return dataList.getSelection()[0].split(";")[1];
+	}
 	/**
 	 * @return
 	 */
 	private String getCurrentKey() throws Exception {
-		return dataList.getSelection()[0];
+		return dataList.getSelection()[0].split(";")[0];
 	}
 	
 	class ButtonListener extends SelectionAdapter {
@@ -177,15 +189,18 @@ public class ViewData {
 	}
 
 	private void delete(boolean all) {
-		String key;
+		String key,timebase;
 		try {
 			key = getCurrentKey();
+			timebase = getCurrentTimeBase();
 		} catch (Exception e) {
 			return;
-		}
+		} 
 		MeasurementHistoryController hist = master.getHistoryController();
-		hist.getDataHours().get(key).removeAll();
-		hist.getDataDays().get(key).removeAll();
+		if (timebase.equals("hours"))
+			hist.getDataHours().get(key).removeAll();
+		else
+			hist.getDataDays().get(key).removeAll();
 		this.list_selected();
 		
 	}
