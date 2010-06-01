@@ -19,7 +19,7 @@ implements Serializable  {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7029645578842445524L;
+	private static final long serialVersionUID = 3023342558174695841L;
 	private String station;
 	private String parameter;
 	private Units unit;
