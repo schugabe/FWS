@@ -10,6 +10,7 @@ import java.util.logging.SimpleFormatter;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
@@ -160,19 +161,22 @@ public class FWSMaster {
 			trayExitItem.setText("Exit");
 			trayExitItem.addSelectionListener(l);
 			
-			item.addListener(SWT.MouseDoubleClick, new Listener() {
+			item.addSelectionListener(new SelectionListener() {
 
 				@Override
-				public void handleEvent(Event event) {
-					if (!shell.isVisible())
-						HideShow();
+				public void widgetDefaultSelected(SelectionEvent e) {
+					HideShow();
+				}
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					
 				}
 				
 			});
 			
 			item.addListener (SWT.MenuDetect, new Listener () {
 				public void handleEvent (Event event) {
-					
 					menu.setVisible(true);
 				}
 			});
