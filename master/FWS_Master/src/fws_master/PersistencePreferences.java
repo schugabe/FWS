@@ -92,13 +92,14 @@ public class PersistencePreferences {
 			return;
 		}
 		Document document = documentBuilder.newDocument();
-		
+				
 		Element rootElement = document.createElement("fws_config");
 		document.appendChild(rootElement);
 		
 		Element masterEl = document.createElement("path");
 		masterEl.appendChild(document.createTextNode(outDir));
 		rootElement.appendChild(masterEl);
+		
 		
 		masterEl = document.createElement("generatortime");
 		masterEl.appendChild(document.createTextNode(""+generatorTime));
@@ -166,6 +167,7 @@ public class PersistencePreferences {
 		Transformer transformer = null;
 		try {
 			transformer = transformerFactory.newTransformer();
+			//transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		} catch (TransformerConfigurationException e) {
 			log.warning(e.getMessage());
 		}

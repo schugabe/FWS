@@ -58,16 +58,28 @@ public class MeasurementCollector extends Thread {
 				// Start collecting Data
 				log.fine("Getting Data from Stations");
 				
+				try {
+					Vector<String> result = getData();
+					if(result.size()>0)
+						this.WriteOutput("result.txt", result);
+				} catch (Exception ex) {
+					log.severe("Exception getting Data: "+ex.getMessage());
+				}
 				
-				Vector<String> result = getData();
-				if(result.size()>0)
-					this.WriteOutput("result.txt", result);
+				try {
+					log.fine("Generating Plots");
+					this.buildPlots();
+				} catch (Exception ex) {
+					log.severe("Exception ploting Data: "+ex.getMessage());
+				}
 				
-				log.fine("Generating Plots");
-				this.buildPlots();
+				try {
+					saveHistory();
+				} catch(Exception ex) {
+					log.severe("Exception saving Data: "+ex.getMessage());
+				}
 				
-				saveHistory();
-				newDay = false;
+				this.newDay = false;
 				log.fine("Collector done");
 				
 				//calculate the runtime of the generation. Wait intervall-runtime to stick to the intervall.
@@ -77,7 +89,7 @@ public class MeasurementCollector extends Thread {
 				if (sleepTime <= 0)
 					sleepTime = 1;
 			} catch (Exception ex) {
-				log.severe("Exception collecting Data: "+ex.getMessage()+ "\n"+ex.getStackTrace());
+				log.severe("Exception collecting Data: "+ex.getMessage());
 			}
 		}
 	}
@@ -149,7 +161,8 @@ public class MeasurementCollector extends Thread {
 
 		for(Station s:this.controller.getStations()) {
 			Vector<Measurement> measurements = s.getLastMeasurements();
-			if (measurements==null)
+			
+			if (measurements == null)
 				continue;
 			
 			log.fine("Station "+s.getStationName()+" has "+measurements.size()+" new Measurements");
@@ -157,7 +170,7 @@ public class MeasurementCollector extends Thread {
 			if(measurements.size() == 0)
 				continue;
 			
-			//Sort Measurements
+			//Sort Measurements after Parameters
 			HashMap<String,Vector<Measurement>> params = new HashMap<String,Vector<Measurement>>();
 			
 			for(Measurement m:measurements) {
@@ -184,33 +197,41 @@ public class MeasurementCollector extends Thread {
 		String res = "";
 	
 		for(Entry<String, Vector<Measurement>> e:data.entrySet()) {
-			Vector<Measurement> ms = e.getValue();
-			
-			Measurement tmp = ms.firstElement();
-			if (ms.size() == 0)
-				continue;
-			newDay = this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms);
-			
-			double avg = 0;
-			
-			for(Measurement m : ms) {
-				avg += m.getConvValue();
+			try {
+				Vector<Measurement> ms = e.getValue();
+				
+				if (ms.size() == 0)
+					continue;
+				
+				Measurement tmp = ms.firstElement();
+				
+				newDay = this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms);
+				
+				double avg = 0;
+				
+				for(Measurement m : ms) {
+					avg += m.getConvValue();
+				}
+				
+				avg /= ms.size();
+				
+				double sd = 0;
+				
+				for(Measurement m: ms) {
+					sd = sd + ((m.getConvValue()-avg)*(m.getConvValue()-avg));
+				}
+				
+				int div = ms.size() - 1;
+				if (ms.size() == 1)
+					div = 1;
+				
+				sd = Math.sqrt(sd/(div));
+				
+				res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";\n\r";
+				
+			} catch (Exception ex) {
+				log.severe("Exception in buildOutput on Parameter("+e.getKey()+"): "+ex.getStackTrace());
 			}
-			
-			avg /= ms.size();
-			
-			double sd = 0;
-			
-			for(Measurement m: ms) {
-				sd = sd + ((m.getConvValue()-avg)*(m.getConvValue()-avg));
-			}
-			
-			int div = ms.size()-1;
-			if (ms.size() == 1)
-				div = 1;
-			
-			sd = Math.sqrt(sd/(div));
-			res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";\n";
 		}
 		return res;
 	}
@@ -238,7 +259,7 @@ public class MeasurementCollector extends Thread {
 		PlotController plotController = new PlotController(this.outDir);
 		PlotBase timePlot = plotController.getPlot("Zeitverlauf");
 		
-		HashMap<Integer,Vector<MeasurementHistory>> plots = new HashMap<Integer,Vector<MeasurementHistory>>();
+		HashMap<Integer,PlotData> plots = new HashMap<Integer,PlotData>();
 		
 		
 		for (Station s:this.controller.getStations()) {
@@ -256,18 +277,20 @@ public class MeasurementCollector extends Thread {
 							continue;
 						
 						//If only one kind of Data should be in the Diagram it will be generated
-						Vector<MeasurementHistory> tmpData;
+						PlotData tmpData;
+						
 						if (cfg.getId() == -1) {
-							tmpData = new Vector<MeasurementHistory>(1);
-						} else {
+							tmpData = new PlotData(cfg,new Vector<MeasurementHistory>());
+						}
+						else {
 							//If more than one kind of data should be in the diagram the drawing process starts after processing the plotconfig of all stations
 							tmpData = plots.get(cfg.getId());
 							if (tmpData == null) {
-								tmpData = new Vector<MeasurementHistory>();
+								tmpData = new PlotData(cfg,new Vector<MeasurementHistory>());
 								plots.put(cfg.getId(), tmpData);
 							}
 						}
-						tmpData.add(this.buildPlotData(cfg, s.getStationName(), b.getParameter().getName()));
+						tmpData.addData(this.buildPlotData(cfg, s.getStationName(), b.getParameter().getName()));
 						
 						// Plot the Data if everything is loaded
 						if (cfg.getId() == -1) {
@@ -281,7 +304,7 @@ public class MeasurementCollector extends Thread {
 		}
 		
 		//Plot the Diagrams with more than one data series in it
-		for(Entry<Integer, Vector<MeasurementHistory>> tmpPlots:plots.entrySet()) {
+		for(Entry<Integer, PlotData> tmpPlots:plots.entrySet()) {
 			timePlot.createPlot(tmpPlots.getValue(),""+tmpPlots.getKey());
 		}
 		
