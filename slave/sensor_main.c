@@ -13,12 +13,14 @@
 #define SENS_DDR	DDRD
 #define SENS_PIN	PD7
 
+#define ENABLENUM	2
+
 static volatile uint16_t winddir = 0x0; // in ° x10
 static volatile uint16_t windspeed = 0x0; // in ms
 static volatile uint16_t temperature = 0x0; // in °C
 
 static uint16_t enable = 1;
-static uint8_t ip[] = {10,0,0,29};
+static uint8_t ip[] = {192,168,0,111};
 
 void read_winddir(uint16_t value) {
 	// if error occured
@@ -38,12 +40,13 @@ void read_temperature(uint16_t value) {
 	else {
 		// TODO: calibration
 		// 485 = 14°C
-		temperature = value;
+		// 388 = 25°C
+		temperature = (690000-((uint32_t)value*1134UL))/1000;
 	}
 }
 
 uint8_t write_enable(uint8_t num, uint16_t value) {
-	if (num != 3)
+	if (num != ENABLENUM)
 		return 0;
 	enable = value ? 1 : 0;
 	// TODO: store in eeprom
@@ -94,14 +97,14 @@ int main(void) {
 	mb_init();
 	mb_setIP(ip);
 	
-	mb_addReadRegister(2,&enable);
+	mb_addReadRegister(ENABLENUM,&enable);
 	mb_addReadRegister(3,(uint16_t*)&winddir);
 	mb_addReadRegister(4,(uint16_t*)&windspeed);
 	mb_addReadRegister(5,(uint16_t*)&temperature);
 	
 	mb_addWriteRegister(0,write_IP);
 	mb_addWriteRegister(1,write_IP);
-	mb_addWriteRegister(2,write_enable);
+	mb_addWriteRegister(ENABLENUM,write_enable);
 	
 	sei();
 	
