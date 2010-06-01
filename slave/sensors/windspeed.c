@@ -24,6 +24,8 @@
 #define PERIOD		(uint16_t)(SCALE_FAC * TIMER_T)
 // WIND_SPEED = 39520
 #define WIND_SPEED	(uint16_t)(COMMA_FAC * SCALE_FAC * 1000 / 253)
+// MIN_TIME = 39
+#define MIN_TIME	(COMMA_FAC * SCALE_FAC / 253)
 
 static uint16_t volatile* windspeed;
 static uint8_t volatile overflows;
@@ -55,7 +57,7 @@ ISR(TIMER1_CAPT_vect) {
 	diff = starttime-old_start;
 	if (ov > 1) {
 		// too long => no speed
-		time = WIND_SPEED+1;
+		time = 0;
 	} else {
 		// if overflow make diff positiv
 		if (ov) {
@@ -63,7 +65,11 @@ ISR(TIMER1_CAPT_vect) {
 		}
 		time = (diff*PERIOD) / SCALE_FAC;
 	}
-	*windspeed = WIND_SPEED / time;
+	if (time) {
+		if (time > MIN_TIME)
+			*windspeed = WIND_SPEED / time;
+	} else
+		*windspeed = 0;
 	
 	old_start = starttime;
 }
