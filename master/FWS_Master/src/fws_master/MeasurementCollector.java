@@ -183,7 +183,7 @@ public class MeasurementCollector extends Thread {
 				
 			}
 			log.fine("Generating Output");
-			result.add(s.getStationName()+"\n"+this.buildOutput(params));
+			result.add(s.getStationName()+eol+this.buildOutput(params));
 		}
 		return result;
 	}
@@ -227,7 +227,7 @@ public class MeasurementCollector extends Thread {
 				
 				sd = Math.sqrt(sd/(div));
 				
-				res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";\n\r";
+				res+=ms.firstElement().getParameter().getName()+"["+Units.getString(ms.firstElement().getParameter().getUnit())+"]"+":"+avg+";"+sd+";"+eol;
 				
 			} catch (Exception ex) {
 				log.severe("Exception in buildOutput on Parameter("+e.getKey()+"): "+ex.getStackTrace());

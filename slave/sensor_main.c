@@ -1,43 +1,120 @@
-/*********************************************
- * vim:sw=8:ts=8:si:et
- * To use the above modeline in vim you must have "set modeline" in your .vimrc
- * Author: Guido Socher
- * Copyright: GPL V2
- *
- * Tuxgraphics AVR webserver/ethernet board
- *
- * http://tuxgraphics.org/electronics/
- * Chip type           : Atmega88/168/328 with ENC28J60
- *********************************************/
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
+
+#include "modbus/modbus.h"
+#include "sensors/adc.h"
+#include "sensors/led.h"
+#include "sensors/windspeed.h"
 
 #include "sensor_main.h"
-#include "modbus/modbus.h"
 
-volatile uint16_t winddir = 0x0; // 0 = N, 4 = O, 8 = S, 12 = W
+#define SENS_PORT	PORTD
+#define SENS_DDR	DDRD
+#define SENS_PIN	PD7
+
+#define ENABLENUM	2
+
+static volatile uint16_t winddir = 0x0; // in ° x10
+static volatile uint16_t windspeed = 0x0; // in ms
+static volatile uint16_t temperature = 0x0; // in °C
+
+static uint16_t enable = 1;
+static uint8_t ip[] = {192,168,0,111};
+
+void read_winddir(uint16_t value) {
+	// if error occured
+	if (value == 0xffff)
+		winddir = value;
+	else {
+		// ADC in [0..720]
+		// ADC / 48 in [0..15] = 16 directions = 22,5° per direction
+		winddir = (value / 48) * 225;
+	}
+}
+
+void read_temperature(uint16_t value) {
+	// if error occured
+	if (value == 0xffff)
+		temperature = value;
+	else {
+		// TODO: calibration
+		// 485 = 14°C
+		// 388 = 25°C
+		temperature = (690000-((uint32_t)value*1134UL))/1000;
+	}
+}
+
+uint8_t write_enable(uint8_t num, uint16_t value) {
+	if (num != ENABLENUM)
+		return 0;
+	enable = value ? 1 : 0;
+	// TODO: store in eeprom
+	enableSensor();
+	return 1;
+}
+
+uint8_t write_IP(uint8_t num, uint16_t value) {
+	if (num == 0) {
+		ip[0] = (uint8_t)(value >> 8);
+		ip[1] = (uint8_t)value;
+	} else {
+		ip[2] = (uint8_t)(value >> 8);
+		ip[3] = (uint8_t)value;
+		// TODO: store in eeprom
+		mb_setIP(ip);
+	}
+	return 1;
+}
+
+void enableSensor(void) {
+	// Wenn enable = 0 dann messen, ob eh kein Bezug zu Masse im Sensor, weil + auf 6.6 V
+	if (enable) {
+		SENS_PORT |= _BV(SENS_PIN);
+		adc_start();
+		windspeed_start();
+		led_on();
+	} else {
+		SENS_PORT &= ~_BV(SENS_PIN);
+		adc_stop();
+		windspeed_stop();
+		led_blink();
+	}
+}
 
 int main(void) {
+	// load values from eeprom
+	// TODO: load values from eeprom
+	
+	led_init();
+		
+	adc_init();
+	adc_register(0,read_temperature);
+	adc_register(1,read_winddir);
+	
+	windspeed_init(&windspeed);
+	
 	mb_init();
+	mb_setIP(ip);
 	
-	mb_registerRegister(0,&winddir);
+	mb_addReadRegister(ENABLENUM,&enable);
+	mb_addReadRegister(3,(uint16_t*)&winddir);
+	mb_addReadRegister(4,(uint16_t*)&windspeed);
+	mb_addReadRegister(5,(uint16_t*)&temperature);
 	
-	PORTB &= ~_BV(PB1);
-	DDRB |= _BV(PB1);
-	
-	PORTD |= _BV(PD7);
-	DDRD |= _BV(PD7);
-	
-	ADMUX |= _BV(REFS0) | _BV(MUX0);
-	ADCSRA = 0xFF;
+	mb_addWriteRegister(0,write_IP);
+	mb_addWriteRegister(1,write_IP);
+	mb_addWriteRegister(ENABLENUM,write_enable);
 	
 	sei();
-
+	
+	// Set port for sensor on/off
+	SENS_DDR |= _BV(SENS_PIN);
+	
+	enableSensor();
+	
 	while (1) {
 		mb_handleRequest();
 	}
 }
 
-ISR(ADC_vect) {
-	winddir = ADC / 48;
-}
