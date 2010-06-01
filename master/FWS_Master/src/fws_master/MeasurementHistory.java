@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Vector;
 /**
  * A History of Measurements. Without References to Stations or Parameters directly. So it can be serialized. 
  * @author Johannes Kasberger
@@ -13,6 +14,7 @@ import java.util.LinkedList;
  */
 public class MeasurementHistory  
 implements Serializable  {
+	
 	
 	/**
 	 * 
@@ -99,7 +101,13 @@ implements Serializable  {
 	 * @param m Entry to be removed.
 	 */
 	public void removeEntry(MeasurementHistoryEntry m) {
-		this.values.remove(m);
+		Vector<MeasurementHistoryEntry> del = new Vector<MeasurementHistoryEntry>();
+		for (MeasurementHistoryEntry e:this.values) {
+			if (e.getTimestamp().equals(m.getTimestamp()) && e.getValue() == m.getValue()) {
+				del.add(e);
+			}
+		}
+		this.values.removeAll(del);
 		
 	}
 	
