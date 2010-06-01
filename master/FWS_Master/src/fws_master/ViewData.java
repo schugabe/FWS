@@ -1,8 +1,10 @@
 package fws_master;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Vector;
 
 import org.eclipse.swt.*;
@@ -17,6 +19,7 @@ public class ViewData {
 	private Shell shell;
 	private List dataList;
 	private Table dataTable;
+	private static String DATE_FORMAT = "HH:mm:ss:SSS dd.MM.yyyy";
 	
 	public ViewData(FWSMaster master, Shell shell) {
 		this.master = master;
@@ -147,7 +150,7 @@ public class ViewData {
 		Collections.sort(newData);
 		Collections.reverse(newData);
 		dataTable.removeAll();
-		String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
+		
 	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 	    
 		for(MeasurementHistoryEntry e : newData) {
@@ -198,10 +201,34 @@ public class ViewData {
 			return;
 		} 
 		MeasurementHistoryController hist = master.getHistoryController();
+		MeasurementHistory measurements;
+		
 		if (timebase.equals("hours"))
-			hist.getDataHours().get(key).removeAll();
+			measurements = hist.getDataHours().get(key);
 		else
-			hist.getDataDays().get(key).removeAll();
+			measurements = hist.getDataDays().get(key);
+		
+		if (all) {
+			measurements.removeAll();
+		}
+		else {
+			for (TableItem item : this.dataTable.getSelection()) {
+				String date = item.getText(0);
+				String value = item.getText(1);
+				
+				SimpleDateFormat bla = new SimpleDateFormat(DATE_FORMAT);
+				Date tmpdate;
+				try {
+					tmpdate = bla.parse(date);
+				} catch (ParseException e) {
+					e.printStackTrace();
+					continue;
+				}
+				
+				MeasurementHistoryEntry tmp = new MeasurementHistoryEntry(Double.parseDouble(value),tmpdate);
+				measurements.removeEntry(tmp);
+			}
+		}
 		this.list_selected();
 		
 	}
