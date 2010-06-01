@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="libs/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="lib" path="libs/junit.jar"/>
 	<classpathentry kind="lib" path="libs/servlet.jar"/>
-	<classpathentry kind="lib" path="libs/swt.jar"/>
 	<classpathentry kind="lib" path="libs/swtgraphics2d.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

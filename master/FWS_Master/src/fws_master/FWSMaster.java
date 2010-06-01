@@ -160,8 +160,19 @@ public class FWSMaster {
 			trayExitItem.setText("Exit");
 			trayExitItem.addSelectionListener(l);
 			
+			item.addListener(SWT.MouseDoubleClick, new Listener() {
+
+				@Override
+				public void handleEvent(Event event) {
+					if (!shell.isVisible())
+						HideShow();
+				}
+				
+			});
+			
 			item.addListener (SWT.MenuDetect, new Listener () {
 				public void handleEvent (Event event) {
+					
 					menu.setVisible(true);
 				}
 			});
@@ -453,6 +464,8 @@ public class FWSMaster {
 		}
 		else {
 			shell.setVisible(true);
+			shell.forceActive();
+			shell.forceFocus();
 			trayHideItem.setText("Hide");
 		}
 	}
