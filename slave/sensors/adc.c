@@ -16,13 +16,29 @@ static uint8_t volatile curind = 0;
  * Interrupt Handler
 */
 ISR(ADC_vect) {
-	// callback
-	channels[curind](ADC);
-	// select next channel
-	do {
-		++curind;
-		curind %= CHANNELS_SIZE;
-	} while (channels[curind] == NULL);
+	static uint16_t values[256] = {0};
+	static uint8_t i = 0;
+	
+	values[i] = ADC;
+	if (i == 255) {
+		uint8_t i2 = 0;
+		uint32_t sum = 0;
+		
+		for (; 1; i2++) {
+			sum += values[i2];
+			if (i2 == 255)
+				break;
+		}
+		// callback
+		channels[curind](sum/256);
+		// select next channel
+		do {
+			++curind;
+			curind %= CHANNELS_SIZE;
+		} while (channels[curind] == NULL);
+		ADMUX = (ADMUX & 0xF0) | curind;
+	}
+	i++;
 	// start conversion
 	ADCSRA |= _BV(ADSC);
 }

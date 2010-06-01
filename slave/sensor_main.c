@@ -18,6 +18,7 @@ static volatile uint16_t windspeed = 0x0; // in ms
 static volatile uint16_t temperature = 0x0; // in °C
 
 static uint16_t enable = 1;
+static uint8_t ip[] = {10,0,0,29};
 
 void read_winddir(uint16_t value) {
 	// if error occured
@@ -36,6 +37,7 @@ void read_temperature(uint16_t value) {
 		temperature = value;
 	else {
 		// TODO: calibration
+		// 485 = 14°C
 		temperature = value;
 	}
 }
@@ -49,10 +51,21 @@ uint8_t write_enable(uint8_t num, uint16_t value) {
 	return 1;
 }
 
+uint8_t write_IP(uint8_t num, uint16_t value) {
+	if (num == 0) {
+		ip[0] = (uint8_t)(value >> 8);
+		ip[1] = (uint8_t)value;
+	} else {
+		ip[2] = (uint8_t)(value >> 8);
+		ip[3] = (uint8_t)value;
+		// TODO: store in eeprom
+		mb_setIP(ip);
+	}
+	return 1;
+}
+
 void enableSensor(void) {
-	// Set port for sensor on/off
-	SENS_DDR |= _BV(SENS_PIN);
-	
+	// Wenn enable = 0 dann messen, ob eh kein Bezug zu Masse im Sensor, weil + auf 6.6 V
 	if (enable) {
 		SENS_PORT |= _BV(SENS_PIN);
 		adc_start();
@@ -68,7 +81,7 @@ void enableSensor(void) {
 
 int main(void) {
 	// load values from eeprom
-	// TODO: eeprom
+	// TODO: load values from eeprom
 	
 	led_init();
 		
@@ -79,19 +92,26 @@ int main(void) {
 	windspeed_init(&windspeed);
 	
 	mb_init();
-	mb_addReadRegister(0,(uint16_t*)&winddir);
-	mb_addReadRegister(1,(uint16_t*)&windspeed);
-	mb_addReadRegister(2,(uint16_t*)&temperature);
-	mb_addReadRegister(3,&enable);
-	mb_addWriteRegister(3,write_enable);
+	mb_setIP(ip);
+	
+	mb_addReadRegister(2,&enable);
+	mb_addReadRegister(3,(uint16_t*)&winddir);
+	mb_addReadRegister(4,(uint16_t*)&windspeed);
+	mb_addReadRegister(5,(uint16_t*)&temperature);
+	
+	mb_addWriteRegister(0,write_IP);
+	mb_addWriteRegister(1,write_IP);
+	mb_addWriteRegister(2,write_enable);
 	
 	sei();
+	
+	// Set port for sensor on/off
+	SENS_DDR |= _BV(SENS_PIN);
 	
 	enableSensor();
 	
 	while (1) {
 		mb_handleRequest();
-		// Wenn enable = 0 dann messen, ob eh kein Bezug zu Masse im Sensor, weil + auf 6.6 V
 	}
 }
 

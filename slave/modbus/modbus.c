@@ -1,14 +1,3 @@
-/*********************************************
- * vim:sw=8:ts=8:si:et
- * To use the above modeline in vim you must have "set modeline" in your .vimrc
- * Author: Guido Socher
- * Copyright: GPL V2
- *
- * Tuxgraphics AVR webserver/ethernet board
- *
- * http://tuxgraphics.org/electronics/
- * Chip type           : Atmega88/168/328 with ENC28J60
- *********************************************/
 #include <avr/io.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,8 +11,6 @@
 
 // MAC Address: First 3 Numbers are: FWS
 static uint8_t mymac[6] = {0x46,0x57,0x53,0x10,0x00,0x29};
-// IP Address:
-static uint8_t myip[4] = {10,0,0,29};
 
 // TCP Buffer
 #define BUFFER_SIZE 800
@@ -46,9 +33,10 @@ void mb_init(void) {
 	enc28j60clkout(2); // change clkout from 6.25MHz to 12.5MHz
 	_delay_us(60); // 60us
 	enc28j60PhyWrite(PHLCON,0x476);
-	
-	//init the ethernet/ip layer:
-	init_ip_arp_udp_tcp(mymac,myip,MODBUSPORT);
+}
+
+void mb_setIP(uint8_t ip[]) {
+	init_ip_arp_udp_tcp(mymac,ip,MODBUSPORT);
 }
 
 // Register the address of a register

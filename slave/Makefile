@@ -2,6 +2,7 @@ OUTDIR = bin/
 
 OBJ = $(OUTDIR)sensor_main.o 
 OBJ += $(OUTDIR)modbus.o $(OUTDIR)enc28j60.o $(OUTDIR)ip_arp_udp_tcp.o $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
+#OBJ += $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
 
 VPATH = modbus modbus/tcp sensors
 

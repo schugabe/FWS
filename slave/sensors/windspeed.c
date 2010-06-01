@@ -1,21 +1,29 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 
-#include "windspeed.h"
+#include "led.h"
 
 #define SPEED_PORT	PORTB
 #define SPEED_DDR	DDRB
 #define SPEED_PIN	PB0
 
-#define TIMER_CRA	TCCR1A	
+#define TIMER_CRA	TCCR1A
 #define TIMER_CRB	TCCR1B
 #define TIMSK		TIMSK1
 
-#define PRESC		1024
-#define COUNT_RANGE	65536L
-#define OVERFLOW_PERIOD_MS (uint16_t)((10000.0f * COUNT_RANGE * PRESC) / F_CPU)
-#define PERIOD_MS 	(uint16_t)(10000000.0f * PRESC / F_CPU)
+#define TIMER_PRESC	1024UL
+#define TIMER_RANGE	65536UL
+#define SCALE_FAC	1000
+// calc with milliseconds/10
+#define COMMA_FAC	10.0f
+// TIMER_T = 0,8192s
+#define TIMER_T		COMMA_FAC * SCALE_FAC * TIMER_PRESC / F_CPU
+// OVL_PERIOD = 53.687 = 5.3s
+#define OVL_PERIOD	(uint16_t)(TIMER_RANGE * TIMER_T)
+// PERIOD = 819 = 81,9us
+#define PERIOD		(uint16_t)(SCALE_FAC * TIMER_T)
+// WIND_SPEED = 39520
+#define WIND_SPEED	(uint16_t)(COMMA_FAC * SCALE_FAC * 1000 / 253)
 
 static uint16_t volatile* windspeed;
 static uint8_t volatile overflows;
@@ -36,25 +44,26 @@ ISR(TIMER1_OVF_vect) {
 */
 ISR(TIMER1_CAPT_vect) {
 	static uint16_t old_start = 0;
-	uint8_t time_difference;
-	uint8_t time_overflow;
+	uint32_t time = 0;
 	uint16_t starttime;	
-	int16_t diff;
+	int32_t diff;
 	uint8_t ov = overflows;
+	
 	overflows = 0;
-
 	starttime = ICR1;
 
 	diff = starttime-old_start;
-	if(ov) {
-		ov--;
-		time_overflow = ov*OVERFLOW_PERIOD_MS;
-		time_difference = (COUNT_RANGE+diff)*PERIOD_MS / 1000L;
+	if (ov > 1) {
+		// too long => no speed
+		time = WIND_SPEED+1;
 	} else {
-		time_overflow = 0;
-		time_difference = diff*PERIOD_MS / 1000L;
+		// if overflow make diff positiv
+		if (ov) {
+			diff += TIMER_RANGE;
+		}
+		time = (diff*PERIOD) / SCALE_FAC;
 	}
-	*windspeed = time_overflow+time_difference;
+	*windspeed = WIND_SPEED / time;
 	
 	old_start = starttime;
 }
@@ -72,7 +81,7 @@ void windspeed_init(uint16_t volatile* mem) {
 	SPEED_DDR &= ~_BV(SPEED_PIN);
 
 	TIMER_CRB &= ~_BV(ICNC1);
-	TIMSK |= _BV(TOIE1);
+	TIMSK |= _BV(TOIE1) | _BV(ICIE1);
 }
 
 void windspeed_start(void) {
