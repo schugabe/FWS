@@ -1,7 +1,8 @@
 package fws_master;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -92,6 +93,7 @@ public class PersistencePreferences {
 			return;
 		}
 		Document document = documentBuilder.newDocument();
+		
 				
 		Element rootElement = document.createElement("fws_config");
 		document.appendChild(rootElement);
@@ -172,14 +174,19 @@ public class PersistencePreferences {
 			log.warning(e.getMessage());
 		}
 		DOMSource source = new DOMSource(document);
+		
 		StreamResult result = null;
 		try {
 			result =  new StreamResult(new File(this.path,this.filename));
+			
 		} catch (Exception e) {
 			log.warning(e.getMessage());
 		}
 		try {
+			transformer.setOutputProperty("encoding", "UTF-8");
+			transformer.setOutputProperty("indent", "yes");
 			transformer.transform(source, result);
+			
 		} catch (TransformerException e) {
 			log.warning(e.getMessage());
 		}
@@ -191,10 +198,11 @@ public class PersistencePreferences {
 	 * @return if parsing was successful 
 	 */
 	private boolean startParsing(ContentHandler h) {
-		FileReader stream = null;
-		
+		//FileReader stream = null;
+		InputStreamReader stream = null;
 		try {
-			stream = new FileReader(new File(path,filename));
+			stream = new InputStreamReader(new FileInputStream(new File(path,filename)),"UTF-8");
+			
 		} catch(Exception ex) {
 			log.warning("Config file not found");
 			return false;
@@ -203,6 +211,7 @@ public class PersistencePreferences {
 		XMLReader parser = null;
 		try {
 			parser = XMLReaderFactory.createXMLReader();
+			
 			parser.setContentHandler(h);
 		} catch(SAXException e) {
 			log.warning(e.getMessage());

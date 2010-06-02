@@ -44,10 +44,17 @@ public class ParameterContentHandler implements ContentHandler {
 		if (state== States.IDLE)
 			return;
 		
+		
+		
 		char [] conv = new char[length];
+		
+		
+		
 		System.arraycopy(ch, start, conv, 0, length);
 		String content = new String(conv);
 		
+		if (content.length() == 1 && content.equals("\n"))
+			return;
 		
 		fields++;
 		switch(substate) {

@@ -1,8 +1,12 @@
 package fws_master;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
@@ -13,7 +17,16 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
-
+/**
+ * This class creates a View with a list of all available data. It's also possible to show a table of all time/value combinations.
+ * It's possible to delete data from the history and export it to a csv file.
+ * 
+ * The data is loaded from the MeasurementHistoryController. In the list there are two possible entries. The differ in the
+ * timebase. One is for the recent history and has the label "hours". The other one is for the long term history and has the 
+ * label "hours".
+ * @author Johannes Kasberger
+ *
+ */
 public class ViewData {
 	private FWSMaster master;
 	private Shell shell;
@@ -21,6 +34,11 @@ public class ViewData {
 	private Table dataTable;
 	private static String DATE_FORMAT = "HH:mm:ss:SSS dd.MM.yyyy";
 	
+	/**
+	 * Default Constructor
+	 * @param master master where the data is loaded
+	 * @param shell shell for the view
+	 */
 	public ViewData(FWSMaster master, Shell shell) {
 		this.master = master;
 		this.shell = shell;
@@ -28,6 +46,9 @@ public class ViewData {
 		this.fillList();
 	}
 
+	/**
+	 * build the view
+	 */
 	private void buildView() {
 		GridLayout gridLayout = new GridLayout(2,false);
 		final Composite comp = new Composite(shell, SWT.NONE);
@@ -98,6 +119,11 @@ public class ViewData {
 		
 	}
 	
+	/**
+	 * add a collection of strings to the list, adds the postfix (hours|days) to the entry in the list
+	 * @param tmp list of keys
+	 * @param postfix that is added
+	 */
 	private void addKeys(Vector<String> tmp, String postfix) {
 		
 		for(String key : tmp) {
@@ -105,6 +131,9 @@ public class ViewData {
 		}
 	}
 	
+	/**
+	 * Load all available data from the master into the list
+	 */
 	private void fillList() {
 		MeasurementHistoryController hist = master.getHistoryController();
 		this.dataList.removeAll();
@@ -118,12 +147,23 @@ public class ViewData {
 		
 	}
 	
+	/**
+	 * Listener for selection of the list
+	 * @author Johannes Kasberger
+	 *
+	 */
 	class ListListener implements Listener{
+		/**
+		 * Called when list is selected
+		 */
 		public void handleEvent(Event e) {
 			list_selected();
 		}
 	}
 
+	/**
+	 * Load the data of the selected parameter into the table
+	 */
 	private void list_selected() {
 		String key;
 		try {
@@ -159,17 +199,30 @@ public class ViewData {
 		}
 	}
 
+	/**
+	 * returns the timebase (e.g. hours) 
+	 * @return the timebase
+	 * @throws Exception when syntax of list is wrong
+	 */
 	private String getCurrentTimeBase() throws Exception {
 		return dataList.getSelection()[0].split(";")[1];
 	}
 	/**
-	 * @return
+	 * @return the key for the hashmap that is selected in the list
 	 */
 	private String getCurrentKey() throws Exception {
 		return dataList.getSelection()[0].split(";")[0];
 	}
 	
+	/**
+	 * Button Listener
+	 * @author Johannes Kasberger
+	 *
+	 */
 	class ButtonListener extends SelectionAdapter {
+		/**
+		 * Determines which button is clicked.
+		 */
 		public void widgetSelected(SelectionEvent event) {
 			if (((Button) event.widget).getText().equals("Refresh")) {
 				list_selected();
@@ -187,12 +240,84 @@ public class ViewData {
 
 		
 	}
+	
+	/**
+	 * Export the selected values from the table to a csv file
+	 */
 	private void export() {
-		// TODO Auto-generated method stub
 		
+		FileDialog dialog = new FileDialog (shell, SWT.SAVE);
+		String [] filterNames = new String [] {"CSV Files", "All Files (*)"};
+		String [] filterExtensions = new String [] {"*.csv;", "*"};
+		String filterPath = "/";
+		String platform = SWT.getPlatform();
+		if (platform.equals("win32") || platform.equals("wpf")) {
+			filterNames = new String [] {"CSV Files", "All Files (*.*)"};
+			filterExtensions = new String [] {"*.csv", "*.*"};
+			filterPath = "c:\\";
+		}
+		dialog.setFilterNames (filterNames);
+		dialog.setFilterExtensions (filterExtensions);
+		dialog.setFilterPath (filterPath);
+		try {
+			dialog.setFileName (this.getCurrentKey()+".csv");
+		} catch (Exception e) {
+			dialog.setFileName("export.csv");
+		}
+		String fileName = dialog.open();
+
+		FileOutputStream fos;
+		OutputStreamWriter out;
+		try {
+			fos = new FileOutputStream(fileName);
+			out = new OutputStreamWriter(fos, "UTF-8"); 
+		} catch (Exception e) {
+			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+			messageBox.setMessage("Error creating export file "+fileName+" : "+e.getMessage());
+			messageBox.open();
+			return;
+		}
+		
+		Vector<TableItem> sel = new Vector<TableItem>(this.dataTable.getSelection().length);
+		
+		sel.addAll(Arrays.asList(this.dataTable.getSelection()));
+		Collections.reverse(sel);
+		
+		
+		for (TableItem item : sel) {
+			String date = item.getText(0);
+			String value = item.getText(1);
+			try {
+				out.write(date+","+value+"\n");
+			} catch (IOException e) {
+				continue;
+			}
+		}
+		
+		try {
+			out.close();
+			fos.close();
+		} catch (IOException e) {
+			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+			messageBox.setMessage("Error writing export file "+fileName+" : "+e.getMessage());
+			messageBox.open();
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * Delete Values from the history
+	 * @param all when true the whole history of the selected parameter is deleted
+	 */
 	private void delete(boolean all) {
+		
+		MessageBox messageBox = new MessageBox(shell, SWT.YES| SWT.NO | SWT.ICON_QUESTION);
+		messageBox.setMessage("Are you shure you want to delete these entries?");
+		messageBox.setText("Delete History?");
+		
+		if (messageBox.open() == SWT.NO)
+			return;
+		
 		String key,timebase;
 		try {
 			key = getCurrentKey();

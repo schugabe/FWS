@@ -65,21 +65,52 @@ public class FWSMaster {
 	private static Logger log = Logger.getLogger("fws_master");
 	private MenuItem trayHideItem, trayStartItem, trayExitItem;
 	private boolean autoStart;
-	
-	/*private void generateParameters() {
-		Config_Parameter c = new Config_Parameter("Messintervall",this.parameter_controller);
-		this.parameter_controller.addParameter(c);
+	private TrayItem trayItem;
 		
-		Input_Parameter i = new Input_Parameter("Temperatur",this.parameter_controller,Units.TEMPERATURE,Output_Formats.NK1,History_Functions.MAX);
-		this.parameter_controller.addParameter(i);
+	/**
+	 * Generates the configPath. Normally it's a folder .fwsmaster in the home directory.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Display.setAppName("FWS Master");
+		Display display = new Display();
 		
-		Station s = new Station("Dach",this.station_controller,"192.168.2.7:30000",10);
-		this.station_controller.addStation(s);
+		final Shell shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN);
+		// Set the Application Image
+		Image appImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/logo.png") );
+		shell.setImage(appImg);
+		//Generate configPath
+		String os = System.getProperty("os.name");
+		String basePath = System.getProperty("user.home");
+		String configDirPath;
 		
-		Station_Config_Binding cb = new Station_Config_Binding(s,c,0,1);
-		Station_Input_Binding b = new Station_Input_Binding(s,i,1);
+		if (os.equals("Mac OS X")) {
+			configDirPath = basePath+"/Library/Application Support/FWSMaster";
+		} else {
+			configDirPath= basePath+File.separator+".fwsmaster";
+		}
 		
-	}*/
+		//Create configDir if not existent
+		File configDir = new File(configDirPath);
+		if(!configDir.isDirectory())
+			configDir.mkdir();
+				
+		//Create the Master
+		FWSMaster master = new FWSMaster(shell,display,configDirPath);
+		
+		shell.setSize(400,500);
+		shell.open();
+		shell.setText("FWS Master");
+		
+		if (master.isAutoStart())
+			shell.setVisible(false);
+		while (!shell.isDisposed ()) {
+			if (!display.readAndDispatch ()) display.sleep();
+		}
+		display.dispose();
+		master.shutdown();
+		System.exit(0);
+	}
 	
 	/**
 	 * Constructor creates a MainView and creates the Tray Icon
@@ -97,7 +128,7 @@ public class FWSMaster {
 			SimpleFormatter formatter = new SimpleFormatter();
 			fh.setFormatter(formatter);
 		} catch (Exception ex) {
-			System.out.println("Error during creating log Handler: "+ex.getLocalizedMessage());
+			System.out.println("Error during creating log Handler: "+ex.getMessage());
 		}
 		
 		this.shell = shell;
@@ -128,6 +159,7 @@ public class FWSMaster {
 		if (this.autoStart) {
 			this.StartClicked(true);
 			this.shell.setVisible(true);
+			this.view.toogleStartButton();
 			HideShow();
 		}
 		else {
@@ -143,10 +175,11 @@ public class FWSMaster {
 		Tray tray = display.getSystemTray();
 		
 		if(tray != null) {
-			TrayItem item = new TrayItem(tray, SWT.NONE);
+			trayItem = new TrayItem(tray, SWT.NONE);
+			trayItem.setToolTipText("Stop");
 			TrayItemListener l = new TrayItemListener();
 			Image trayImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/tray.png") );
-			item.setImage(trayImg);
+			trayItem.setImage(trayImg);
 			
 			final Menu menu = new Menu(shell, SWT.POP_UP);
 			trayHideItem = new MenuItem(menu, SWT.PUSH);
@@ -161,7 +194,8 @@ public class FWSMaster {
 			trayExitItem.setText("Exit");
 			trayExitItem.addSelectionListener(l);
 			
-			item.addSelectionListener(new SelectionListener() {
+			// Show/Hide MainView on DoubleClick on TrayIcon
+			trayItem.addSelectionListener(new SelectionListener() {
 
 				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
@@ -175,7 +209,8 @@ public class FWSMaster {
 				
 			});
 			
-			item.addListener (SWT.MenuDetect, new Listener () {
+			// Show menu on right mouse button
+			trayItem.addListener (SWT.MenuDetect, new Listener () {
 				public void handleEvent (Event event) {
 					menu.setVisible(true);
 				}
@@ -194,13 +229,18 @@ public class FWSMaster {
 		
 		this.outDir = config.getPath();
 		//if there is no outDir given create on in the configDir
-		if (outDir.equals("")) {
+		try {
+			File testOutDir = new File(this.outDir);
+			if (!testOutDir.isDirectory())
+				throw new Exception("no dir");
+		} catch (Exception ex) {
 			File outDirFile = new File(configDir,"output");
 			if (!outDirFile.isDirectory()) {
 				outDirFile.mkdir();
 			}
 			this.outDir = configDir+File.separatorChar+"output";
 		}
+				
 		
 		log.config("Output Directory: "+this.outDir);
 		
@@ -217,52 +257,7 @@ public class FWSMaster {
 		return this.station_controller;
 	}
 	
-	/**
-	 * Generates the configPath. Normally it's a folder .fwsmaster in the home directory.
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Display.setAppName("FWS Master");
-		Display display = new Display();
-		
-		final Shell shell = new Shell(display);
-		// Set the Application Image
-		Image appImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/logo.png") );
-		shell.setImage(appImg);
-		//Generate configPath
-		String os = System.getProperty("os.name");
-		String basePath = System.getProperty("user.home");
-		String configDirPath;
-		
-		if (os.equals("Mac OS X")) {
-			configDirPath = basePath+"/Library/Application Support/FWSMaster";
-		} else {
-			configDirPath= basePath+File.separator+".fwsmaster";
-		}
-		
-		//Create configDir if not existent
-		File configDir = new File(configDirPath);
-		if(!configDir.isDirectory())
-			configDir.mkdir();
-		
-		
-		
-		//Create the Master
-		FWSMaster master = new FWSMaster(shell,display,configDirPath);
-		
-		shell.setSize(400,500);
-		shell.open();
-		shell.setText("FWS Master");
-		
-		if (master.isAutoStart())
-			shell.setVisible(false);
-		while (!shell.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep();
-		}
-		display.dispose();
-		master.shutdown();
-		System.exit(0);
-	}
+	
 	
 	/**
 	 * Save the current settings in the xml config file
@@ -313,8 +308,8 @@ public class FWSMaster {
 	 */
 	public void FolderClicked() {
 		DirectoryDialog dialog = new DirectoryDialog(shell);
-		String platform = SWT.getPlatform();
-		dialog.setFilterPath (platform.equals("win32") || platform.equals("wpf") ? "c:\\" : "/");
+		
+		dialog.setFilterPath(this.outDir);
 		
 		String newOutDir = dialog.open();
 		if (newOutDir == null || newOutDir.equals(""))
@@ -333,9 +328,11 @@ public class FWSMaster {
 		if (start) {
 			trayStartItem.setText("Stop");
 			trayExitItem.setEnabled(false);
+			trayItem.setToolTipText("Running");
 		} else {
 			trayStartItem.setText("Start");
 			trayExitItem.setEnabled(true);
+			trayItem.setToolTipText("Stop");
 		}
 	}
 
@@ -402,6 +399,38 @@ public class FWSMaster {
 	}
 	
 	/**
+	 * Toggle the Main View
+	 */
+	private void HideShow() {
+		if (shell.isVisible()) {
+			shell.setVisible(false);
+			trayHideItem.setText("Show");
+		}
+		else {
+			shell.setVisible(true);
+			shell.forceActive();
+			shell.forceFocus();
+			trayHideItem.setText("Hide");
+		}
+	}
+
+	/**
+	 * Creates a View for the currently saved data
+	 */
+	public void viewDataClicked() {
+		Shell tmp_shell = new Shell(this.display, SWT.RESIZE | SWT.CLOSE | SWT.TITLE);
+		Point pt = display.getCursorLocation();
+		tmp_shell.setLocation (pt.x, pt.y);
+		tmp_shell.setText ("Collected Data");
+		tmp_shell.setSize (700, 800);
+		
+		new ViewData(this,tmp_shell);
+		tmp_shell.open();
+		
+		return;
+	}
+	
+	/**
 	 * Listener for Tray Events
 	 * @author Johannes Kasberger
 	 *
@@ -430,14 +459,14 @@ public class FWSMaster {
 
 	/**
 	 * Get the Generator Time
-	 * @return
+	 * @return the time interval in seconds in that the output is generated
 	 */
 	public int getGeneratorTime() {
 		return generatorTime;
 	}
 
 	/**
-	 * The Generatortime is the time intervall after that the outputs are generated
+	 * The Generatortime is the time interval after that the outputs are generated
 	 * @param generatorTime
 	 */
 	public void setGeneratorTime(int generatorTime) {
@@ -458,35 +487,11 @@ public class FWSMaster {
 		return autoStart;
 	}
 	
-	/**
-	 * Toggle the Main View
-	 */
-	private void HideShow() {
-		if (shell.isVisible()) {
-			shell.setVisible(false);
-			trayHideItem.setText("Show");
-		}
-		else {
-			shell.setVisible(true);
-			shell.forceActive();
-			shell.forceFocus();
-			trayHideItem.setText("Hide");
-		}
-	}
-
-	public void viewDataClicked() {
-		Shell tmp_shell = new Shell(this.display, SWT.RESIZE | SWT.CLOSE | SWT.TITLE);
-		Point pt = display.getCursorLocation();
-		tmp_shell.setLocation (pt.x, pt.y);
-		tmp_shell.setText ("Collected Data");
-		tmp_shell.setSize (700, 800);
-		
-		new ViewData(this,tmp_shell);
-		tmp_shell.open();
-		
-		return;
-	}
 	
+	/**
+	 * Get the current History Controller
+	 * @return the controller
+	 */
 	public MeasurementHistoryController getHistoryController() {
 		return this.collector.getMeasurementHistoryController();
 	}

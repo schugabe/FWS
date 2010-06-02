@@ -16,6 +16,7 @@ public class ViewMain {
 	private Menu menuBar, fileMenu,configMenu;
 	private MenuItem fileMenuHeader,configMenuHeader;
 	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, configParamsItem, configStationsItem, configOutDirItem, configSettingsItem;
+	private Button startButton;
 	
 	public ViewMain(Shell shell, Display display,FWSMaster master) {
 		this.shell = shell;
@@ -84,7 +85,7 @@ public class ViewMain {
 			statusLabel2.setText("stop                                              ");
 			s.setStatusLabel(statusLabel2);
 		}
-		Button startButton = new Button(c_all, SWT.PUSH);
+		startButton = new Button(c_all, SWT.PUSH);
 		startButton.setText(" Start ");
 		startButton.addSelectionListener(new ButtonListener());
 	}
@@ -162,16 +163,24 @@ public class ViewMain {
 		configSettingsItem.setEnabled(enable);
 	}
 	
+	public void toogleStartButton() {
+		if (this.startButton.getText().equals(" Stop ")) {
+			this.startButton.setText(" Start ");
+		} else {
+			this.startButton.setText(" Stop ");
+		}
+	}
+	
 	class ButtonListener extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			Button b = (Button)event.widget;
 			if (b.getText().equals(" Start ")) {
 				master.StartClicked(true);
-				b.setText(" Stop ");
+				toogleStartButton();
 			}
 			else if (b.getText().equals(" Stop ")) {
 				master.StartClicked(false);
-				b.setText(" Start ");
+				toogleStartButton();
 			}
 		}
 	}
@@ -207,5 +216,7 @@ public class ViewMain {
 			
 		}
 	}
+	
+	
 }
 

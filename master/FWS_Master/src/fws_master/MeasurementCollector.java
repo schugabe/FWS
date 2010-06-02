@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -101,13 +101,13 @@ public class MeasurementCollector extends Thread {
 		try {
 			fs = new FileOutputStream(historyFile);
 		} catch (FileNotFoundException e) {
-			log.severe("Creating History on Hard Disk failed: "+e.getLocalizedMessage());
+			log.severe("Creating History on Hard Disk failed: "+e.getMessage());
 			return;
 		}
 		try {
 			os = new ObjectOutputStream(fs);
 		} catch (IOException e) {
-			log.severe("Creating ObjectOutputStream failed: "+e.getLocalizedMessage());
+			log.severe("Creating ObjectOutputStream failed: "+e.getMessage());
 			return;
 		}
 		try {
@@ -126,14 +126,14 @@ public class MeasurementCollector extends Thread {
 		try {
 			fs = new FileInputStream(historyFile);
 		} catch (FileNotFoundException e) {
-			log.severe("Loading History: History not found : "+e.getLocalizedMessage());
+			log.severe("Loading History: History not found : "+e.getMessage());
 			return new MeasurementHistoryController();
 		}
 		
 		try {
 			is = new ObjectInputStream(fs);
 		} catch (IOException e) {
-			log.severe("Loading History: ObjectInputStream not created: "+e.getLocalizedMessage());
+			log.severe("Loading History: ObjectInputStream not created: "+e.getMessage());
 			return new MeasurementHistoryController();
 		}
 
@@ -141,10 +141,10 @@ public class MeasurementCollector extends Thread {
 			controller = (MeasurementHistoryController)is.readObject();
 		} catch (IOException e) {
 			controller = new MeasurementHistoryController();
-			log.severe("Loading History: I/O Exception: "+e.getLocalizedMessage());
+			log.severe("Loading History: I/O Exception: "+e.getMessage());
 		} catch (ClassNotFoundException e) {
 			controller = new MeasurementHistoryController();
-			log.severe("Loading History: Error during loading History: "+e.getLocalizedMessage());
+			log.severe("Loading History: Error during loading History: "+e.getMessage());
 		}
 		
 		return controller;
@@ -316,22 +316,20 @@ public class MeasurementCollector extends Thread {
 	 * @param result
 	 */
 	private void WriteOutput(String fileName,Vector<String> result) {
-		
-
 		try {
 			File file = new File(this.outDir,fileName);
 			
-			FileWriter fw = new FileWriter(file,false);
-			
+			OutputStreamWriter stream = new OutputStreamWriter(new FileOutputStream(file),"UTF-8");
+						
 			String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
 		    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		    
-		    fw.write(sdf.format(new Date())+eol);
+		    stream.write(sdf.format(new Date())+eol);
 		    			
 			for(String s:result) {
-				fw.write(s+"\n");
+				stream.write(s+"===="+eol);
 			}
-			fw.close();
+			stream.close();
 		} catch(Exception ex) {
 			log.severe(ex.getMessage());
 		}
@@ -354,7 +352,10 @@ public class MeasurementCollector extends Thread {
 	}
 
 
-
+	/**
+	 * Get the current controller
+	 * @return the controller
+	 */
 	public MeasurementHistoryController getMeasurementHistoryController() {
 		return this.historyController;
 	}

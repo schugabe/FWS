@@ -51,7 +51,6 @@ public abstract class PlotBase {
 	 * This method creates the Plot using the data in the Vector data,
 	 * @param data measurements
 	 * @param preFix is added to the filename to avoid file name conflicts
-	 * @param cfg 
 	 */
 	public abstract void createPlot(PlotData data,String preFix);
 }
