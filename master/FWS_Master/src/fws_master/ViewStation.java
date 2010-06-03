@@ -521,7 +521,8 @@ public class ViewStation {
 	}
 	
 	private void uploadClicked() {
-		this.selected_station.uploadParamsConfig();
+		if (this.selected_station != null)
+			this.selected_station.uploadParamsConfig();
 	}
 	
 	
