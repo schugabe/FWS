@@ -57,4 +57,12 @@ public class PlotData {
 	public PlotConfig getConfiguration() {
 		return configuration;
 	}
+	
+	public boolean checkData() {
+		for (MeasurementHistory h: data) {
+			if (h == null || h.getParameter() == null || h.getStation() == null || h.getUnit() == null || h.getValues() == null)
+				return false;
+		}
+		return true;
+	}
 }

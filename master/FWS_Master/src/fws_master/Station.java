@@ -29,8 +29,9 @@ public class Station extends Thread{
 	public static String defaultIP = "10.0.0.29:502";
 	/**
 	 * The Station must belong to a controller and have a unique name.
+	 * @throws Exception 
 	 */
-	public Station(String name,StationController controller) {
+	public Station(String name,StationController controller) throws Exception {
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_interval = 60;
@@ -45,8 +46,9 @@ public class Station extends Thread{
 	 * @param controller
 	 * @param ip
 	 * @param polling_intervall
+	 * @throws Exception 
 	 */
-	public Station(String name,StationController controller,String ip,int polling_intervall) {
+	public Station(String name,StationController controller,String ip,int polling_intervall) throws Exception {
 		this.setStationName(name);
 		this.controller = controller;
 		this.polling_interval = polling_intervall;
@@ -337,9 +339,13 @@ public class Station extends Thread{
 	/**
 	 * Set the Name of the Station
 	 * @param name Name of the Station
+	 * @throws Exception 
 	 */
-	public void setStationName(String name) {
-		this.name = name;
+	public void setStationName(String name) throws Exception {
+		String tmp = name.trim();
+		if (!tmp.matches("(\\w| )+"))
+			throw new Exception("Invalid Station name");
+		this.name = tmp;
 	}
 
 	/**

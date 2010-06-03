@@ -293,7 +293,7 @@ public class FWSMaster {
 		Point pt = display.getCursorLocation();
 		tmp_shell.setLocation (pt.x, pt.y);
 		tmp_shell.setText ("Configure Stations");
-		tmp_shell.setSize (600, 400);
+		tmp_shell.setSize (600, 700);
 		
 		@SuppressWarnings("unused")
 		ViewStation view_stat = new ViewStation(tmp_shell,this.station_controller,this.parameter_controller);
@@ -352,9 +352,14 @@ public class FWSMaster {
 	/**
 	 * Called when User selects add station from the fileMenu
 	 */
-	public void addStationClicked(String name, String ip) {
-		Station newStation  = new Station(name, this.station_controller, ip, 60);
-		this.station_controller.addStation(newStation);
+	public boolean addStationClicked(String name, String ip) {
+		try {
+			Station newStation  = new Station(name, this.station_controller, ip, 60);
+			this.station_controller.addStation(newStation);
+		} catch (Exception ex) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**

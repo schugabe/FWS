@@ -92,7 +92,12 @@ public class StationContentHandler implements ContentHandler {
 					intervall = Integer.parseInt(atts.getValue(i));
 				}	
 			}
-			Station s = new Station(name,this.controller,ip,intervall);
+			Station s;
+			try {
+				s = new Station(name,this.controller,ip,intervall);
+			} catch(Exception e) {
+				return;
+			}
 			this.controller.addStation(s);
 			this.lastStation = s;
 			this.state = States.STATION;

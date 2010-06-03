@@ -16,10 +16,12 @@ public class Parameter {
 	 * A Parameter must have Name and a controller
 	 * @param name
 	 * @param controller
+	 * @throws Exception 
 	 */
-	public Parameter(String name,ParameterController controller) {
+	public Parameter(String name,ParameterController controller) throws Exception {
 		this.controller = controller;
-		this.setName(name);
+		if (!this.setName(name))
+			throw new Exception("Invalid Parameter Name");
 		stations = new Vector<Binding>();
 	}
 	
@@ -37,13 +39,17 @@ public class Parameter {
 	 * @param name the name to set. the name must be unique
 	 */
 	public boolean setName(String name) {
+		String tmp = name.trim();
+		if (!tmp.matches("(\\w| )+"))
+			return false;
+		
 		if (this.controller != null) {
 			for(Parameter p:this.controller.getParameters()) {
-				if (p != this && p.getName().equals(name))
+				if (p != this && p.getName().equals(tmp))
 					return false;
 			}
 		}
-		this.name = name;
+		this.name = tmp;
 		return true;
 	}
 

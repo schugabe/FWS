@@ -37,7 +37,7 @@ public class PlotTime extends PlotBase {
 	 */
 	public void createPlot(PlotData data,String prefix) {
 		
-		if (data == null)
+		if (data == null || !data.checkData())
 			return;
 				
 		String title = "";

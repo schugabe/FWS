@@ -292,6 +292,8 @@ public class MeasurementCollector extends Thread {
 						}
 						tmpData.addData(this.buildPlotData(cfg, s.getStationName(), b.getParameter().getName()));
 						
+						if (!tmpData.checkData())
+							continue;
 						// Plot the Data if everything is loaded
 						if (cfg.getId() == -1) {
 							timePlot.createPlot(tmpData,""+plotCount);
