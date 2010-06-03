@@ -41,7 +41,7 @@ public class StationInputBinding extends Binding {
 	 * @param plotConfig the plotConfig to set
 	 */
 	public boolean setPlotConfig(String plotConfig) {
-		if (!plotConfig.matches("(([0-9]*)([h|d]{1})([0-9]+)(;))+"))
+		if (!plotConfig.matches("(([0-9]*)([h|d|c]{1})([0-9]+)(;))+"))
 			return false;
 		
 		this.plotConfigString = plotConfig;
@@ -51,10 +51,10 @@ public class StationInputBinding extends Binding {
 		while (str.hasMoreTokens()) {
 			String tmp = str.nextToken();
 			
-			if(!tmp.matches("([0-9]*)([h|d]{1})([0-9]+)"))
+			if(!tmp.matches("([0-9]*)([h|d|c]{1})([0-9]+)"))
 				continue;
 			
-			String [] config = tmp.split("([h|d]{1})");
+			String [] config = tmp.split("([h|d|c]{1})");
 			
 			int length = -1;
 			int id = -1;

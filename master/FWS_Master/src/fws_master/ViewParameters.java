@@ -37,7 +37,11 @@ public class ViewParameters {
 	}
 	
 	private void new_param() {
-		this.selected_parameter = new Parameter("Neuer Parameter",null);
+		try {
+			this.selected_parameter = new Parameter("New Parameter",null);
+		} catch (Exception e) {
+			
+		}
 		this.nameText.setText(this.selected_parameter.getName());
 		this.new_parameter = true;
 		this.typeCombo.setEnabled(true);
@@ -62,9 +66,8 @@ public class ViewParameters {
 			return;
 		
 		else if (!this.controller.removeParameter(selected_parameter)) {
-			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-			messageBox.setMessage("Dieser Parameter kann nicht gelöscht werden, da er in Verwendung ist.");
-			messageBox.open();
+			showError("Parameter in use","Can't delete the parameter as long it's bound to a station");
+			return;
 		}
 		this.loadList();
 		
@@ -82,24 +85,18 @@ public class ViewParameters {
 		boolean is_input = false;
 		
 		if (tmpName.equals("")) {
-			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-			messageBox.setMessage("Es muss ein Name eingegeben werden!");
-			messageBox.open();
+			showError("Name empty", "The name must have a value");
 			return;
 		}
 		
 		if (new_parameter && this.controller.findParameter(tmpName)!=null) {
-			MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-			messageBox.setMessage("Dieser Name ist bereits vorhanden!");
-			messageBox.open();
+			showError("Name in use","Name is already used. Choose a different name.");
 			return;
 		}
 		
 		if (this.typeCombo.getSelectionIndex() != 0) {
 			if (unitCombo.getSelectionIndex() == 0 || formatCombo.getSelectionIndex() == 0 || funcCombo.getSelectionIndex() == 0) {
-				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-				messageBox.setMessage("Es müssen überall gültige Werte ausgewählt werden!");
-				messageBox.open();
+				showError("Input invalid","Fill all fields with correct values");
 				return;
 			}
 			
@@ -111,12 +108,13 @@ public class ViewParameters {
 		
 		if (!new_parameter) {
 			if (this.selected_parameter.inUse()) {
-				MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-				messageBox.setMessage("Dieser Parameter kann nicht bearbeitet werden, da er in Verwendung ist.");
-				messageBox.open();
+				showError("Parameter in use","Can't edit the parameter as long it's bound to a station");
 				return;
 			}
-			this.selected_parameter.setName(tmpName);
+			if (!this.selected_parameter.setName(tmpName)) {
+				showError("Invalid name", "The name contains invalid characters.");
+				return;
+			}
 			if (is_input) {
 				InputParameter tmp_input = (InputParameter)this.selected_parameter;
 				tmp_input.setFormat(f);
@@ -128,14 +126,17 @@ public class ViewParameters {
 		else {
 			Parameter p;
 			if (this.typeCombo.getSelectionIndex() == 0) {
-				p = new ConfigParameter(tmpName,this.controller);
+				try {
+					p = new ConfigParameter(tmpName,this.controller);
+				} catch (Exception e) { return; }
 			}
 			else {
 				u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
 				f = OutputFormats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
 				func = HistoryFunctions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
-				
+				try {
 				p = new InputParameter(tmpName,this.controller,u,f,func);
+				} catch (Exception e) { return; }
 			}
 			this.controller.addParameter(p);
 			
@@ -146,6 +147,18 @@ public class ViewParameters {
 		this.list.setSelection(last_sel);
 		list_selected();
 		this.new_parameter = false;
+	}
+	
+	/**
+	 * Shows a Error Message
+	 * @param title title of the error msg
+	 * @param msg message
+	 */
+	private void showError(String title, String msg) {
+		MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+		messageBox.setMessage(msg);
+		messageBox.setText(title);
+		messageBox.open();
 	}
 	
 	private void list_selected() {
@@ -254,7 +267,7 @@ public class ViewParameters {
 		typeCombo.addSelectionListener(combListener);
 
 		Label unitLabel = new Label(shell, SWT.NONE);
-		unitLabel.setText("Einheit:");
+		unitLabel.setText("Unit:");
 		
 		unitCombo = new Combo(shell, SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
 		unitCombo.setEnabled(false);
@@ -281,7 +294,7 @@ public class ViewParameters {
 		}
 		
 		Label funcLabel = new Label(shell, SWT.NONE);
-		funcLabel.setText("Funktion:");
+		funcLabel.setText("Function:");
 		
 		funcCombo = new Combo(shell, SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
 		funcCombo.setEnabled(false);
@@ -296,7 +309,7 @@ public class ViewParameters {
 		
 		
 		Button saveButton = new Button(shell, SWT.PUSH);
-		saveButton.setText("Speichern");
+		saveButton.setText("Save");
 		saveButton.addSelectionListener(bl);
 		
 		
@@ -347,7 +360,7 @@ public class ViewParameters {
 			else if (((Button) event.widget).getText().equals("-")) {
 				del_param();
 			}
-			else if (((Button) event.widget).getText().equals("Speichern")) {
+			else if (((Button) event.widget).getText().equals("Save")) {
 				save_param();
 			}
 		}

@@ -9,8 +9,9 @@ public class ConfigParameter extends Parameter {
 	 * Class constructor
 	 * @param name Name of the Parameter
 	 * @param controller Controller of the Parameter
+	 * @throws Exception 
 	 */
-	public ConfigParameter(String name,ParameterController controller) {
+	public ConfigParameter(String name,ParameterController controller) throws Exception {
 		super(name,controller);
 	}
 

@@ -35,10 +35,18 @@ public class StationConfigBinding extends Binding {
 		this.transfered = transfered;
 	}
 	
+	public void setAddress(int address) {
+		if (this.getAddress() != address)
+			this.setTransfered(false);
+		super.setAddress(address);
+	}
+	
 	/**
 	 * @param value the value that should be written to the slave
 	 */
 	public void setValue(int value) {
+		if (this.value != value)
+			this.setTransfered(false);
 		this.value = value;
 	}
 	/**

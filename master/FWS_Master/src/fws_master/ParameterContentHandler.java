@@ -44,10 +44,17 @@ public class ParameterContentHandler implements ContentHandler {
 		if (state== States.IDLE)
 			return;
 		
+		
+		
 		char [] conv = new char[length];
+		
+		
+		
 		System.arraycopy(ch, start, conv, 0, length);
 		String content = new String(conv);
 		
+		if (content.length() == 1 && content.equals("\n"))
+			return;
 		
 		fields++;
 		switch(substate) {
@@ -70,13 +77,21 @@ public class ParameterContentHandler implements ContentHandler {
 		if (name!=null && !this.name.equals("")) {
 			Parameter p = null;
 			if (state == States.CP && fields==1) {
-				p = new ConfigParameter(this.name,this.params);
+				try {
+					p = new ConfigParameter(this.name,this.params);
+				} catch (Exception e) {
+					
+				}
 				this.params.addParameter(p);
 				this.reInitFields();
 			}
 			if (state == States.IP && fields==4) {
 				if (this.unit != Units.UNKNOWN && this.format != OutputFormats.UNKNOWN) {
+					try {
 					p= new InputParameter(this.name,this.params,unit,format,hist);
+					} catch (Exception e) {
+					
+					}
 					this.params.addParameter(p);
 					this.reInitFields();
 				}

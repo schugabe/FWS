@@ -20,8 +20,9 @@ public class InputParameter extends Parameter{
 	 * A InputBinding must have a Name and must have a controller
 	 * @param name
 	 * @param controller
+	 * @throws Exception 
 	 */
-	public InputParameter(String name,ParameterController controller) {
+	public InputParameter(String name,ParameterController controller) throws Exception {
 		super(name,controller);
 		
 	}
@@ -33,8 +34,9 @@ public class InputParameter extends Parameter{
 	 * @param unit Unit of this Binding
 	 * @param format Format of this Binding
 	 * @param history_function History Function of this Binding
+	 * @throws Exception 
 	 */
-	public InputParameter(String name,ParameterController controller, Units unit,OutputFormats format, HistoryFunctions history_function) {
+	public InputParameter(String name,ParameterController controller, Units unit,OutputFormats format, HistoryFunctions history_function) throws Exception {
 		super(name,controller);
 		this.format = format;
 		this.unit = unit;

@@ -42,14 +42,21 @@ public class sim {
 			listener.setPort(port);
 			listener.start();  
 			double x = 0;
+			double direction = 180.0;
 			while(true) {
 				double tmp = Math.sin(x/200)+1.0f;
 				tmp *= 10.0;
 				reg1.setValue((short)tmp);
 				
-				tmp = Math.cos(x/200)+1.0f;
-				tmp *= 10.0;
-				reg2.setValue((short)tmp);
+				
+				direction = direction + (Math.random() - 0.5) * 15.0;
+	            if (direction < 0.0) {
+	                direction = direction + 360.0;
+	            }
+	            else if (direction > 360.0) {
+	                direction = direction - 360.0;
+	            }
+				reg2.setValue((short)direction);
 				x++;
 				System.out.println(reg1.getValue()+";"+reg2.getValue());
 				

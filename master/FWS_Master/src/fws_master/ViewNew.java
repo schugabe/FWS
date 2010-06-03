@@ -58,8 +58,14 @@ public class ViewNew {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				master.addStationClicked(nameText.getText(),ipText.getText());
-				shell.dispose();
+				if (!master.addStationClicked(nameText.getText(),ipText.getText())) {
+					MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+					messageBox.setMessage("Station name is invalid");
+					messageBox.setText("Error during creating station");
+					messageBox.open();
+				} 
+				else
+					shell.dispose();
 			}
 			
 		});
