@@ -21,7 +21,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.util.ShapeList;
 
 /**
  * Plot with x axis as time stamps and y axis the values of the measurements

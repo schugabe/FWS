@@ -244,9 +244,9 @@ public class MeasurementCollector extends Thread {
 	 * @return History of values
 	 */
 	private MeasurementHistory buildPlotData(PlotConfig cfg,String station, String parameter) {
-		if (cfg.getTimeBase()=='d')
+		if (cfg.getTimeBase()=='d' )
 			return this.historyController.getLastHistoryDays(station, parameter, cfg.getCount());
-		else if (cfg.getTimeBase() == 'h')
+		else if (cfg.getTimeBase() == 'h' || cfg.getTimeBase() == 'c')
 			return this.historyController.getLastHistory(station, parameter, cfg.getCount());
 		
 		return null;
@@ -257,8 +257,9 @@ public class MeasurementCollector extends Thread {
 	 */
 	private void buildPlots() {
 		PlotController plotController = new PlotController(this.outDir);
-		PlotBase timePlot = plotController.getPlot("Zeitverlauf");
-		
+		PlotBase timePlot = plotController.getPlot("time");
+		PlotBase currentPlot = plotController.getPlot("current");
+				
 		HashMap<Integer,PlotData> plots = new HashMap<Integer,PlotData>();
 		
 		
@@ -296,7 +297,10 @@ public class MeasurementCollector extends Thread {
 							continue;
 						// Plot the Data if everything is loaded
 						if (cfg.getId() == -1) {
-							timePlot.createPlot(tmpData,""+plotCount);
+							if (cfg.getTimeBase() == 'h')
+								timePlot.createPlot(tmpData,""+plotCount);
+							else if (cfg.getTimeBase() == 'c')
+								currentPlot.createPlot(tmpData, ""+plotCount);
 							plotCount++;
 						}
 						
