@@ -28,7 +28,8 @@ public class MeasurementCollector extends Thread {
 	private static Logger log = Logger.getLogger("fws_master.collector");
 	private boolean newDay = false;
 	private static String eol = System.getProperty( "line.separator" );
-	private String historyFile; 
+	private String historyFile,historyBackupFile; 
+	private FWSMaster master;
 	
 	/**
 	 * Constructor
@@ -36,13 +37,15 @@ public class MeasurementCollector extends Thread {
 	 * @param interval
 	 * @param outDir Directory where plots and summary text file should be generated
 	 */
-	public MeasurementCollector(StationController controller, int interval,String outDir, String historyDir) {
+	public MeasurementCollector(FWSMaster master, StationController controller, int interval,String outDir, String historyDir) {
 		this.interval = 1000*interval;
 		this.controller = controller;
 		this.outDir = outDir;
 		this.historyFile =  historyDir+File.separator+"history.ser";
+		this.historyBackupFile = historyDir+File.separator+"history_old.ser";
 		
-		historyController = loadHistory(); 
+		this.master = master;
+		historyController = loadHistory(false); 
 	}
 	
 
@@ -98,55 +101,80 @@ public class MeasurementCollector extends Thread {
 		FileOutputStream fs;
 		ObjectOutputStream os;
 		
+		master.blockShutdown();
+		
+		try {
+			File oldHist = new File(historyFile);
+			File backup = new File(this.historyBackupFile);
+			if (oldHist.exists() && backup.exists()) {
+				backup.delete();
+			}
+				
+			oldHist.renameTo(backup);
+		} catch (Exception e) {
+			log.severe("Saving old History failed: "+e.getMessage());
+		}
+		
 		try {
 			fs = new FileOutputStream(historyFile);
+			
+			try {
+				os = new ObjectOutputStream(fs);
+				os.writeObject(this.historyController);
+				os.close();
+				fs.close();
+			} catch (IOException e) {
+				log.severe("Closing History stream failed: "+e.getMessage());
+			}
+			
 		} catch (FileNotFoundException e) {
 			log.severe("Creating History on Hard Disk failed: "+e.getMessage());
-			return;
 		}
-		try {
-			os = new ObjectOutputStream(fs);
-		} catch (IOException e) {
-			log.severe("Creating ObjectOutputStream failed: "+e.getMessage());
-			return;
-		}
-		try {
-			os.writeObject(this.historyController);
-		} catch (IOException e) {
-			log.severe("Writing History to Hard Disk failed: "+e.getStackTrace());
-		}
+				
+		master.releaseShutdown();		
 	}
 	
-	private MeasurementHistoryController loadHistory() {
+	private MeasurementHistoryController loadHistory(boolean isbackup) {
 		
 		FileInputStream fs;
 		ObjectInputStream is;
-		MeasurementHistoryController controller;
+		MeasurementHistoryController controller = null;
 		
 		try {
-			fs = new FileInputStream(historyFile);
+			if (isbackup) 
+				fs = new FileInputStream(historyBackupFile);
+			else
+				fs = new FileInputStream(historyFile);
+			
+			try {
+				is = new ObjectInputStream(fs);
+				try {
+					controller = (MeasurementHistoryController)is.readObject();
+				} catch (ClassNotFoundException e) {
+					log.severe("Loading History: Error during loading History: "+e.getMessage());
+				}
+			} catch (IOException e) {
+				log.severe("Loading History: ObjectInputStream not created: "+e.getMessage());
+				return new MeasurementHistoryController();
+			}
+			
 		} catch (FileNotFoundException e) {
-			log.severe("Loading History: History not found : "+e.getMessage());
-			return new MeasurementHistoryController();
+			log.severe("Loading History: History not found");
 		}
 		
-		try {
-			is = new ObjectInputStream(fs);
-		} catch (IOException e) {
-			log.severe("Loading History: ObjectInputStream not created: "+e.getMessage());
-			return new MeasurementHistoryController();
-		}
-
-		try {
-			controller = (MeasurementHistoryController)is.readObject();
-		} catch (IOException e) {
-			controller = new MeasurementHistoryController();
-			log.severe("Loading History: I/O Exception: "+e.getMessage());
-		} catch (ClassNotFoundException e) {
-			controller = new MeasurementHistoryController();
-			log.severe("Loading History: Error during loading History: "+e.getMessage());
+		if (controller == null && !isbackup) {
+			File backup = new File(this.historyBackupFile);
+			if (backup.exists()) {
+				log.severe("Try loading history backup");
+				controller = this.loadHistory(true);
+			}
 		}
 		
+		if (isbackup && controller == null) {
+			controller = new MeasurementHistoryController();
+			log.severe("History Backup not found, Starting new History");
+		}
+			
 		return controller;
 	}
 

@@ -1,13 +1,11 @@
 package fws_master;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.imageio.ImageIO;
 
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
@@ -17,14 +15,16 @@ import org.jfree.data.general.DefaultValueDataset;
 import org.jfree.data.general.ValueDataset;
 
 public class PlotCurrent extends PlotBase {
-	private String bgPath;
+	
 	public PlotCurrent(String name, String path) {
 		super(name, path);
-		bgPath = path+File.separator+"compassbg.png";
+		
 	}
 
 	@Override
 	public void createPlot(PlotData data, String preFix) {
+		if (!data.checkData())
+			return;
 		MeasurementHistory hist = data.getData().get(0);
 		
 		double avg = 0.0f;
@@ -40,25 +40,19 @@ public class PlotCurrent extends PlotBase {
         plot.setSeriesPaint(0, Color.red);
         plot.setSeriesOutlinePaint(0, Color.red);
         
+        plot.setRoseCenterPaint(new Color(255,255,255,0));
+        plot.setBackgroundPaint(new Color(255,255,255,0));
+        plot.setRosePaint(new Color(255,0,0,50));
         JFreeChart chart = new JFreeChart(plot);
-        BufferedImage image;
-		try {
-			image = ImageIO.read(new File(bgPath));
-			plot.setBackgroundImage(image);
-			chart.setBackgroundImage(image);
-			plot.setBackgroundAlpha(0.0f);
-			plot.setBackgroundPaint(new Color(255,255,255,0));
-			plot.setRoseCenterPaint(new Color(255,255,255,0));
-		} catch (IOException e1) {
-			
-		}
-                
+        
+        chart.setBackgroundPaint(new Color(255,255,255,0)); 
+		
         chart.setTitle(data.getData().get(0).getStation()+" "+data.getData().get(0).getParameter()+" "+now());
               
         try {
         	ChartRenderingInfo info = new ChartRenderingInfo();
         	String fileName = data.getData().get(0).getStation()+"_"+data.getData().get(0).getParameter()+preFix+".png";
-    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
+    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info,true,80);
     		
     	} catch (IOException e) {
     		

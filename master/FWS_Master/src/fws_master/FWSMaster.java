@@ -2,6 +2,7 @@ package fws_master;
 
 
 import java.io.File;
+import java.util.concurrent.Semaphore;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,6 +67,7 @@ public class FWSMaster {
 	private MenuItem trayHideItem, trayStartItem, trayExitItem;
 	private boolean autoStart;
 	private TrayItem trayItem;
+	private Semaphore shutdownSem;
 		
 	/**
 	 * Generates the configPath. Normally it's a folder .fwsmaster in the home directory.
@@ -130,6 +132,8 @@ public class FWSMaster {
 		} catch (Exception ex) {
 			System.out.println("Error during creating log Handler: "+ex.getMessage());
 		}
+		
+		shutdownSem = new Semaphore(1);
 		
 		this.shell = shell;
 		this.display = display;
@@ -246,7 +250,7 @@ public class FWSMaster {
 		
 		this.generatorTime = config.getGeneratorTime();
 		this.autoStart = config.isAutoStart();
-		this.collector = new MeasurementCollector(this.station_controller,generatorTime,outDir,configDir);
+		this.collector = new MeasurementCollector(this,this.station_controller,generatorTime,outDir,configDir);
 	}
 	
 	/**
@@ -263,9 +267,9 @@ public class FWSMaster {
 	 * Save the current settings in the xml config file
 	 */
 	private void shutdown() {
+		this.blockShutdown();
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart);
-		
 	}
 
 	/**
@@ -325,6 +329,7 @@ public class FWSMaster {
 	public void StartClicked(boolean start) {
 		this.station_controller.startStations(start);
 		this.view.enableMenu(!start);
+		
 		if (start) {
 			trayStartItem.setText("Stop");
 			trayExitItem.setEnabled(false);
@@ -449,12 +454,11 @@ public class FWSMaster {
 			else if (((MenuItem) event.widget)==trayStartItem) {
 				if (station_controller.isRunning()) {
 					StartClicked(false);
-					
 				}
 				else {
 					StartClicked(true);
-					
 				}
+				view.toogleStartButton();
 			}
 			else if (((MenuItem) event.widget)==trayExitItem) {
 				exitClicked();
@@ -499,5 +503,18 @@ public class FWSMaster {
 	 */
 	public MeasurementHistoryController getHistoryController() {
 		return this.collector.getMeasurementHistoryController();
+	}
+	
+	public synchronized boolean blockShutdown() {
+		try {
+			this.shutdownSem.acquire();
+		} catch (InterruptedException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	public synchronized void releaseShutdown() {
+		this.shutdownSem.release();
 	}
 }
