@@ -161,7 +161,7 @@ implements Serializable {
 		tmpDay.add(Calendar.SECOND, -tmpDay.get(Calendar.SECOND));
 		tmpDay.add(Calendar.MILLISECOND, -tmpDay.get(Calendar.MILLISECOND));
 		
-		Date beginDay,endDay;
+		Date beginDay,endDay, histDate;
 		
 		beginDay = tmpDay.getTime();
 		
@@ -170,6 +170,14 @@ implements Serializable {
 		tmpDay.add(Calendar.SECOND, 59);
 		
 		endDay = tmpDay.getTime();
+		
+		
+		tmpDay.add(Calendar.HOUR_OF_DAY, -11);
+		tmpDay.add(Calendar.MINUTE, -59);
+		tmpDay.add(Calendar.SECOND, -59);
+		
+		histDate = tmpDay.getTime();
+		
 		
 		//Get the current values of this station/parameter combination
 		MeasurementHistory current = lastHours.get(key);
@@ -218,19 +226,8 @@ implements Serializable {
 			calc /= current.getValues().size();
 		}
 		
-		boolean exists = false;
-		for (MeasurementHistoryEntry find : year.getValues()) {
-			if (find.getTimestamp().getTime() == endDay.getTime() && find.getValue() == calc) {
-				exists = true;
-				log.severe("Value exists in days history:"+station+"/"+parameter+"/"+endDay+"/"+calc);
-			}
-		}
-		
-		if (!exists) {
-			//Save calculated value to long term history
-			MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,endDay);
-			year.addMeasurement(entry);
-		}
+		MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,histDate);
+		year.addMeasurement(entry);
 		while (year.getValues().size() > 355) {
 			year.removeFirstEntry();
 		}

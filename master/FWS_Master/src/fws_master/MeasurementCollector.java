@@ -325,7 +325,7 @@ public class MeasurementCollector extends Thread {
 							continue;
 						// Plot the Data if everything is loaded
 						if (cfg.getId() == -1) {
-							if (cfg.getTimeBase() == 'h')
+							if (cfg.getTimeBase() == 'h' || cfg.getTimeBase() == 'd')
 								timePlot.createPlot(tmpData,""+plotCount);
 							else if (cfg.getTimeBase() == 'c')
 								currentPlot.createPlot(tmpData, ""+plotCount);
