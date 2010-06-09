@@ -233,7 +233,9 @@ public class MeasurementCollector extends Thread {
 				
 				Measurement tmp = ms.firstElement();
 				
-				newDay = this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms);
+				
+				if( this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms))
+					newDay = true;
 				
 				double avg = 0;
 				
@@ -325,11 +327,12 @@ public class MeasurementCollector extends Thread {
 							continue;
 						// Plot the Data if everything is loaded
 						if (cfg.getId() == -1) {
+							plotCount = ib.getPlots().indexOf(cfg);
 							if (cfg.getTimeBase() == 'h' || cfg.getTimeBase() == 'd')
-								timePlot.createPlot(tmpData,""+plotCount);
+								timePlot.createPlot(tmpData,"_"+cfg.getTimeBase()+plotCount);
 							else if (cfg.getTimeBase() == 'c')
-								currentPlot.createPlot(tmpData, ""+plotCount);
-							plotCount++;
+								currentPlot.createPlot(tmpData, "_c"+plotCount);
+							
 						}
 						
 					}
