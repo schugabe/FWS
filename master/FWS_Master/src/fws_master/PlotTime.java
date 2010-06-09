@@ -82,7 +82,8 @@ public class PlotTime extends PlotBase {
 			return;
 		
 		if (cnt == 2) {
-			NumberAxis axis2 = new NumberAxis("Value");
+			
+			NumberAxis axis2 = new NumberAxis(""+plot.getDataset(1).getSeriesKey(0));
 	        axis2.setAutoRangeIncludesZero(false);
 	        plot.setRangeAxis(1, axis2);
 	        plot.mapDatasetToRangeAxis(1, 1);
@@ -146,6 +147,7 @@ public class PlotTime extends PlotBase {
         try {
         	fileName += prefix+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
+    		log.severe("Ploting "+fileName);
     	} catch (IOException e) {
     		log.severe("Exception in createPlot(time): "+e.getStackTrace());
     	}

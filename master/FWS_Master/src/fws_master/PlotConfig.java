@@ -6,7 +6,7 @@ package fws_master;
  * @author Johannes Kasberger
  *
  */
-public class PlotConfig {
+public class PlotConfig implements Comparable<PlotConfig> {
 	private int id;
 	private int count;
 	private char timeBase;
@@ -69,5 +69,29 @@ public class PlotConfig {
 	 */
 	public char getTimeBase() {
 		return timeBase;
+	}
+
+	@Override
+	public int compareTo(PlotConfig o) {
+		if (this.timeBase == o.timeBase) {
+			if (this.count < o.getCount())
+				return -1;
+			else if (this.count > o.getCount())
+				return 1;
+			return 0;
+		}
+		else {
+			if (timeBase == 'c')
+				return -1;
+			else if (timeBase == 'h') {
+				if (o.timeBase == 'd')
+					return -1;
+				if (o.timeBase == 'c')
+					return 1;
+			}
+			else if (timeBase == 'd')
+				return 1;
+		}
+		return 0;
 	}
 }

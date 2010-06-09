@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 
 import org.jfree.chart.ChartRenderingInfo;
@@ -15,7 +16,7 @@ import org.jfree.data.general.DefaultValueDataset;
 import org.jfree.data.general.ValueDataset;
 
 public class PlotCurrent extends PlotBase {
-	
+	private static Logger log = Logger.getLogger("fws_master.plotcurrent");
 	public PlotCurrent(String name, String path) {
 		super(name, path);
 		
@@ -53,6 +54,7 @@ public class PlotCurrent extends PlotBase {
         	ChartRenderingInfo info = new ChartRenderingInfo();
         	String fileName = data.getData().get(0).getStation()+"_"+data.getData().get(0).getParameter()+preFix+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info,true,80);
+    		log.severe("Ploting "+fileName);
     		
     	} catch (IOException e) {
     		

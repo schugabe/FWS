@@ -1,5 +1,6 @@
 package fws_master;
 
+import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -76,7 +77,7 @@ public class StationInputBinding extends Binding {
 			this.plotConfig.add(new PlotConfig(id,length,timeBase));
 		}
 		
-		
+		Collections.sort(this.plotConfig);
 		return true;
 	}
 	
