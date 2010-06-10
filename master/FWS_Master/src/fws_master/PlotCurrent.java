@@ -53,11 +53,9 @@ public class PlotCurrent extends PlotBase {
         try {
         	ChartRenderingInfo info = new ChartRenderingInfo();
         	String fileName = data.getData().get(0).getStation()+"_"+data.getData().get(0).getParameter()+preFix+".png";
-    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info,true,80);
-    		log.severe("Ploting "+fileName);
-    		
+    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info,true,80);    		
     	} catch (IOException e) {
-    		
+    		log.severe("Plotting current failed"+e.getMessage());
     	}
 	}
 	public static String now() {

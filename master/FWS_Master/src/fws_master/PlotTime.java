@@ -147,7 +147,6 @@ public class PlotTime extends PlotBase {
         try {
         	fileName += prefix+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
-    		log.severe("Ploting "+fileName);
     	} catch (IOException e) {
     		log.severe("Exception in createPlot(time): "+e.getStackTrace());
     	}
