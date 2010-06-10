@@ -24,6 +24,7 @@ static volatile uint16_t temperature; // in °C
 static uint16_t eeEnable EEMEM = DEFAULT_ENABLE;
 static uint8_t eeIp[] EEMEM = DEFAULT_IP_ARR;
 
+static uint8_t newIp;
 static uint16_t enable;
 static uint8_t ip[4];
 
@@ -43,7 +44,6 @@ void read_temperature(uint16_t value) {
 	if (value == 0xffff)
 		temperature = value;
 	else {
-		// TODO: calibration
 		// 485 = 14°C
 		// 388 = 25°C
 		temperature = (690000-((uint32_t)value*1134UL))/1000;
@@ -66,8 +66,8 @@ uint8_t write_IP(uint8_t num, uint16_t value) {
 	} else {
 		ip[2] = (uint8_t)(value >> 8);
 		ip[3] = (uint8_t)value;
-		// TODO: store in eeprom
-		mb_setIP(ip);
+		eeprom_write_block(ip,eeIp,sizeof(eeIp));
+		newIp = 1;
 	}
 	return 1;
 }
@@ -127,6 +127,10 @@ int main(void) {
 	
 	while (1) {
 		mb_handleRequest();
+		if (newIp) {
+			newIp = 0;
+			mb_setIP(ip);
+		}
 	}
 }
 
