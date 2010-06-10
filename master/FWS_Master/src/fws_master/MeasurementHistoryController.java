@@ -201,7 +201,7 @@ implements Serializable {
 		
 		
 		MeasurementHistory newCurrent = new MeasurementHistory(station,parameter,current.getUnit());
-		
+		int count = 0;
 		for(MeasurementHistoryEntry m:current.getValues()) {
 			
 			//Keep the last day in the recent history but remove older values
@@ -210,6 +210,7 @@ implements Serializable {
 			
 			//If value was created on oldDate aggregate it with its history function
 			if (m.getTimestamp().after(beginDay) && m.getTimestamp().before(endDay)) {
+				count++;
 				switch(historyFunction) {
 				case AVG: calc += m.getValue(); break;
 				case MIN: if ( m.getValue() < calc) calc = m.getValue(); break;
@@ -223,7 +224,7 @@ implements Serializable {
 		lastHours.put(key,newCurrent);
 		
 		if (historyFunction == HistoryFunctions.AVG) {
-			calc /= current.getValues().size();
+			calc /= count;
 		}
 		
 		MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,histDate);
