@@ -15,12 +15,17 @@
 
 #define ENABLENUM	2
 
-static volatile uint16_t winddir = 0x0; // in ° x10
-static volatile uint16_t windspeed = 0x0; // in ms
-static volatile uint16_t temperature = 0x0; // in °C
+static volatile uint16_t winddir; // in ° x10
+static volatile uint16_t errcnt; // in ° x10
+static volatile uint16_t cnt; // in ° x10
+static volatile uint16_t windspeed; // in ms
+static volatile uint16_t temperature; // in °C
 
-static uint16_t enable = 1;
-static uint8_t ip[] = {192,168,0,111};
+static uint16_t eeEnable EEMEM = DEFAULT_ENABLE;
+static uint8_t eeIp[] EEMEM = DEFAULT_IP_ARR;
+
+static uint16_t enable;
+static uint8_t ip[4];
 
 void read_winddir(uint16_t value) {
 	// if error occured
@@ -49,7 +54,7 @@ uint8_t write_enable(uint8_t num, uint16_t value) {
 	if (num != ENABLENUM)
 		return 0;
 	enable = value ? 1 : 0;
-	// TODO: store in eeprom
+	eeprom_write_word(&eeEnable, enable);
 	enableSensor();
 	return 1;
 }
@@ -84,7 +89,12 @@ void enableSensor(void) {
 
 int main(void) {
 	// load values from eeprom
-	// TODO: load values from eeprom
+	eeprom_read_block(ip,eeIp,sizeof(eeIp));
+	enable = eeprom_read_word(&eeEnable);
+	if (ip[0] == 0xFF)
+		*((uint32_t*)ip) = DEFAULT_IP;
+	if (enable == 0xFFFF)
+		enable = DEFAULT_ENABLE;
 	
 	led_init();
 		
@@ -92,7 +102,7 @@ int main(void) {
 	adc_register(0,read_temperature);
 	adc_register(1,read_winddir);
 	
-	windspeed_init(&windspeed);
+	windspeed_init(&windspeed,&errcnt,&cnt);
 	
 	mb_init();
 	mb_setIP(ip);
@@ -101,6 +111,8 @@ int main(void) {
 	mb_addReadRegister(3,(uint16_t*)&winddir);
 	mb_addReadRegister(4,(uint16_t*)&windspeed);
 	mb_addReadRegister(5,(uint16_t*)&temperature);
+	mb_addReadRegister(6,(uint16_t*)&errcnt);
+	mb_addReadRegister(7,(uint16_t*)&cnt);
 	
 	mb_addWriteRegister(0,write_IP);
 	mb_addWriteRegister(1,write_IP);

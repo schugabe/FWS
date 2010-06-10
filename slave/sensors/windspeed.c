@@ -28,6 +28,8 @@
 #define MIN_TIME	(COMMA_FAC * SCALE_FAC / 253)
 
 static uint16_t volatile* windspeed;
+static uint16_t volatile* errcnt;
+static uint16_t volatile* cnt;
 static uint8_t volatile overflows;
 
 /*========================*/
@@ -68,6 +70,9 @@ ISR(TIMER1_CAPT_vect) {
 	if (time) {
 		if (time > MIN_TIME)
 			*windspeed = WIND_SPEED / time;
+		else
+			(*errcnt)++;
+		(*cnt)++;
 	} else
 		*windspeed = 0;
 	
@@ -79,8 +84,10 @@ ISR(TIMER1_CAPT_vect) {
 /*     Procedures         */
 /*========================*/
 
-void windspeed_init(uint16_t volatile* mem) {
+void windspeed_init(uint16_t volatile* mem,uint16_t volatile* err,uint16_t volatile* scnt) {
 	windspeed = mem;
+	errcnt = err;
+	cnt = scnt;
 	
 	// disable pullup (externally provided)
 	SPEED_PORT &= ~_BV(SPEED_PIN);
