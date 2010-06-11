@@ -1,6 +1,9 @@
 #ifndef __ADC_H__
 #define __ADC_H__
 
+/**
+ * Callback type for ADC result
+**/
 typedef void(*callback_t)(uint16_t value);
 
 extern void adc_init(void);

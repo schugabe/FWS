@@ -6,7 +6,9 @@
 // server listen port
 #define MODBUSPORT 502
 
-// Message structures
+// for details about structure of Modbus messages see Specification at Modbus.org
+
+// message structures
 typedef struct {
 	uint16_t transmId;
 	uint16_t protoId;
@@ -34,10 +36,12 @@ typedef struct {
 #define MB_ERR_DATA 3
 #define MB_ERR_PROC 4
 
+// Modbus function codes
 #define MB_FUNC_READREG 0x04
 #define MB_FUNC_WRITEREG 0x06
 #define MB_FUNC_DEV_ID 0x2B
 
+// structures for read function
 typedef struct {
 	uint8_t function;
 	uint16_t start_address;
@@ -49,12 +53,15 @@ typedef struct {
 	uint8_t bytecount;
 } readreg_res_t;
 
+// structures for write function
 typedef struct {
 	uint8_t function;
 	uint16_t start_address;
 	uint16_t value;
 } writereg_req_t;
 
+// structures for device id function
+// not fully implemented yet
 typedef struct {
 	uint8_t function;
 	uint8_t type;
