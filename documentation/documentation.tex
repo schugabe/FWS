@@ -1,0 +1,80 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+%
+%  Flight weather station
+%
+%  Created by Johannes Kasberger
+%  Copyright (c) 2010. All rights reserved.
+%
+\documentclass[a4paper,english,12pt,oneside]{memoir}
+
+\usepackage{babel}
+\usepackage{ifpdf}
+\usepackage{float}
+\usepackage[colorlinks,pdfpagelabels,pdfstartview = FitH,bookmarksopen = true,bookmarksnumbered = true,linkcolor = black,plainpages = false,hypertexnames = false,citecolor = black]{hyperref}
+\usepackage{fontspec,xltxtra,xunicode}
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\else
+\usepackage{graphicx}
+\fi
+
+
+\ifpdf
+\DeclareGraphicsExtensions{.pdf, .jpg, .tif}
+\else
+\DeclareGraphicsExtensions{.eps, .jpg}
+\fi
+
+
+\pagestyle{companion}
+
+\chapterstyle{companion}
+\widowpenalty=10000
+\clubpenalty=10000
+
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont[Mapping=tex-text]{Hoefler Text}
+\setsansfont[Scale=MatchLowercase,Mapping=tex-text]{Gill Sans}
+\setmonofont[Scale=MatchLowercase]{Andale Mono}
+
+
+\newcommand\HRule{\noindent\rule{\linewidth}{1.5pt}}
+\begin{document}
+
+\begin{titlingpage}
+    \vspace*{\stretch{1}}
+    \HRule
+    \begin{center}
+        \LARGE FWS \\ 
+        Flight Weather Station
+    \end{center}
+    \HRule
+    \vspace*{\stretch{2}}
+    \begin{center}
+        \Large Projektpraktikum \\
+        
+     \end{center}
+    \vspace*{\stretch{3}}
+    \begin{center}
+        \vspace{30pt}
+        \normalsize Johannes Kasberger \\
+        0616782 \\
+        \vspace{15pt}
+        Markus Klein \\
+        0726101
+     \end{center}
+     \vspace*{\stretch{4}}
+ \end{titlingpage}
+
+\tableofcontents
+
+\input{introduction}
+
+\input{slave}
+
+\input{master}
+
+\end{document}
