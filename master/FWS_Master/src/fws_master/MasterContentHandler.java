@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 public class MasterContentHandler implements ContentHandler {
 	private States state;
 	private String path;
-	private int generatorTime;
+	private int generatorTime,plotWidth,plotHeight;
 	private boolean autoStart;
 	
 	public MasterContentHandler() {
@@ -21,6 +21,17 @@ public class MasterContentHandler implements ContentHandler {
 		this.path = "";
 		this.generatorTime = 30;
 		this.autoStart = false;
+		this.plotWidth = 800;
+		this.plotHeight = 600;
+	}
+	
+	
+	public int getPlotWidth() {
+		return this.plotWidth;
+	}
+	
+	public int getPlotHeight() {
+		return this.plotHeight;
 	}
 	
 	public int getGeneratorTime() {
@@ -53,6 +64,8 @@ public class MasterContentHandler implements ContentHandler {
 		case PATH: this.path = content; break;
 		case GENERATORTIME: try {this.generatorTime = Integer.parseInt(content);} catch(Exception e) {this.generatorTime = 30; } break;
 		case AUTOSTART: try {this.autoStart = Boolean.parseBoolean(content); } catch(Exception e) { this.autoStart = false; } break;
+		case PLOTWIDTH: try {this.plotWidth = Integer.parseInt(content); } catch (Exception e) { this.plotWidth = 800; } break;
+		case PLOTHEIGHT: try {this.plotHeight = Integer.parseInt(content); } catch (Exception e) { this.plotHeight = 600; } break;
 		}
 	}
 
@@ -109,8 +122,15 @@ public class MasterContentHandler implements ContentHandler {
 		if (this.state==States.IDLE) {
 			if (localName.equals("path")) {
 				this.state = States.PATH;
-			} else if (localName.equals("generatortime")) {
+			} 
+			else if (localName.equals("generatortime")) {
 				this.state = States.GENERATORTIME;
+			} 
+			else if (localName.equals("plotwidth")) {
+				this.state = States.PLOTWIDTH;
+			} 
+			else if (localName.equals("plotheight")) {
+				this.state = States.PLOTHEIGHT;
 			} 
 			else if (localName.equals("autostart")) {
 				this.state = States.AUTOSTART;
@@ -128,7 +148,7 @@ public class MasterContentHandler implements ContentHandler {
 	}
 	
 	private enum States {
-		IDLE,PATH,GENERATORTIME,AUTOSTART;
+		IDLE,PATH,GENERATORTIME,AUTOSTART,PLOTWIDTH,PLOTHEIGHT;
 	}
 
 }

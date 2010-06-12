@@ -25,6 +25,16 @@ public class ViewMain {
 		this.shell.setText("FWS Master");
 		this.shell.setLayout(new FillLayout());
 		InitMenuBar();
+		
+		initScroll();
+		InitStationView();
+
+	}
+	
+	public void reloadStationView() {
+		
+	}
+	private void initScroll() {
 		scroll = new ScrolledComposite(shell, SWT.NONE  | SWT.V_SCROLL);
 		scroll.setExpandHorizontal(true);
 		scroll.setExpandVertical(true);
@@ -32,14 +42,7 @@ public class ViewMain {
 		scroll.setMinHeight(400);
 		scroll.setLayout(new FillLayout());
 		
-		this.InitStationView();
-
 	}
-	
-	public void reloadStationView() {
-		this.InitStationView();
-	}
-	
 	private void InitStationView() {
 		RowLayout rowLayout = new RowLayout();
 		rowLayout.wrap = false;

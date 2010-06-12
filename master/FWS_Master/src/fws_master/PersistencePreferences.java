@@ -82,7 +82,7 @@ public class PersistencePreferences {
 	 * @param outDir
 	 * @param generatorTime
 	 */
-	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime, boolean autostart) {
+	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime, boolean autostart, int plotWidth, int plotHeight) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
@@ -109,6 +109,14 @@ public class PersistencePreferences {
 		
 		masterEl = document.createElement("autostart");
 		masterEl.appendChild(document.createTextNode(""+autostart));
+		rootElement.appendChild(masterEl);
+		
+		masterEl = document.createElement("plotwidth");
+		masterEl.appendChild(document.createTextNode(""+plotWidth));
+		rootElement.appendChild(masterEl);
+		
+		masterEl = document.createElement("plotheight");
+		masterEl.appendChild(document.createTextNode(""+plotHeight));
 		rootElement.appendChild(masterEl);
 		
 		for (Parameter p:params.getParameters()) {

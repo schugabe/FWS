@@ -288,7 +288,7 @@ public class ViewData {
 			String date = item.getText(0);
 			String value = item.getText(1);
 			try {
-				out.write(date+","+value+"\n");
+				out.write(date+";"+value+"\n");
 			} catch (IOException e) {
 				continue;
 			}

@@ -9,13 +9,15 @@ import java.util.Vector;
 public class PlotController {
 	private Vector<PlotBase> plots;
 	private String defaultPath;
+	private int width, height;
 	/**
 	 * Class constructor
 	 * @param defaultPath Path for the plot files
 	 */
-	public PlotController(String defaultPath) {
+	public PlotController(String defaultPath, int width, int height) {
 		this.defaultPath = defaultPath;
-		
+		this.width = width;
+		this.height = height;
 		plots = new Vector<PlotBase>(3);
 		plots.add(new PlotTime("time",this.defaultPath));
 		plots.add(new PlotCurrent("current", this.defaultPath));
@@ -32,5 +34,33 @@ public class PlotController {
 				return b;
 		}
 		return null;
+	}
+
+	/**
+	 * @param heigth the heigth to set
+	 */
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	/**
+	 * @return the heigth
+	 */
+	public int getHeight() {
+		return height;
+	}
+
+	/**
+	 * @param width the width to set
+	 */
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	/**
+	 * @return the width
+	 */
+	public int getWidth() {
+		return width;
 	}
 }

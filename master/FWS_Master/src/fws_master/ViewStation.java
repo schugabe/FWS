@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.*;
 
 
 public class ViewStation {
+	private FWSMaster master;
 	private Shell shell;
 	private StationController station_controller;
 	private ParameterController parameter_controller;
@@ -25,10 +26,11 @@ public class ViewStation {
 	private Button cfgActive,ipActive, cfgBindButton, ipBindButton;
 
 	
-	public ViewStation(Shell shell,StationController sc,ParameterController p) {
+	public ViewStation(Shell shell,StationController sc,ParameterController p, FWSMaster master) {
 		this.shell = shell;
 		this.station_controller = sc;
 		this.parameter_controller = p;
+		this.master = master;
 		this.InitView();
 		loadStationList();
 		loadCfgList();
@@ -366,6 +368,8 @@ public class ViewStation {
 			this.loadStationList();
 			this.stationList.setSelection(tmp_sel);
 			this.stationListSelected();
+			
+			this.master.reloadStationView();
 		}
 	}
 	
@@ -521,8 +525,10 @@ public class ViewStation {
 	}
 	
 	private void uploadClicked() {
-		if (this.selected_station != null)
+		if (this.selected_station != null) {
 			this.selected_station.uploadParamsConfig();
+			loadCfgList();
+		}
 	}
 	
 	

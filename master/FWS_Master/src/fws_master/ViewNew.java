@@ -60,7 +60,7 @@ public class ViewNew {
 			public void widgetSelected(SelectionEvent e) {
 				if (!master.addStationClicked(nameText.getText(),ipText.getText())) {
 					MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-					messageBox.setMessage("Station name is invalid");
+					messageBox.setMessage("Station name or IP Address is invalid (Name and IP must be unique)");
 					messageBox.setText("Error during creating station");
 					messageBox.open();
 				} 

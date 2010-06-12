@@ -286,7 +286,7 @@ public class MeasurementCollector extends Thread {
 	 * Generates the plots. Each InputBinding can require one or more plots. These are saved in a collection of PlotConfig values. For each PlotConfig one Diagram is generated.
 	 */
 	private void buildPlots() {
-		PlotController plotController = new PlotController(this.outDir);
+		PlotController plotController = new PlotController(this.outDir,master.getPlotWidth(),master.getPlotHeight());
 		PlotBase timePlot = plotController.getPlot("time");
 		PlotBase currentPlot = plotController.getPlot("current");
 				

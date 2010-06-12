@@ -98,7 +98,11 @@ public class StationContentHandler implements ContentHandler {
 			} catch(Exception e) {
 				return;
 			}
-			this.controller.addStation(s);
+			try {
+				this.controller.addStation(s);
+			} catch (Exception e) {
+				
+			}
 			this.lastStation = s;
 			this.state = States.STATION;
 		}

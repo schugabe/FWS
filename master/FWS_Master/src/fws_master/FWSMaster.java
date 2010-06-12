@@ -68,6 +68,7 @@ public class FWSMaster {
 	private boolean autoStart;
 	private TrayItem trayItem;
 	private Semaphore shutdownSem;
+	private int plotWidth,plotHeight;
 		
 	/**
 	 * Generates the configPath. Normally it's a folder .fwsmaster in the home directory.
@@ -156,7 +157,6 @@ public class FWSMaster {
 		
 		this.loadConfig();
 		
-		//this.generateParameters();
 		view = new ViewMain(shell,display,this);
 		
 		this.collector.start();
@@ -250,6 +250,8 @@ public class FWSMaster {
 		
 		this.generatorTime = config.getGeneratorTime();
 		this.autoStart = config.isAutoStart();
+		this.setPlotWidth(config.getPlotWidth());
+		this.setPlotHeight(config.getPlotHeight());
 		this.collector = new MeasurementCollector(this,this.station_controller,generatorTime,outDir,configDir);
 	}
 	
@@ -269,7 +271,7 @@ public class FWSMaster {
 	private void shutdown() {
 		this.blockShutdown();
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart);
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart, this.getPlotWidth(),this.getPlotHeight());
 	}
 
 	/**
@@ -300,7 +302,7 @@ public class FWSMaster {
 		tmp_shell.setSize (600, 700);
 		
 		@SuppressWarnings("unused")
-		ViewStation view_stat = new ViewStation(tmp_shell,this.station_controller,this.parameter_controller);
+		ViewStation view_stat = new ViewStation(tmp_shell,this.station_controller,this.parameter_controller,this);
 		tmp_shell.open();
 		
 		return;
@@ -361,6 +363,7 @@ public class FWSMaster {
 		try {
 			Station newStation  = new Station(name, this.station_controller, ip, 60);
 			this.station_controller.addStation(newStation);
+			this.reloadStationView();
 		} catch (Exception ex) {
 			return false;
 		}
@@ -372,7 +375,7 @@ public class FWSMaster {
 	 */
 	public void saveConfigClicked() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart);
+		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart,this.getPlotWidth(),this.getPlotHeight());
 	}
 	
 	/**
@@ -380,6 +383,7 @@ public class FWSMaster {
 	 */
 	public void reloadConfigClicked() {
 		this.loadConfig();
+		this.reloadStationView();
 	}
 	
 	/**
@@ -516,5 +520,37 @@ public class FWSMaster {
 	
 	public synchronized void releaseShutdown() {
 		this.shutdownSem.release();
+	}
+
+	public void reloadStationView() {
+		
+	}
+
+	/**
+	 * @param plotWidth the plotWidth to set
+	 */
+	public void setPlotWidth(int plotWidth) {
+		this.plotWidth = plotWidth;
+	}
+
+	/**
+	 * @return the plotWidth
+	 */
+	public int getPlotWidth() {
+		return plotWidth;
+	}
+
+	/**
+	 * @param plotHeight the plotHeight to set
+	 */
+	public void setPlotHeight(int plotHeight) {
+		this.plotHeight = plotHeight;
+	}
+
+	/**
+	 * @return the plotHeight
+	 */
+	public int getPlotHeight() {
+		return plotHeight;
 	}
 }

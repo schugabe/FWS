@@ -19,8 +19,13 @@ public class StationController {
 
 	/**
 	 * @param station the stations to add
+	 * @throws Exception 
 	 */
-	public void addStation(Station station) {
+	public void addStation(Station station) throws Exception {
+		for (Station s:stations) {
+			if (s.getStationName().equals(station.getStationName()) || s.getIpAddress().equals(station.getIpAddress()))
+				throw new Exception("Station with same Name or IP exists");
+		}
 		this.stations.add(station);;
 	}
 	
