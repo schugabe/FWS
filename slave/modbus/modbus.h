@@ -1,6 +1,13 @@
 #ifndef _modbus_h_
 #define _modbus_h_
 
+/**
+ * callback type for write register function
+ *
+ * @param	num		Addressed register number
+ * @param	value	Data
+ * @return			Return true if successfully processed, otherwise false.
+**/
 typedef uint8_t(*mb_writecb_t)(uint8_t num, uint16_t value);
 
 extern void mb_init(void);

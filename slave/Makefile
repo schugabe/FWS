@@ -13,7 +13,7 @@ DUDECPUTYPE=m328p
 DEF=F_CPU=12500000UL
 
 LOADCMD=avrdude
-LOADARG=-p $(DUDECPUTYPE) -c stk500v2 -e -U flash:w:
+LOADARG=-p $(DUDECPUTYPE) -c stk500v2 -e -U flash:w:$(TARGET).hex -U eeprom:w:$(TARGET).eep
 FUSEARG=-p $(DUDECPUTYPE) -v -c stk500v2
 
 CC=avr-gcc
@@ -21,7 +21,7 @@ OBJCOPY=avr-objcopy
 # optimize for size:
 CFLAGS=-g -D$(DEF) -mmcu=$(MCU) -Wall -W -Os -mcall-prologues
 
-all: $(TARGET).hex
+all: $(TARGET).hex $(TARGET).eep
 
 $(TARGET).hex : $(TARGET).elf
 	$(OBJCOPY) -R .eeprom -O ihex $(TARGET).elf $(TARGET).hex
@@ -30,14 +30,19 @@ $(TARGET).hex : $(TARGET).elf
 	@echo "Expl.: data=initialized data, bss=uninitialized data, text=code"
 	@echo " "
 
+$(TARGET).eep: $(TARGET).elf
+	$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O ihex $(TARGET).elf $(TARGET).eep || exit 0
+
 $(TARGET).elf: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ -Wl,-Map,$(TARGET).map $(OBJ)
 
 $(OUTDIR)%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-load: $(TARGET).hex
-	$(LOADCMD) $(LOADARG)$(TARGET).hex
+
+load: $(TARGET).hex $(TARGET).eep
+	$(LOADCMD) $(LOADARG)
 
 fuse:
 	$(LOADCMD) $(FUSEARG)
