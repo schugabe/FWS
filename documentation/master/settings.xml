@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fws_config>
+<path>/home/user/FWSMaster/output</path>
+<generatortime>5</generatortime>
+<autostart>false</autostart>
+<plotwidth>800</plotwidth>
+<plotheight>600</plotheight>
+<parameter typ="config">
+<name>Messintervall</name>
+</parameter>
+<parameter typ="input">
+<name>Temperatur</name>
+<unit>°C</unit>
+<format>6553.6</format>
+<history>MAX</history>
+</parameter>
+<parameter typ="input">
+<name>Windrichtung</name>
+<unit>Richtung</unit>
+<format>65536</format>
+<history>AVG</history>
+</parameter>
+<station intervall="2" ip="192.168.1.3:30000" name="Dach">
+<binding active="true" address="3" parameter="Messintervall" transfered="false" type="config" value="1000"/>
+<binding active="true" address="0" parameter="Temperatur" plotconfig="d4;1h24;" type="input"/>
+<binding active="true" address="1" parameter="Windrichtung" plotconfig="d4;c1;h24;" type="input"/>
+</station>
+</fws_config>

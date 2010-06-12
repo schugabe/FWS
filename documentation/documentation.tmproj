@@ -2,21 +2,105 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>introduction.tex</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
+			<string>master.tex</string>
+			<key>lastUsed</key>
+			<date>2010-06-10T21:09:19Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>slave.tex</string>
+			<key>lastUsed</key>
+			<date>2010-06-10T21:06:22Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>documentation.tex</string>
+			<key>lastUsed</key>
+			<date>2010-06-10T21:27:18Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>introduction.tex</string>
+			<key>lastUsed</key>
+			<date>2010-06-10T21:27:18Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>319</integer>
 	<key>metaData</key>
-	<dict/>
+	<dict>
+		<key>documentation.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>39</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>8</integer>
+		</dict>
+		<key>introduction.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>6</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>master.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>slave.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>14</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>documentation.tex</string>
+		<string>introduction.tex</string>
+		<string>slave.tex</string>
+		<string>master.tex</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
