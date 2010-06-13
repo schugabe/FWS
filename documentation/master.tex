@@ -5,8 +5,8 @@
 \section{About the Master} % (fold)
 \label{sec:about_the_master}
 
-The master is written Java and uses the jamod Library\footnote{\url{http://jamod.sourceforge.net/}} for the communication with the sensors over the modbus protocoll. The view is created with the SWT Library\footnote{\url{http://www.eclipse.org/swt/}}. 
-It's seperated in several parts:
+The master is written Java and uses the jamod Library\footnote{\url{http://jamod.sourceforge.net/}} for the communication with the sensors over the modbus protocol. The view is created with the SWT Library\footnote{\url{http://www.eclipse.org/swt/}}. 
+It's separated in several parts:
 \begin{itemize}
 	\item View (see \ref{sec:view})
 	\item Configuration (see \ref{sec:configuration})
@@ -14,7 +14,7 @@ It's seperated in several parts:
 	\item History (see \ref{sec:history})
 \end{itemize}
 
-It's needed to create a configuration file before collection process of the measurement values could be started. A sensor must be added to the master befor it can be used. Each sensor has a individual name and ip address and it's refered as a station. In the configuration phase it's nesseary to specify the kind of data that the stations collect. The data that is transfered from the station to the master is called Input Parameter. To configure the sensor it's possible to define configuration Parameters. These values are transfered from the master to the sensor. To map the parameters to the memory in the station they must be bound to addresses. This happens individually for each station. So it's possible to collect different data from different stations. It's also possible to configure the kind of plots that are generated (see \ref{sub:plots}).
+It's needed to create a configuration file before collection process of the measurement values could be started. A sensor must be added to the master before it can be used. Each sensor has a individual name and ip address and it's referred as a station. In the configuration phase it's necessary to specify the kind of data that the stations collect. The data that is transferred from the station to the master is called Input Parameter. To configure the sensor it's possible to define configuration Parameters. These values are transferred from the master to the sensor. To map the parameters to the memory in the station they must be bound to addresses. This happens individually for each station. So it's possible to collect different data from different stations. It's also possible to configure the kind of plots that are generated (see \ref{sub:plots}).
 
 After the configuration of the stations the collection process could be started. Each station is polled in its own thread. One collector thread collects the data from all stations, generates a text file with the information about the current values from the stations and draws the plots. The time between the polling of the stations and between generation of the output files can also be configured. As soon the current day changes the values from the last day are aggregated to a history value. This daily history is kept for one year. The values from the station are kept for two days so it's possible to plot hourly data. 
 
@@ -75,7 +75,7 @@ The view is created with the help of SWT. SWT uses the os drawing apis to draw t
 \section{Configuration} % (fold)
 \label{sec:configuration} 
 %TODO enabled wenn vorhanden
-The nessesary views for the configuration are \ref{fig:add}, \ref{fig:settings}, %\ref{fig:parameters} and \ref{fig:stations}.
+The necessary views for the configuration are \ref{fig:add}, \ref{fig:settings}, %\ref{fig:parameters} and \ref{fig:stations}.
 
 The result of the configuration phase is an xml file with all settings in it. See example in Listing \ref{code:settings}
 
@@ -83,7 +83,7 @@ The result of the configuration phase is an xml file with all settings in it. Se
 
 \subsection{Parameters} % (fold)
 \label{sub:parameters}
-There are two types of parameters. Input Parameters and Configuraton Parameters. Each parameters has a unique name and a boolean value if it's enabled. The name is the identifyer of the parameters so it has to be unique. Beside of these common attributes the configuration and input parameters have further attributes.
+There are two types of parameters. Input Parameters and Configuration Parameters. Each parameters has a unique name and a boolean value if it's enabled. The name is the identifier of the parameters so it has to be unique. Beside of these common attributes the configuration and input parameters have further attributes.
 
 \subsubsection{Input Parameter} % (fold)
 \label{ssub:input_parameter}
@@ -91,28 +91,29 @@ Additional attributes of an input parameter:
 \begin{itemize}
 	\item Unit
 	\item Format
-	\item History Funtion
+	\item History Function
 \end{itemize}
 
 \paragraph{Unit} % (fold)
 \label{par:unit}
-The Unit is just used for the description in the generated files. Availible units are:
+The Unit is just used for the description in the generated files. Available units are:
 \begin{itemize}
 	\item speed $\frac{m}{s}$
 	\item speed $\frac{km}{h}$
 	\item frequenzy $Hz$
 	\item direction
-	\item temperatur $^\circ C$
+	\item temperature $^\circ C$
 \end{itemize}
 
 % paragraph unit (end)
 
 \paragraph{Format} % (fold)
 \label{par:format}
-The transfered value from the station is a 16 bit integer value. To be able to display floating point numbers it's possible to set the output format to the desired form. Example: The temperatur equals $23.3 ^\circ C$. The station measures the temperatur and converts it to $233$ to have an integer value. On the master the output format is set to the format with one digit before the decimal point. When such an input parameter is used it's converted back to $23.3$.
+The transferred value from the station is a 16 bit integer value. To be able to display floating point numbers it's possible to set the output format to the desired form. Example: The temperature equals $23.3 ^\circ C$. The station measures the temperature and converts it to $233$ to have an integer value. On the master the output format is set to the format with one digit before the decimal point. When such an input parameter is used it's converted back to $23.3$.
 
 \paragraph{History Function} % (fold)
-There are three different history functions availible. For more details about these functions and how they are used please read \ref{sec:history}.
+\label{par:histfunc}
+There are three different history functions available. For more details about these functions and how they are used please read \ref{sec:history}.
 \label{par:history_function}
 \begin{itemize}
     \item average
@@ -132,7 +133,7 @@ Additional attributes of a configuration parameter:
 
 \paragraph{Value} % (fold)
 \label{par:value}
-A configuration parameter is a value that is transfered from the master to the slave. The value that is transfered is saved in the attribute value. This value must be an 16 Bit integer value.
+A configuration parameter is a value that is transferred from the master to the slave. The value that is transferred is saved in the attribute value. This value must be an 16 Bit integer value.
 % paragraph value (end)
 % subsubsection configuration_parameter (end)
 
@@ -141,9 +142,9 @@ A configuration parameter is a value that is transfered from the master to the s
 \subsection{Plots} % (fold)
 \label{sub:plots}
 The plots are generated with the help of the jFreeChart Library \footnote{\url{http://www.jfree.org/jfreechart/}}.
-The plots can be configured for every binding. Each binding can have several plots asigned. It's also possible to plot more than one data into one plot. The plots are configured with a string. The simplest configuration looks like {C h24;} With that configuration one plot is generated and the data for this plot are the values from the last 24 hours. The plots are generated in the output directory that can be set from the user.
+The plots can be configured for every binding. Each binding can have several plots assigned. It's also possible to plot more than one data into one plot. The plots are configured with a string. The simplest configuration looks like {C h24;} With that configuration one plot is generated and the data for this plot are the values from the last 24 hours. The plots are generated in the output directory that can be set from the user.
 
-It's possible to use differnt data ranges for the plots. To allow the use to choose one range are three differnt time bases availible:
+It's possible to use different data ranges for the plots. To allow the use to choose one range are three different time bases available:
 \begin{itemize}
 	\item c - current
 	\item h - hours
@@ -163,11 +164,11 @@ Use the last values for the plot. Currently this is only implemented for the win
 
 \paragraph{Hours} % (fold)
 \label{par:hours}
-Use the last values of the last hours for the plot. The ammount of the hours is specified in the plot configuration. It's the number after the timebase. Example of an 24 hour plot see Figure \ref{fig:hours}.
+Use the last values of the last hours for the plot. The amount of the hours is specified in the plot configuration. It's the number after the timebase. Example of an 24 hour plot see Figure \ref{fig:hours}.
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\linewidth]{master/plot_exampleh.png}
-    \caption{last 24 hours of two seperat parameters in one plot}
+    \caption{Last 24 hours of two separate parameters in one plot}
     \label{fig:hours}
 \end{figure}
 % paragraph hours (end)
@@ -183,13 +184,13 @@ Each plot is specified by three different parts: [Number]CharacterNumber;
 
 \paragraph{First Number: ID} % (fold)
 \label{par:first_number_id}
-This number is optional and controlls if more than one input parameter is drawn in one plot. All configured plots with the same number are drawn in the same plot.
+This number is optional and controls if more than one input parameter is drawn in one plot. All configured plots with the same number are drawn in the same plot.
 % paragraph first_number_id (end)
 \paragraph{Character: Timebase} % (fold)
 \label{par:character}
-Defines the timebase. Explained in paragraphes above.
+Defines the timebase. Explained in paragraphs above.
 % paragraph character (end) 
-\paragraph{Second Number: Ammount of data} % (fold)
+\paragraph{Second Number: Amount of data} % (fold)
 \label{par:number}
 The second number defines how much data will be in the plot. d4; will plot the last four days.
 % paragraph number (end)
@@ -214,7 +215,7 @@ For the configuration string {\C h24;1h24;d30;c1;d365;} following plots are gene
 
 \subsubsection{Detailed Information about the plots} % (fold)
 \label{ssub:detailed_information_about_the_plots}
-If two differnt data sets should be ploted in one plot there two axis with own scale generated. When more that three data sets should be drawn in one plot they share one axis. So it's advisable to generate more plots with two datasets each in it to kepp the plots tidy.
+If two different data sets should be plotted in one plot there two axis with own scale generated. When more that three data sets should be drawn in one plot they share one axis. So it's advisable to generate more plots with two datasets each in it to keep the plots tidy.
 
 The direction parameters values are not connected with a line. Otherwise the plot would be unreadable if the wind directions changes a lot.
 
@@ -232,9 +233,81 @@ The direction parameter values are mapped to a description of the direction. So 
 \section{Stations} % (fold)
 \label{sec:stations}
 
+After the stations are configured they are added to the station controller. This controller takes care for starting and pausing the station threads. 
+
+\subsubsection{Getting the Data} % (fold)
+\label{ssub:getting_the_data}
+Each station has it's own thread in that it polls in its own interval the data values from the station. For transmission a new tcp connection is opened. After the value has been transferred the connection is closed. Each station has a list of measurements. A measurements consists of an timestamp and a value. If a station is paused its thread is suspended and waits for the wake up signal from the controller. 
+
+The Modbus function that is used to transfer the data is read register.
+% subsubsection getting_the_data (end)
+
+\subsubsection{Transferring the configuration} % (fold)
+\label{ssub:transferring_the_configuration}
+When the user wants to upload a new configuration the station will call write register several times and reads back the answer of the stations. If the answer equals the write register value the value is marked as transferred. A transferred value isn't uploaded again if it is unchanged.
+% subsubsection transferring_the_configuration (end)
+\subsubsection{Change the IP Address} % (fold)
+\label{ssub:change_the_ip_address}
+The IP Address represents a special configuration parameter. It is always mapped to the address 0 and 1 on the station. These two 16 bit registers are used to save the ip address. When the ip address has changed it's transferred to the station. After the successful transmission of the two values the new ip is saved. Otherwise the old ip is kept.
+% subsubsection change_the_ip_address (end)
+
+
+\subsubsection{Collecting the Data} % (fold)
+\label{ssub:collecting_the_data}
+A data collector thread runs in background an collects the data from all the stations. For each station parameter combination a own list is kept with all the recent values in it. But it's not the normal measurement that is kept. The measurements get converted in an simpler data type that can be serialized. This datatype has no references to other classes. In the collector thread the text file is generated that contains the information about the current status of the stations. For each station is an entry in this file. This entry contains the current value of each parameter bound to that station. This value is the average of the measurements since the last run of the collector. To see if the value changes the standard deviation is calculated and written to the output. For example result file see listing \ref{code:result}. 
+For each parameter a new line is started in the result file. Syntax is {\C name[unit]:value;standard deviation;}
+
+{\C \lstinputlisting[breaklines=true,caption={Sample result file},label=code:result,frame=tlRB]{master/result.txt} }
+
+% subsubsection collecting_the_data (end)
 % section stations (end)
 
 \section{History} % (fold)
 \label{sec:history}
+The collector adds the measurements to the history controller. This controller converts the values to the entries in the history. Each input parameter has two histories. One short term history and one long term history. 
+\subsection{Short term history} % (fold)
+\label{sub:short_term_history}
+In the short term history are the history entries from the last two days. This is history is queried when plotting a plot with the `h' timebase. To this list all new measurements are added as soon new data arrives from the collector. During this phase it's checked if the day has changed since the last time new measurements have been added. If that is the case the day is transferred to the long term history. There are at least the last 24 hours in the short term history.
+% subsection short_term_history (end)
 
+\subsection{Long term history} % (fold)
+\label{ssub:long_term_history}
+Once a new day has started the past day gets transferred to the long term history. To don't get to much values one representing value is calculated for the day. This happens with one of the history functions listed in \ref{par:histfunc}. During the calculation of the history value all measurements older than the last day are removed from the short day history. The representing value is added to the long term history.
+% subsection long_term_history (end)
+
+\subsection{Storage of the history} % (fold)
+\label{sub:storage_of_the_history}
+The short and long term history are saved to the hard disk with the help of serialization. After new data has been added to the history it's saved to the hard disk. To prevent the user from closing the master in this moment a semaphore is used to prevent closing during the I/O operations haven't finished. Without that semaphore we often had corrupted history files because the master closed at an critical instant. 
+
+To prevent from loosing the history when the master crashes during writing the history an old history is kept. When save history is called the thread locks the semaphore. After that it renames the current history to the old history. After that the new history is saved.
+
+If an exception encounters during loading the history the master tries to load the old history file. If that results also in an exception a new history is created.
+% subsection storage_of_the_history (end)
 % section history (end)
+
+\section{Implementation details} % (fold)
+\label{sec:implementation_details}
+The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. In the doc folder there is the javadoc generated source code documentation.
+
+To help you to get an overview over the source code here is an list with the function described in this document and in what classes it's implemented. There is also an class diagram figure \ref{fig:class_master}.
+
+\begin{itemize}
+    \item View: All classes that start with view
+    \item Configuration: Parameter, InputParameter, ConfigParameter, StationInputBinding, StationConfigBinding, Station
+    \item Save the configuration: PersitencePreferences, all classes with contentenhandler in its name
+    \item Data collection: Station, MeasurementCollector, Measurement, StationInputBinding, MeasurementHistoryController, MeasurementHistory, MeasurementHistoryEntry
+    \item Plotting and Output generation: MeasurementCollector, PlotBase, TimePlot, CurrentPlot
+    \item ModBus: ModbusWrapper, Station
+\end{itemize}
+
+%TODO grafik aktualiserien
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{master/class.png}
+    \caption{Class diagram of the master}
+    \label{fig:class_master}
+\end{figure}
+
+
+
+% section implementation_details (end)

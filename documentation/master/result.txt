@@ -1,0 +1,11 @@
+16:53:36 13.06.2010
+Balkon
+Windspeed[m/s]:0.0;0.0;
+Temperatur[°C]:25.474999999999998;0.0452267016866652;
+Windrichtung[Richtung]:232.5;138.14518054963375;
+====
+Dach
+Windspeed[m/s]:0.0;0.0;
+Temperatur[°C]:26.672999999999998;0.03345864;
+Windrichtung[Richtung]:232.5;138.14518054963375;
+====
