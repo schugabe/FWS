@@ -6,17 +6,17 @@ package fws_master;
  *
  */
 public abstract class PlotBase {
+	private PlotController controller;
 	private String name;
-	private String path;
 	
 	/**
 	 * Each Plot has a path where it saves the plot files
 	 * @param name
 	 * @param path
 	 */
-	public PlotBase(String name,String path) {
+	public PlotBase(String name,PlotController controller) {
 		this.setName(name);
-		this.setPath(path);
+		this.setName(name);
 	}
 
 	/**
@@ -33,18 +33,12 @@ public abstract class PlotBase {
 		return name;
 	}
 
-	/**
-	 * @param fileName the fileName to set
-	 */
-	public void setPath(String fileName) {
-		this.path = fileName;
-	}
 
 	/**
 	 * @return the fileName
 	 */
 	public String getPath() {
-		return path;
+		return controller.getPath();
 	}
 	
 	/**
@@ -53,4 +47,18 @@ public abstract class PlotBase {
 	 * @param preFix is added to the filename to avoid file name conflicts
 	 */
 	public abstract void createPlot(PlotData data,String preFix);
+
+	/**
+	 * @param controller the controller to set
+	 */
+	public void setController(PlotController controller) {
+		this.controller = controller;
+	}
+
+	/**
+	 * @return the controller
+	 */
+	public PlotController getController() {
+		return controller;
+	}
 }

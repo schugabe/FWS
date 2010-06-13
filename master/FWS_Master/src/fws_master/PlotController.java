@@ -19,8 +19,8 @@ public class PlotController {
 		this.width = width;
 		this.height = height;
 		plots = new Vector<PlotBase>(3);
-		plots.add(new PlotTime("time",this.defaultPath));
-		plots.add(new PlotCurrent("current", this.defaultPath));
+		plots.add(new PlotTime("time",this));
+		plots.add(new PlotCurrent("current", this));
 	}
 	
 	/**
@@ -62,5 +62,12 @@ public class PlotController {
 	 */
 	public int getWidth() {
 		return width;
+	}
+
+	/**
+	 * @return the defaultPath
+	 */
+	public String getPath() {
+		return defaultPath;
 	}
 }

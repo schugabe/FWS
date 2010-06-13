@@ -2,6 +2,9 @@ package fws_master;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -398,8 +401,6 @@ public class FWSMaster {
 		
 		new ViewSettings(tmp_shell,this);
 		tmp_shell.open();
-		
-		return;
 	}
 
 	/**
@@ -440,8 +441,29 @@ public class FWSMaster {
 		
 		new ViewData(this,tmp_shell);
 		tmp_shell.open();
+	}
+	
+	public void aboutClicked() {
+		Shell tmp_shell = new Shell(this.display, SWT.RESIZE | SWT.CLOSE | SWT.TITLE);
+		Point pt = display.getCursorLocation();
+		tmp_shell.setLocation (pt.x, pt.y);
+		tmp_shell.setText ("About");
+		tmp_shell.setSize (400, 300);
 		
-		return;
+		new ViewAbout(tmp_shell);
+		tmp_shell.open();
+	}
+
+	public void homepageClicked() {
+		try {
+			java.awt.Desktop.getDesktop().browse(new URI("http://github.com/schugabe/fws"));
+		} catch (IOException e) {
+			log.severe("Error opening homepage: "+e.getMessage());
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			log.severe("Error opening homepage: "+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -553,4 +575,6 @@ public class FWSMaster {
 	public int getPlotHeight() {
 		return plotHeight;
 	}
+
+	
 }

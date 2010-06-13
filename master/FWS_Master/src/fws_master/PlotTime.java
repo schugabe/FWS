@@ -35,8 +35,8 @@ public class PlotTime extends PlotBase {
 	 * @param name
 	 * @param path
 	 */
-	public PlotTime(String name, String path) {
-		super(name, path);
+	public PlotTime(String name,PlotController controller) {
+		super(name, controller);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class PlotTime extends PlotBase {
         
         try {
         	fileName += prefix+".png";
-    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info);
+    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,this.getController().getWidth(),this.getController().getHeight(),info);
     	} catch (IOException e) {
     		log.severe("Exception in createPlot(time): "+e.getStackTrace());
     	}

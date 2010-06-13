@@ -13,9 +13,10 @@ public class ViewMain {
 	private ScrolledComposite scroll;
 	private FWSMaster master;
 	
-	private Menu menuBar, fileMenu,configMenu;
-	private MenuItem fileMenuHeader,configMenuHeader;
-	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, configParamsItem, configStationsItem, configOutDirItem, configSettingsItem;
+	private Menu menuBar, fileMenu,configMenu, helpMenu;
+	private MenuItem fileMenuHeader,configMenuHeader,helpMenuHeader;
+	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, 
+	configParamsItem, configStationsItem, configOutDirItem, configSettingsItem, helpAboutItem, helpHomepageItem;
 	private Button startButton;
 	
 	public ViewMain(Shell shell, Display display,FWSMaster master) {
@@ -146,10 +147,26 @@ public class ViewMain {
 	    configSettingsItem = new MenuItem(configMenu, SWT.PUSH);
 	    configSettingsItem.setText("Settings");
 	    
+	    helpMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+	    helpMenuHeader.setText("Help");
+	    
+	    helpMenu = new Menu(shell, SWT.DROP_DOWN);
+	    helpMenuHeader.setMenu(helpMenu);
+	    
+	    helpHomepageItem = new MenuItem(helpMenu, SWT.PUSH);
+	    helpHomepageItem.setText("Go to project homepage");
+	    
+	    helpAboutItem = new MenuItem(helpMenu, SWT.PUSH);
+	    helpAboutItem.setText("About");
+	    
+	  
+	    
 	    configParamsItem.addSelectionListener(l);
 	    configStationsItem.addSelectionListener(l);
 	    configOutDirItem.addSelectionListener(l);
 	    configSettingsItem.addSelectionListener(l);
+	    helpHomepageItem.addSelectionListener(l);
+	    helpAboutItem.addSelectionListener(l);
 	    shell.setMenuBar(menuBar);
 	}
 	
@@ -215,6 +232,12 @@ public class ViewMain {
 			}
 			else if (((MenuItem) event.widget) == fileViewData) {
 				master.viewDataClicked();
+			}
+			else if (((MenuItem) event.widget) == helpAboutItem) {
+				master.aboutClicked();
+			}
+			else if (((MenuItem) event.widget) == helpHomepageItem) {
+				master.homepageClicked();
 			}
 			
 		}

@@ -17,8 +17,8 @@ import org.jfree.data.general.ValueDataset;
 
 public class PlotCurrent extends PlotBase {
 	private static Logger log = Logger.getLogger("fws_master.plotcurrent");
-	public PlotCurrent(String name, String path) {
-		super(name, path);
+	public PlotCurrent(String name,PlotController controller) {
+		super(name, controller);
 		
 	}
 
@@ -53,7 +53,7 @@ public class PlotCurrent extends PlotBase {
         try {
         	ChartRenderingInfo info = new ChartRenderingInfo();
         	String fileName = data.getData().get(0).getStation()+"_"+data.getData().get(0).getParameter()+preFix+".png";
-    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,800,600,info,true,80);    		
+    		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,this.getController().getWidth(),this.getController().getHeight(),info,true,80);    		
     	} catch (IOException e) {
     		log.severe("Plotting current failed"+e.getMessage());
     	}

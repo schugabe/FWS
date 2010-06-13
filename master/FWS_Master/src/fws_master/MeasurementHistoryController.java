@@ -229,9 +229,9 @@ implements Serializable {
 		
 		MeasurementHistoryEntry entry = new MeasurementHistoryEntry(calc,histDate);
 		year.addMeasurement(entry);
-		while (year.getValues().size() > 355) {
+		/*while (year.getValues().size() > 355) {
 			year.removeFirstEntry();
-		}
+		}*/
 	}
 	
 	/**
