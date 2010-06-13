@@ -5,7 +5,7 @@
 \section{About the Master} % (fold)
 \label{sec:about_the_master}
 
-The master is written Java and uses the JAMod Library for the communication with the sensors over the modbus protocoll. The view is created with the SWT Library. 
+The master is written Java and uses the jamod Library\footnote{\url{http://jamod.sourceforge.net/}} for the communication with the sensors over the modbus protocoll. The view is created with the SWT Library\footnote{\url{http://www.eclipse.org/swt/}}. 
 It's seperated in several parts:
 \begin{itemize}
 	\item View (see \ref{sec:view})
@@ -23,7 +23,7 @@ After the configuration of the stations the collection process could be started.
 \section{View} % (fold)
 \label{sec:view}
 
-The view is created with the help of SWT ( http://www.eclipse.org/swt/ ). SWT uses the os drawing apis to draw the widgets. So the look and feel of the application is very good integrated into the os it runs in. 
+The view is created with the help of SWT. SWT uses the os drawing apis to draw the widgets. So the look and feel of the application is very good integrated in the os it runs in. 
 
 \subsection{Screenshots} % (fold)
 \label{sub:screenshots}
@@ -85,15 +85,147 @@ The result of the configuration phase is an xml file with all settings in it. Se
 \label{sub:parameters}
 There are two types of parameters. Input Parameters and Configuraton Parameters. Each parameters has a unique name and a boolean value if it's enabled. The name is the identifyer of the parameters so it has to be unique. Beside of these common attributes the configuration and input parameters have further attributes.
 
+\subsubsection{Input Parameter} % (fold)
+\label{ssub:input_parameter}
 Additional attributes of an input parameter:
+\begin{itemize}
+	\item Unit
+	\item Format
+	\item History Funtion
+\end{itemize}
 
+\paragraph{Unit} % (fold)
+\label{par:unit}
+The Unit is just used for the description in the generated files. Availible units are:
+\begin{itemize}
+	\item speed $\frac{m}{s}$
+	\item speed $\frac{km}{h}$
+	\item frequenzy $Hz$
+	\item direction
+	\item temperatur $^\circ C$
+\end{itemize}
+
+% paragraph unit (end)
+
+\paragraph{Format} % (fold)
+\label{par:format}
+The transfered value from the station is a 16 bit integer value. To be able to display floating point numbers it's possible to set the output format to the desired form. Example: The temperatur equals $23.3 ^\circ C$. The station measures the temperatur and converts it to $233$ to have an integer value. On the master the output format is set to the format with one digit before the decimal point. When such an input parameter is used it's converted back to $23.3$.
+
+\paragraph{History Function} % (fold)
+There are three different history functions availible. For more details about these functions and how they are used please read \ref{sec:history}.
+\label{par:history_function}
+\begin{itemize}
+    \item average
+    \item minimum
+    \item maximum
+\end{itemize}
+% paragraph history_function (end)
+% paragraph format (end)
+% subsubsection input_parameter (end)
+
+\subsubsection{Configuration Parameter} % (fold)
+\label{ssub:configuration_parameter}
 Additional attributes of a configuration parameter:
+\begin{itemize}
+    \item value
+\end{itemize}
+
+\paragraph{Value} % (fold)
+\label{par:value}
+A configuration parameter is a value that is transfered from the master to the slave. The value that is transfered is saved in the attribute value. This value must be an 16 Bit integer value.
+% paragraph value (end)
+% subsubsection configuration_parameter (end)
 
 % subsection parameters (end)
 
 \subsection{Plots} % (fold)
 \label{sub:plots}
-About the plots
+The plots are generated with the help of the jFreeChart Library \footnote{\url{http://www.jfree.org/jfreechart/}}.
+The plots can be configured for every binding. Each binding can have several plots asigned. It's also possible to plot more than one data into one plot. The plots are configured with a string. The simplest configuration looks like {C h24;} With that configuration one plot is generated and the data for this plot are the values from the last 24 hours. The plots are generated in the output directory that can be set from the user.
+
+It's possible to use differnt data ranges for the plots. To allow the use to choose one range are three differnt time bases availible:
+\begin{itemize}
+	\item c - current
+	\item h - hours
+	\item d - days
+\end{itemize}
+
+\paragraph{Current} % (fold)
+\label{par:current}
+Use the last values for the plot. Currently this is only implemented for the wind direction. Results in an plot like Figure \ref{fig:current}.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{master/plot_examplec.png}
+    \caption{Current Wind direction plot}
+    \label{fig:current}
+\end{figure}
+% paragraph current (end)
+
+\paragraph{Hours} % (fold)
+\label{par:hours}
+Use the last values of the last hours for the plot. The ammount of the hours is specified in the plot configuration. It's the number after the timebase. Example of an 24 hour plot see Figure \ref{fig:hours}.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{master/plot_exampleh.png}
+    \caption{last 24 hours of two seperat parameters in one plot}
+    \label{fig:hours}
+\end{figure}
+% paragraph hours (end)
+
+\paragraph{Days} % (fold)
+\label{par:days}
+Same plot as with the hours timebase but the values from the last days are used. For more details about the history see chapter \ref{sec:history}.
+% paragraph days (end)
+
+\subsubsection{Configuration Syntax} % (fold)
+\label{ssub:configuration_syntax}
+Each plot is specified by three different parts: [Number]CharacterNumber;
+
+\paragraph{First Number: ID} % (fold)
+\label{par:first_number_id}
+This number is optional and controlls if more than one input parameter is drawn in one plot. All configured plots with the same number are drawn in the same plot.
+% paragraph first_number_id (end)
+\paragraph{Character: Timebase} % (fold)
+\label{par:character}
+Defines the timebase. Explained in paragraphes above.
+% paragraph character (end) 
+\paragraph{Second Number: Ammount of data} % (fold)
+\label{par:number}
+The second number defines how much data will be in the plot. d4; will plot the last four days.
+% paragraph number (end)
+\paragraph{End of Configuration} % (fold)
+\label{par:end_of_configuration}
+Each configuration must end with an {\C `;'}.
+% paragraph end_of_configuration (end)
+
+\paragraph{Example} % (fold)
+\label{par:example}
+For the configuration string {\C h24;1h24;d30;c1;d365;} following plots are generated:
+\begin{itemize}
+	\item Last 24 hours
+	\item Last 24 hours with other data with ID 1 
+	\item Last 30 days
+	\item Current value
+	\item Last 365 days
+\end{itemize}
+
+% paragraph example (end)
+% subsubsection configuration_syntax (end)
+
+\subsubsection{Detailed Information about the plots} % (fold)
+\label{ssub:detailed_information_about_the_plots}
+If two differnt data sets should be ploted in one plot there two axis with own scale generated. When more that three data sets should be drawn in one plot they share one axis. So it's advisable to generate more plots with two datasets each in it to kepp the plots tidy.
+
+The direction parameters values are not connected with a line. Otherwise the plot would be unreadable if the wind directions changes a lot.
+
+The direction parameter values are mapped to a description of the direction. So $0^\circ$ result in N(orth) see figure \ref{fig:dir}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{master/plot_dir.png}
+    \caption{Axis description of direction parameter}
+    \label{fig:dir}
+\end{figure}
+% subsubsection detailed_information_about_the_plots (end)
 % subsection plots (end)
 % section configuration (end)
 
