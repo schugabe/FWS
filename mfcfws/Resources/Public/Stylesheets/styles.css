@@ -1,0 +1,2 @@
+.weather img { width: 600px; margin: 3% 5%; }
+.weather img.dir { background: url("/uploads/tx_mkfws/compassbg.png") no-repeat center center; }

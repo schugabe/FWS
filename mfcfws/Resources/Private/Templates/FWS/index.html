@@ -1,0 +1,23 @@
+<div class="weather">
+	<table>
+	<thead>
+	<tr><th>Uhrzeit / Datum</th><th>Temperatur [°C]</th><th>Windgeschwindigkeit [m/s]</th><th>Windrichtung [Grad]</th></tr>
+	</thead>
+	<tbody>
+	<tr>
+	<td><f:format.date format="d.m.Y H:i">{weather.time}</f:format.date></td>
+	<td><f:format.number decimals="1" decimalSeparator=",">{weather.temperature}</f:format.number> (&plusmn;<f:format.number decimals="3" decimalSeparator=",">{weather.temperatureDeviation}</f:format.number>)</td>
+	<td><f:format.number decimals="1" decimalSeparator=",">{weather.windspeed}</f:format.number> (&plusmn;<f:format.number decimals="3" decimalSeparator=",">{weather.windspeedDeviation}</f:format.number>)</td>
+	<td><f:format.number decimals="1" decimalSeparator=",">{weather.winddirection}</f:format.number> (&plusmn;<f:format.number decimals="3" decimalSeparator=",">{weather.winddirectionDeviation}</f:format.number>)</td>
+	</tr>
+	</tbody>
+	</table>
+	<img src="uploads/tx_mkfws/Balkon_Windrichtung_c0.png" alt="Windrichtung {weather.winddirection}" class="dir" />
+	<h3>Tagesverlauf:</h3>
+	<img src="uploads/tx_mkfws/Balkon_WindspeedBalkon_Temperatur1.png" alt="Temperatur- und Windgeschwindigkeitsverlauf" />
+	<img src="uploads/tx_mkfws/Balkon_Windrichtung_h1.png" alt="Temperatur- und Windgeschwindigkeitsverlauf" />
+	<h3>Monatsverlauf:</h3>
+	<img src="uploads/tx_mkfws/Balkon_Windrichtung_d2.png" alt="Windrichtungsverlauf" />
+	<img src="uploads/tx_mkfws/Balkon_Windspeed_d3.png" alt="Windgeschwindigkeitsverlauf" />
+	<img src="uploads/tx_mkfws/Balkon_Temperatur_d1.png" alt="Temperaturverlauf" />
+</div>

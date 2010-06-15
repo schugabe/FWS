@@ -1,0 +1,2 @@
+
+page.includeCSS.mkfws = EXT:mkfws/Resources/Public/Stylesheets/styles.css
