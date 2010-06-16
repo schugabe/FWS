@@ -16,7 +16,7 @@ public abstract class PlotBase {
 	 */
 	public PlotBase(String name,PlotController controller) {
 		this.setName(name);
-		this.setName(name);
+		this.setController(controller);
 	}
 
 	/**
