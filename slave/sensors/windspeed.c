@@ -38,12 +38,18 @@ static uint16_t volatile* cnt;
 /// global overflow counter
 static uint8_t volatile overflows;
 
+static uint8_t ignore;
 
 /**
  * Interrupt handler for timer overflow
 **/
 ISR(TIMER1_OVF_vect) {
 	overflows++;
+	if (overflows > OVL_MIN) {
+		*windspeed = 0;
+		overflows = 0;
+		ignore = 1;
+	}
 }
 
 /**
@@ -62,35 +68,35 @@ ISR(TIMER1_CAPT_vect) {
 	diff = starttime-old_start;
 	old_start = starttime;
 	
-	if (ov > OVL_MIN) {
-		// too long => no speed
-		time = 0;
-	} else {
-		// if overflow make diff positiv
-		if (ov) {
-			ov--;
-			diff += TIMER_RANGE;
-		}
-		time = OVL_PERIOD*ov + diff*PERIOD;
+	if (ignore) {
+		ignore = 0;
+		return;
 	}
+	
+	// if overflow make diff positiv
+	if (ov) {
+		ov--;
+		diff += TIMER_RANGE;
+	}
+	time = OVL_PERIOD*ov + diff*PERIOD;
 	
 	if (time) {
 		if (time > TIME_MAXSP)
 			*windspeed = WIND_SPEED / time;
 		else
-			(*errcnt)++; // count invalid messurements
+			(*errcnt)++; // count invalid measurement
 	} else
 		*windspeed = 0;
 	
-	(*cnt)++; // count messurements
+	(*cnt)++; // count measurement
 }
 
 /**
- * Initialize windspeed unit
+ * Initialize wind speed unit
  *
- * @param	_windspeed	Pointer to windspeed value storage
- * @param	_errcnt		Pointer to messurement error counter storage
- * @param	_cnt		Pointer to messurement counter storage
+ * @param	_windspeed	Pointer to wind speed value storage
+ * @param	_errcnt		Pointer to measurement error counter storage
+ * @param	_cnt		Pointer to measurement counter storage
 **/
 void windspeed_init(uint16_t volatile* _windspeed,uint16_t volatile* _errcnt,uint16_t volatile* _cnt) {
 	windspeed = _windspeed;
@@ -106,7 +112,7 @@ void windspeed_init(uint16_t volatile* _windspeed,uint16_t volatile* _errcnt,uin
 }
 
 /**
- * Start windspeed messurement
+ * Start wind speed measurement
 **/
 void windspeed_start(void) {
 	overflows = 0;
@@ -115,7 +121,7 @@ void windspeed_start(void) {
 }
 
 /**
- * Stop windspeed messurement
+ * Stop wind speed measurement
 **/
 void windspeed_stop(void) {
 	TIMER_CRB &= ~0x07;
