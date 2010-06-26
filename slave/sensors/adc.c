@@ -31,7 +31,7 @@ ISR(ADC_vect) {
 			if (i2 == AVG_SIZE-1)
 				break;
 		}
-		// callback with average messurement
+		// callback with average measurement
 		channels[curind](sum/AVG_SIZE);
 		// select next active channel
 		do {
@@ -57,7 +57,7 @@ void adc_init(void) {
  * Register a new ADC channel
  *
  * @param	chnum	Channel number to use
- * @param	cb		Result ready callback for this channel. Set to NULL to disable channel.
+ * @param	cb	Result ready callback for this channel. Set to NULL to disable channel.
 **/
 void adc_register(uint8_t chnum,callback_t cb) {
 	if (chnum >= CHANNELS_SIZE)

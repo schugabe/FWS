@@ -1,3 +1,4 @@
+#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
@@ -14,6 +15,7 @@
 #define SENS_PIN	PD7
 
 #define ENABLENUM	2
+#define TEMPNUM		3
 
 // Registers for Modbus communication
 static volatile uint16_t winddir; // in ° x10
@@ -25,10 +27,12 @@ static volatile uint16_t temperature; // in °C x10
 // persistent variables, located in EEPROM
 static uint16_t eeEnable EEMEM = DEFAULT_ENABLE;
 static uint8_t eeIp[] EEMEM = DEFAULT_IP_ARR;
+static uint32_t eeTemp[] EEMEM = {DEFAULT_TEMP_K,DEFAULT_TEMP_D,DEFAULT_TEMP_DIV};
 
 static uint8_t newIp;
-static uint16_t enable;
-static uint8_t ip[4];
+static typeof(eeEnable) enable;
+static typeof(eeIp[0]) ip[sizeof(eeIp)/sizeof(eeIp[0])];
+static typeof(eeTemp[0]) temp[sizeof(eeTemp)/sizeof(eeTemp[0])];
 
 /**
  * callback for winddirection
@@ -57,16 +61,16 @@ void read_temperature(uint16_t value) {
 	else {
 		// 485 = 14°C
 		// 388 = 25°C
-		temperature = (690000-((uint32_t)value*1134UL))/1000;
+		temperature = (temp[0] * value + temp[1]) / temp[2];
 	}
 }
 
 /**
  * callback for Modbus write register function
  *
- * @param	num		Must be equal to ENABLENUM to accept new value
+ * @param	num	Must be equal to ENABLENUM to accept new value
  * @param	value	New enable value
- * @return			True if value was written successfully
+ * @return		True if value was written successfully
 **/
 uint8_t write_enable(uint8_t num, uint16_t value) {
 	if (num != ENABLENUM)
@@ -94,19 +98,47 @@ uint8_t write_enable(uint8_t num, uint16_t value) {
 **/
 uint8_t write_IP(uint8_t num, uint16_t value) {
 	if (num == 0) {
-		ip[0] = (uint8_t)(value >> 8);
-		ip[1] = (uint8_t)value;
-	} else {
-		ip[2] = (uint8_t)(value >> 8);
-		ip[3] = (uint8_t)value;
+		ip[0] = (typeof(ip[0]))(value >> 8);
+		ip[1] = (typeof(ip[0]))value;
+	} else if (num == 1) {
+		ip[2] = (typeof(ip[0]))(value >> 8);
+		ip[3] = (typeof(ip[0]))value;
 		eeprom_write_block(ip,eeIp,sizeof(eeIp));
 		newIp = 1;
+	} else
+		return 0;
+	return 1;
+}
+
+/**
+ * Callback for Modbus write register function
+ *
+ * How to set new temperature parameters:
+ * - Write 32bit values k,d and div beginning with num TEMPNUM.
+ * - New parameters are stored in EEPROM.
+ *
+ * @param	num	Register number
+ * @param	value	value
+ * @return		True if value was written successfully
+**/
+uint8_t write_temp(uint8_t num, uint16_t value) {
+	static typeof(temp[0]) tmp[sizeof(temp)/sizeof(temp[0])];
+	if (num < TEMPNUM || num > TEMPNUM+sizeof(tmp)/sizeof(tmp[0])-1)
+		return 0;
+	num -= TEMPNUM;
+	if (num % 2)
+		tmp[num] |= value;
+	else
+		tmp[num] = (uint32_t)value << 16;
+	if (num == sizeof(tmp)/sizeof(tmp[0])) {
+		eeprom_write_block(tmp,eeTemp,sizeof(eeTemp));
+		memcpy(temp,tmp,sizeof(tmp));
 	}
 	return 1;
 }
 
 /**
- * Enable/disable external power supply and start messurements
+ * Enable/disable external power supply and start measurements
 **/
 void enableSensor(void) {
 	if (enable) {
@@ -123,18 +155,34 @@ void enableSensor(void) {
 }
 
 /**
- * Main function
- * Initialize controller and handle Modbus requests
+ * Load values from EEPROM. Apply default values, if data is not valid.
 **/
-int main(void) {
+void loadeepromValues(void) {
 	// load values from eeprom
 	eeprom_read_block(ip,eeIp,sizeof(eeIp));
 	enable = eeprom_read_word(&eeEnable);
+	eeprom_read_block(temp,eeTemp,sizeof(eeTemp));
 	// check if eeprom has been erased and apply default values if so
 	if (ip[0] == 0xFF)
 		*((uint32_t*)ip) = DEFAULT_IP;
 	if (enable == 0xFFFF)
 		enable = DEFAULT_ENABLE;
+	if (temp[0] == 0xFFFFFFFF) {
+		temp[0] = DEFAULT_TEMP_K;
+		temp[1] = DEFAULT_TEMP_D;
+		temp[2] = DEFAULT_TEMP_DIV;
+	}
+}
+
+/**
+ * Main function
+ * Initialize controller and handle Modbus requests
+**/
+int main(void) {
+	uint8_t i;
+	
+	// load config data from eeprom
+	loadeepromValues();
 	
 	// init modules
 	led_init();
@@ -160,6 +208,8 @@ int main(void) {
 	mb_addWriteRegister(0,write_IP);
 	mb_addWriteRegister(1,write_IP);
 	mb_addWriteRegister(ENABLENUM,write_enable);
+	for (i = TEMPNUM; i < TEMPNUM+2*sizeof(eeTemp)/sizeof(eeTemp[0]); i++)
+		mb_addWriteRegister(i,write_temp);
 	
 	// set ddr for sensor on/off
 	SENS_DDR |= _BV(SENS_PIN);

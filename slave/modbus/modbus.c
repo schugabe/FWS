@@ -17,16 +17,16 @@ static const uint8_t mymac[6] = {0x46,0x57,0x53,0x10,0x00,0x29};
 static uint8_t buf[BUFFER_SIZE+1];
 
 // Register file for indirect addressing of values
-#define MODBUS_REGISTER_COUNT 8
+#define MODBUS_REGISTER_COUNT 16
 static uint16_t* registers[MODBUS_REGISTER_COUNT] = {NULL};
 static mb_writecb_t writecbs[MODBUS_REGISTER_COUNT] = {NULL};
 
 /**
  * Set error values in current message.
  *
- * @param	msg		Pointer to msg to work on
- * @param	err		Error number. Use one of the MB_ERR_* constants
- * @return			Size of error PDU
+ * @param	msg	Pointer to msg to work on
+ * @param	err	Error number. Use one of the MB_ERR_* constants
+ * @return		Size of error PDU
 **/
 static uint8_t mb_set_error(modbusmsg_t* msg,uint8_t err) {
 	msg->error.function |= 0x80;
@@ -57,7 +57,7 @@ void mb_setIP(uint8_t ip[]) {
 /**
  * Add a new register for read function
  *
- * @param	num		Address of register
+ * @param	num	Address of register
  * @param	addr	Pointer to memory location where data is stored. Set NULL to disable this register.
 **/
 void mb_addReadRegister(uint8_t num, uint16_t* addr) {
@@ -69,8 +69,8 @@ void mb_addReadRegister(uint8_t num, uint16_t* addr) {
 /**
  * Add a new register for write function
  *
- * @param	num		Address of register
- * @param	cb		Callback function for this register. Set NULL to disable this register.
+ * @param	num	Address of register
+ * @param	cb	Callback function for this register. Set NULL to disable this register.
 **/
 void mb_addWriteRegister(uint8_t num, mb_writecb_t cb) {
 	if (num >= MODBUS_REGISTER_COUNT)
@@ -148,7 +148,7 @@ void mb_handleRequest(void) {
 			break;
 			}
 		// Modbus device id function
-		// Not implemented completly
+		// Not implemented completely
 		case MB_FUNC_DEV_ID: {
 			devid_req_t* req = (devid_req_t*)&(msg->function);
 			devid_res_t* res = (devid_res_t*)&(msg->function);
