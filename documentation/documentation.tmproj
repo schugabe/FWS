@@ -10,7 +10,7 @@
 			<key>filename</key>
 			<string>master.tex</string>
 			<key>lastUsed</key>
-			<date>2010-06-13T20:57:25Z</date>
+			<date>2010-06-26T08:20:36Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -70,30 +70,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>3</integer>
+				<integer>163</integer>
 				<key>line</key>
-				<integer>259</integer>
+				<integer>290</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>240</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
-				<key>line</key>
-				<integer>259</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>3</integer>
-				<key>line</key>
-				<integer>259</integer>
-			</dict>
+			<integer>274</integer>
 		</dict>
 		<key>slave.tex</key>
 		<dict>
@@ -120,6 +104,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{375, 0}, {1055, 878}}</string>
+	<string>{{572, 0}, {1204, 1058}}</string>
 </dict>
 </plist>
