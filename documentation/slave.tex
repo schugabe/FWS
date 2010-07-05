@@ -6,15 +6,11 @@ The term slave subsumes all parts of the the sensor capturing unit.
 The following explanations will discuss hardware and software individually to provide a more specific view of these parts.
 
 \section{Hardware}
-For capturing the monitored parameters wind speed, wind direction and temperature a product of ThiesKlima is used combining all needed sensors into one device.\\
-The connection between sensor device and microcontroller board is established by a 6-pin RJ plug.
+For capturing the monitored parameters wind speed, wind direction and temperature a product of ThiesKlima is used combining all needed sensors into one device. The connection between sensor device and microcontroller board is established by a 6-pin RJ plug.
 
-The measurement data acquisition and TCP/IP handling is done by an ATmega328p chip, whereas the basic Ethernet communication is handled by an ENC28J60 chip from Microchip.\\
-Both chips are communicating via a SPI connection.\\
-The mainboard is a product of tuxgraphics.org.
+The measurement data acquisition and TCP/IP handling is done by an ATmega328p chip, whereas the basic Ethernet communication is handled by an ENC28J60 chip from Microchip. Both chips are communicating via a SPI connection.\footnote{The mainboard is a product of \url{http://tuxgraphics.org}} 
 
-The mainboard is operated at $3.3 V$ via a voltage regulator. Due to the fact that the sensor device requires a supply voltage of $5 V$, a separate voltage regulator has been added.\\
-This regulator is sourced by Con3 of the mainboard which can be switch on and off by software via the transistor connected upstream.
+The mainboard is operated at $3.3 V$ via a voltage regulator. Due to the fact that the sensor device requires a supply voltage of $5 V$, a separate voltage regulator has been added. This regulator is sourced by Con3 of the mainboard which can be switch on and off by software via the transistor connected upstream.
 
 To be able to process the analog signals from the sensor device at the ATmega328p two 1:1 voltage dividers have been installed. This limits the maximum input voltage at the microcontroller's side to $2.5 V$.
 
@@ -27,16 +23,14 @@ The whole system runs at $12.5 MHz$ system clock speed.
 \subsection{Main module}
 The main loop of the program uses polling to check for new data arriving from the Ethernet chip.
 
-All other functionalities are implemented in submodules which are using interrupts and callback routines the return the results.\\
-In general problems of parallel processes are avoided as interrupt routines cannot be interrupted.
-
+All other functionalities are implemented in submodules which are using interrupts and callback routines the return the results. In general problems of parallel processes are avoided as interrupt routines cannot be interrupted.
 
 \subsection{Modbus module}
-This module consists of several submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP.
-These submodules where taken from tuxgraphics.org-library and adapted as needed.
+This module consists of several submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP. These submodules where taken from tuxgraphics.org-library and adapted as needed.
 
 The Modbus module itself is an in-house development. It currently supports the Modbus function codes for writing and reading single registers. It also has the possibility to request the device id. This function has not been implemented completely as the Java-Modbus-Library at the master does not provide this feature.
 
+%TODO sinn nicht ganz klar
 Data available for transfers over Modbus is provider via shared memories. The variables are registered using the module API.
 
 \subsection{Analog signals - Temperature and wind direction}
@@ -50,34 +44,40 @@ Naturally analog signals are subject to interference leading to non-precise resu
 \subsection{Index signal - Wind speed}
 The wind speed is triggered by a Reed contact in the sensor device generating a frequency of $2.53 Hz$ per $1 m/s$ wind speed.
 
-This signal is captured using the Input Capture Unit of 16-bit Timer 1. Counting the elapsed time between two index pulses allows to calculate the actual wind speed.\\
-This wind speed module also includes specific limits for valid data. For instance, in cases where there's hardly any wind and the wind wheel comes to stop right on top of the Reed contact, input capture interrupts are triggered permanently causing the calculation result to reach unfeasible values. This cases can be avoided by dropping all results not matching the specified values of the wind speed sensor.
+This signal is captured using the Input Capture Unit of 16-bit Timer 1. Counting the elapsed time between two index pulses allows to calculate the actual wind speed. This wind speed module also includes specific limits for valid data. For instance, in cases where there's hardly any wind and the wind wheel comes to stop right on top of the Reed contact, input capture interrupts are triggered permanently causing the calculation result to reach unfeasible values. This cases can be avoided by dropping all results not matching the specified values of the wind speed sensor.
 
 \section{Configuration parameters and data persistence}
-All described parameters are permanently saved to internal EEPROM. In case of EEPROM error they are reset to their default values.\\
-To modify the parameters write them over Modbus (see address reference table in section \ref{sec:modbus_address_ref}). All changes are stored in EEPROM automatically.
+All described parameters are permanently saved to internal EEPROM. In case of EEPROM error they are reset to their default values. To modify the parameters write them over Modbus (see address reference table in section \ref{sec:modbus_address_ref}). All changes are stored in EEPROM automatically.
 
 \subsection{Sensor enable}
-The microcontroller has a configuration parameter for enabling/disabling the the sensor device completely by switching the connected transistor.
+The microcontroller has a configuration parameter for enabling/disabling the the sensor device completely by switching the connected transistor. Read and write address equals 2.
 
-Possible values: 0 (disable), 1 (enable)
-Default value: 1
-Read address: 2
-Write address: 2
+Possible values: 
+\begin{itemize}
+    \item 0 = disable
+    \item 1 = enable
+    \item Default value = 1
+\end{itemize}
 
 \subsection{Network}
 The mainboard supports $10 Mbit/s$ T-Base Ethernet LAN. The user can change the IP address according to his needs. The port 502 is fixed and is reserved for Modbus communication by standards.
 
-Possible values: any IPv4 IP address
-Default value: 192.168.0.111
+\begin{itemize}
+    \item Possible values: any IPv4 IP address
+    \item Default value: 192.168.0.111
+\end{itemize}
 
-Write address: 0
-Value high byte: First segment of IP address (e.g. 192)
-Value low byte: Second segment (e.g. 168)
+\paragraph{Write address: 0} 
+\begin{itemize}
+    \item Value high byte: First segment of IP address (e.g. 192)
+    \item Value low byte: Second segment (e.g. 168)
+\end{itemize}
 
-Write address: 1
-Value high byte: Third segment of IP address (e.g. 0)
-Value low byte: Fourth segment (e.g. 111)
+\paragraph{Write address: 1} 
+\begin{itemize}
+    \item Value high byte: Third segment of IP address (e.g. 0)
+    \item  Value low byte: Fourth segment (e.g. 111)
+\end{itemize}
 
 IP address change sequence: First write to address 0 then address 1! Changes will take effect when complete address has been received and Modbus response has been sent with old IP address.
 
@@ -86,25 +86,23 @@ The temperature calculation uses the following formula:
 \[
 Temperature = (k * Value_sensor + d) / div
 \]
-Where the factors k, d and div are responsible for calibration.\\
-Sensor values are between 0 and 720.
+Where the factors k, d and div are responsible for calibration. Sensor values are between 0 and 720. All factors are 32-bit values. This means 2 transmission per factor are necessary.
 
-All factors are 32-bit values. This means 2 transmission per factor are necessary.
+\paragraph{Possible values:} any 32 bit signed value
 
-Possible values: any 32 bit signed value
-Default values:
-\begin{align}
-k = -1134
-d = 690000
-div = 1000
-\end{align}
+\paragraph{Default values:}
+\begin{itemize}
+\item $k = -1134  $
+\item $d = 690000 $
+\item $div = 1000 $
+\end{itemize}
 
-Change sequence: Always write all 3 factors beginning with the high word in the order k, d and finally div. Changes will take effect when lower word of div has been received.
+\paragraph{Change sequence: }Always write all 3 factors beginning with the high word in the order k, d and finally div. Changes will take effect when lower word of div has been received.
 
 \section{Modbus address and data structure reference}
 \label{sec:modbus_address_ref}
+\subsection{Modbus Read Addresses:}
 
-Modbus Read Addresses:
 \begin{tabular}{|l|l|l|l|}
 \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
 \hline
@@ -117,7 +115,8 @@ Modbus Read Addresses:
 \hline 
 \end{tabular} 
 
-Modbus Write Addresses:
+\subsection{Modbus Write Addresses:}
+
 \begin{tabular}{|l|l|l|l|}
 \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
 \hline
