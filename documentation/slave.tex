@@ -30,8 +30,7 @@ This module consists of several submodules which encapsulate the access to the E
 
 The Modbus module itself is an in-house development. It currently supports the Modbus function codes for writing and reading single registers. It also has the possibility to request the device id. This function has not been implemented completely as the Java-Modbus-Library at the master does not provide this feature.
 
-%TODO sinn nicht ganz klar
-Data available for transfers over Modbus is provider via shared memories. The variables are registered using the module API.
+Registers (variables located in main module) that should be available for Modbus transfers are registered using the module's API.
 
 \subsection{Analog signals - Temperature and wind direction}
 The Analog-Digital-Converter unit is encapsulated by the ADC sub module designed for subsequent capturing of multiple analog channels.
@@ -50,13 +49,13 @@ This signal is captured using the Input Capture Unit of 16-bit Timer 1. Counting
 All described parameters are permanently saved to internal EEPROM. In case of EEPROM error they are reset to their default values. To modify the parameters write them over Modbus (see address reference table in section \ref{sec:modbus_address_ref}). All changes are stored in EEPROM automatically.
 
 \subsection{Sensor enable}
-The microcontroller has a configuration parameter for enabling/disabling the the sensor device completely by switching the connected transistor. Read and write address equals 2.
+The microcontroller has a configuration parameter for enabling/disabling the the sensor device completely by switching the connected transistor. 
 
-Possible values: 
+\paragraph{Read and Write address: 2}
+\paragraph{Possible values:}
 \begin{itemize}
     \item 0 = disable
-    \item 1 = enable
-    \item Default value = 1
+    \item 1 = enable (default)
 \end{itemize}
 
 \subsection{Network}
