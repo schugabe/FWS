@@ -102,31 +102,41 @@ Where the factors k, d and div are responsible for calibration. Sensor values ar
 \label{sec:modbus_address_ref}
 \subsection{Modbus Read Addresses:}
 
-\begin{tabular}{|l|l|l|l|}
-\hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
-\hline
-\hline 2 & Sensor enable & 0 (disable), 1 (enable) & 65535 \\ 
-\hline 3 & Wind direction & 0..3375 (steps of 225); 65535 = error & 6553.5 \\ 
-\hline 4 & Wind speed & 0..1000 (steps of 1); 65535 = error & 6553.5 \\ 
-\hline 5 & Temperature & 16-bit signed; 32767 = error & 6553.5 \\ 
-\hline 6 & errcnt (debugging) & 16-bit unsigned & 65535 \\ 
-\hline 7 & cnt (debugging) & 16-bit unsigned & 65535 \\ 
-\hline 
-\end{tabular} 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+    \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
+    \hline
+    \hline 2 & Sensor enable & 0 (disable), 1 (enable) & 65535 \\ 
+    \hline 3 & Wind direction & 0..3375 (steps of 225); 65535 = error & 6553.5 \\ 
+    \hline 4 & Wind speed & 0..1000 (steps of 1); 65535 = error & 6553.5 \\ 
+    \hline 5 & Temperature & 16-bit signed; 32767 = error & 6553.5 \\ 
+    \hline 6 & errcnt (debugging) & 16-bit unsigned & 65535 \\ 
+    \hline 7 & cnt (debugging) & 16-bit unsigned & 65535 \\ 
+    \hline 
+    \end{tabular}
+    \caption{Modbus Read Addresses}
+\end{table}
+
 
 \subsection{Modbus Write Addresses:}
 
-\begin{tabular}{|l|l|l|l|}
-\hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
-\hline
-\hline 0 & IP address high segments & 16-bit unsigned & 65535 \\ 
-\hline 1 & IP address low segments & 16-bit unsigned & 65535 \\ 
-\hline 2 & Sensor enable & 0 (disable), 1 (enable) & 65535 \\ 
-\hline 3 & k high word & 16-bit unsigned & 65535 \\ 
-\hline 4 & k low word & 16-bit unsigned & 65535 \\ 
-\hline 5 & d high word & 16-bit unsigned & 65535 \\ 
-\hline 6 & d low word & 16-bit unsigned & 65535 \\ 
-\hline 7 & div high word & 16-bit unsigned & 65535 \\ 
-\hline 8 & div low word & 16-bit unsigned & 65535 \\ 
-\hline 
-\end{tabular} 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+    \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
+    \hline
+    \hline 0 & IP address high segments & 16-bit unsigned & 65535 \\ 
+    \hline 1 & IP address low segments & 16-bit unsigned & 65535 \\ 
+    \hline 2 & Sensor enable & 0 (disable), 1 (enable) & 65535 \\ 
+    \hline 3 & k high word & 16-bit unsigned & 65535 \\ 
+    \hline 4 & k low word & 16-bit unsigned & 65535 \\ 
+    \hline 5 & d high word & 16-bit unsigned & 65535 \\ 
+    \hline 6 & d low word & 16-bit unsigned & 65535 \\ 
+    \hline 7 & div high word & 16-bit unsigned & 65535 \\ 
+    \hline 8 & div low word & 16-bit unsigned & 65535 \\ 
+    \hline 
+    \end{tabular}
+    \caption{Modbus Write Addresses}
+\end{table}
+
