@@ -27,66 +27,46 @@ The view is created with the help of SWT. SWT uses the os drawing apis to draw t
 
 \subsection{Screenshots} % (fold)
 \label{sub:screenshots}
-See Figure~\ref{view1}
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.6\linewidth]{master/mainview.png}
-%    \caption{Quick overview about the stations and their status}
-%    \label{fig:main}
-%\end{figure}
-%
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.4\linewidth]{master/settings.png}
-%    \caption{Configuration of the basic settings}
-%    \label{fig:settings}
-%\end{figure}
-%
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.6\linewidth]{master/add.png}
-%    \caption{Adds a new station to the master}
-%    \label{fig:add}
-%\end{figure}
+See Figure~\ref{fig:parameter}, \ref{view1}, \ref{fig:stations} (Page~\pageref{fig:stations}) and \ref{fig:data} (Page~\pageref{fig:data}) for screenshots of the master.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\linewidth]{master/parameters.jpg}
+    \caption{Adding/editing of the parameters}
+    \label{fig:parameter}
+\end{figure} 
 
 \begin{figure}
      \centering 
-     \subfloat[Add new Station]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
-     \qquad 
+     \subfloat[Quick overview of the stations and their status]{\label{fig:main} \includegraphics[width=0.4\linewidth]{master/mainview.png}} 
+      \qquad
      \subfloat[Configuration of the basic settings]{\label{fig:settings} \includegraphics[width=0.4\linewidth]{master/settings.png}}
-     \qquad
-     \subfloat[Quick overview of the stations and their status]{\label{fig:main} \includegraphics[width=0.5\linewidth]{master/mainview.png}} 
+      \qquad
+      \subfloat[Add new Station]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
      \caption{Screenshots of FWS Master} 
      \label{view1}
 \end{figure}
 
-% TODO bilder mit sinnvoller config einfügen
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.8\linewidth]{master/parameter.png}
-%    \caption{Adding/editing of the parameters}
-%    \label{fig:parameter}
-%\end{figure}
 
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.8\linewidth]{master/stations.png}
-%    \caption{Editing station specific settings. The parameters bindings are also set here}
-%    \label{fig:stations}
-%\end{figure}
-%
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[width=0.8\linewidth]{master/data.png}
-%    \caption{Shows the currently collected and saved data}
-%    \label{fig:data}
-%\end{figure}
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.8\linewidth]{master/stations.jpg}
+    \caption{Editing station specific settings. The parameters bindings are also set here}
+    \label{fig:stations}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.8\linewidth]{master/viewdata.jpg}
+    \caption{Shows the currently collected and saved data}
+    \label{fig:data}
+\end{figure}
 % subsection screenshots (end)
-
+\newpage
 \section{Configuration} % (fold)
 \label{sec:configuration} 
 %TODO enabled wenn vorhanden
-The views that support the configuration are \ref{fig:add}, \ref{fig:settings}, %\ref{fig:parameters} and \ref{fig:stations}.
+The views that support the configuration are \ref{fig:add}, \ref{fig:settings}, \ref{fig:parameter} and \ref{fig:stations}.
 
 The result of the configuration phase is an xml file with all settings in it. The location of this file is os dependent. 
 \begin{itemize}
