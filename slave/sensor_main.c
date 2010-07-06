@@ -1,3 +1,8 @@
+/*========================================================*/
+/*     Author: Markus Klein                               */
+/*       Date: 09.04.2010                                 */
+/*========================================================*/
+
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -22,12 +27,12 @@ static volatile uint16_t winddir; // in ° x10
 static volatile uint16_t errcnt; // in ° x10
 static volatile uint16_t cnt; // in ° x10
 static volatile uint16_t windspeed; // in m/s x10
-static volatile uint16_t temperature; // in °C x10
+static volatile int16_t temperature; // in °C x10
 
 // persistent variables, located in EEPROM
 static uint16_t eeEnable EEMEM = DEFAULT_ENABLE;
 static uint8_t eeIp[] EEMEM = DEFAULT_IP_ARR;
-static uint32_t eeTemp[] EEMEM = {DEFAULT_TEMP_K,DEFAULT_TEMP_D,DEFAULT_TEMP_DIV};
+static int32_t eeTemp[] EEMEM = {DEFAULT_TEMP_K,DEFAULT_TEMP_D,DEFAULT_TEMP_DIV};
 
 static uint8_t newIp;
 static typeof(eeEnable) enable;
@@ -115,6 +120,7 @@ uint8_t write_IP(uint8_t num, uint16_t value) {
  *
  * How to set new temperature parameters:
  * - Write 32bit values k,d and div beginning with num TEMPNUM.
+ * - Write higher word first.
  * - New parameters are stored in EEPROM.
  *
  * @param	num	Register number
@@ -123,14 +129,14 @@ uint8_t write_IP(uint8_t num, uint16_t value) {
 **/
 uint8_t write_temp(uint8_t num, uint16_t value) {
 	static typeof(temp[0]) tmp[sizeof(temp)/sizeof(temp[0])];
-	if (num < TEMPNUM || num > TEMPNUM+sizeof(tmp)/sizeof(tmp[0])-1)
+	if (num < TEMPNUM || num > TEMPNUM+sizeof(tmp)/sizeof(uint16_t)-1)
 		return 0;
 	num -= TEMPNUM;
 	if (num % 2)
-		tmp[num] |= value;
+		tmp[num-1] |= value;
 	else
 		tmp[num] = (uint32_t)value << 16;
-	if (num == sizeof(tmp)/sizeof(tmp[0])) {
+	if (num == sizeof(tmp)/sizeof(uint16_t)) {
 		eeprom_write_block(tmp,eeTemp,sizeof(eeTemp));
 		memcpy(temp,tmp,sizeof(tmp));
 	}
@@ -167,7 +173,7 @@ void loadeepromValues(void) {
 		*((uint32_t*)ip) = DEFAULT_IP;
 	if (enable == 0xFFFF)
 		enable = DEFAULT_ENABLE;
-	if (temp[0] == 0xFFFFFFFF) {
+	if (temp[0] == (int32_t)0xFFFFFFFF) {
 		temp[0] = DEFAULT_TEMP_K;
 		temp[1] = DEFAULT_TEMP_D;
 		temp[2] = DEFAULT_TEMP_DIV;
@@ -208,7 +214,7 @@ int main(void) {
 	mb_addWriteRegister(0,write_IP);
 	mb_addWriteRegister(1,write_IP);
 	mb_addWriteRegister(ENABLENUM,write_enable);
-	for (i = TEMPNUM; i < TEMPNUM+2*sizeof(eeTemp)/sizeof(eeTemp[0]); i++)
+	for (i = TEMPNUM; i < TEMPNUM+sizeof(eeTemp)/sizeof(uint16_t); i++)
 		mb_addWriteRegister(i,write_temp);
 	
 	// set ddr for sensor on/off

@@ -1,3 +1,8 @@
+/*========================================================*/
+/*     Author: Markus Klein                               */
+/*       Date: 11.04.2010                                 */
+/*========================================================*/
+
 #ifndef _modbus_int_h_
 #define _modbus_int_h_
 
@@ -30,16 +35,23 @@ typedef struct {
 	};
 } modbusmsg_t;
 
-// Modbus error codes
+/** @name Modbus error codes */
+//@{
 #define MB_ERR_FUNC 1
 #define MB_ERR_ADDR 2
 #define MB_ERR_DATA 3
 #define MB_ERR_PROC 4
+//@}
 
-// Modbus function codes
+/** @name Modbus function codes */
+//@{
+/// Function 4: read register
 #define MB_FUNC_READREG 0x04
+/// Function 6: write register
 #define MB_FUNC_WRITEREG 0x06
+/// Function 43: read device id
 #define MB_FUNC_DEV_ID 0x2B
+//@}
 
 // structures for read function
 typedef struct {
@@ -84,10 +96,10 @@ typedef struct {
 	uint8_t amount;
 } devid_res_t;
 
-/*
-   The following macros are used to convert from node 
+/** @name The following macros are used to convert from node 
    byteorder (little endian) to MODBUS byteorder (big endian)
 */
+//@{
 #define CONVBYTEORDER_W(intype, outtype, input) \
 ({                                                  \
 	intype __param = (intype) input;            \
@@ -103,5 +115,6 @@ typedef struct {
 
 #define TO_UINT16(input) CONVBYTEORDER_W(uint16_t, uint16_t, input)
 #define FROM_UINT16(input) CONVBYTEORDER_W(uint16_t, uint16_t, input)
+//@}
 
 #endif

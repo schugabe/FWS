@@ -1,3 +1,9 @@
+/** \file sensor_main.h \brief Default parameter values. */
+/*========================================================*/
+/*     Author: Markus Klein                               */
+/*       Date: 09.04.2010                                 */
+/*========================================================*/
+
 #ifndef _sensor_main_h_
 #define _sensor_main_h_
 

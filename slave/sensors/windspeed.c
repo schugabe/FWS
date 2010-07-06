@@ -1,3 +1,8 @@
+/*========================================================*/
+/*     Author: Markus Klein                               */
+/*       Date: 21.05.2010                                 */
+/*========================================================*/
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -37,7 +42,7 @@ static uint16_t volatile* cnt;
 
 /// global overflow counter
 static uint8_t volatile overflows;
-
+/// ignore next measurement
 static uint8_t ignore;
 
 /**

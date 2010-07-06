@@ -1,10 +1,15 @@
+/*========================================================*/
+/*     Author: Markus Klein                               */
+/*       Date: 26.05.2010                                 */
+/*========================================================*/
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
 #include "adc.h"
 
-#define CHANNELS_SIZE 4
+#define CHANNELS_SIZE	4
 static callback_t channels[CHANNELS_SIZE] = {NULL};
 
 #define AVG_SIZE	256
