@@ -10,7 +10,7 @@
 			<key>filename</key>
 			<string>master.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-06T11:06:53Z</date>
+			<date>2010-07-06T13:24:19Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -18,13 +18,13 @@
 			<key>filename</key>
 			<string>slave.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-06T10:47:59Z</date>
+			<date>2010-07-06T13:24:19Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>documentation.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-06T10:54:08Z</date>
+			<date>2010-07-06T13:17:07Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -49,7 +49,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>4</integer>
 		</dict>
 		<key>introduction.tex</key>
 		<dict>
@@ -70,28 +70,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>13</integer>
+				<integer>103</integer>
 				<key>line</key>
-				<integer>68</integer>
+				<integer>44</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>52</integer>
+			<integer>19</integer>
 		</dict>
 		<key>slave.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>15</integer>
+				<integer>16</integer>
 				<key>line</key>
-				<integer>123</integer>
+				<integer>145</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>90</integer>
+			<integer>105</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -104,6 +104,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{375, 0}, {1055, 878}}</string>
+	<string>{{413, 0}, {1055, 878}}</string>
 </dict>
 </plist>
