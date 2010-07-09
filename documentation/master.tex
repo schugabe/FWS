@@ -23,7 +23,7 @@ After the configuration of the stations the collection process can be started. E
 \section{View} % (fold)
 \label{sec:view}
 
-The view is created with the help of SWT. SWT uses the os drawing apis to draw the widgets. So the look and feel of the application is very good integrated in the os it runs in. 
+The view is created with the help of SWT. SWT uses the OS drawing APIs to draw the widgets. So the look and feel of the application is very good integrated in the OS it runs on. 
 
 \subsection{Screenshots} % (fold)
 \label{sub:screenshots}
@@ -51,7 +51,7 @@ See Figure~\ref{fig:parameter}, \ref{view1}, \ref{fig:stations} (Page~\pageref{f
 \begin{figure}[p]
     \centering
     \includegraphics[width=0.8\linewidth]{master/stations.jpg}
-    \caption{Editing station specific settings. The parameters bindings are also set here}
+    \caption{Editing station specific settings. The parameter bindings are also set here}
     \label{fig:stations}
 \end{figure}
 
@@ -68,7 +68,7 @@ See Figure~\ref{fig:parameter}, \ref{view1}, \ref{fig:stations} (Page~\pageref{f
 %TODO enabled wenn vorhanden
 The views that support the configuration are \ref{fig:add}, \ref{fig:settings}, \ref{fig:parameter} and \ref{fig:stations}.
 
-The result of the configuration phase is an xml file with all settings in it. The location of this file is os dependent. 
+The result of the configuration phase is an XML file with all settings in it. The location of this file is OS dependent. 
 \begin{itemize}
     \item \textbf{OS X}: /Users/\{username\}/Library/Application Support/FWSMaster/settings.xml
     \item \textbf{Linux}: \textasciitilde /.fws\_master/settings.xml
@@ -131,7 +131,7 @@ Additional attributes of a Configuration Parameter:
 
 \paragraph{Value} % (fold)
 \label{par:value}
-A configuration parameter is a value that is transferred from the master to the slave. The value that is transferred is saved in the attribute value. This value must be an 16 Bit integer value.
+A configuration parameter is a value that is transferred from the master to the slave. The value that is transferred is saved in the attribute value. This value must be an 16 bit integer value.
 % paragraph value (end)
 % subsubsection configuration_parameter (end)
 
@@ -155,7 +155,7 @@ Use the newest values for the plot. Currently this is only implemented for the w
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\linewidth]{master/plot_examplec.png}
-    \caption{Current Wind direction plot}
+    \caption{Current wind direction plot}
     \label{fig:current}
 \end{figure}
 % paragraph current (end)
@@ -213,11 +213,11 @@ For the configuration string {\C h24;1h24;d30;c1;d365;} following plots are gene
 
 \subsubsection{Detailed Information about the plots} % (fold)
 \label{ssub:detailed_information_about_the_plots}
-If two different data sets should be plotted in one diagram there are two axis with an own scale generated. When more that two data sets should be drawn in one diagram they share one axis. So it's advisable to generate more plots with two datasets each in it to keep the diagrams tidy.
+If two different datasets are plotted in one diagram two axis with separate scales will be generated. When more than two data sets should be drawn in one diagram they share one axis. So it's advisable to generate more plots with two datasets each to keep the diagrams tidy.
 
 The direction parameters values are not connected with a line. Otherwise the diagrams would be complicated if the wind direction changes a lot.
 
-The direction parameter values are mapped to a description of the direction. So $0^\circ$ result in N(orth) see figure \ref{fig:dir}
+The direction parameter values are mapped to a description of the direction. So $0^\circ$ results in N(orth) see figure \ref{fig:dir}
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\linewidth]{master/plot_dir.png}
@@ -233,7 +233,7 @@ The direction parameter values are mapped to a description of the direction. So 
 
 After the stations are configured they are added to the station controller. This controller takes care for starting and pausing the station threads. 
 
-\subsubsection{Transfering the Data} % (fold)
+\subsubsection{Transferring the Data} % (fold)
 \label{ssub:getting_the_data}
 Each station runs in it's own thread. This thread polls in its own interval the data values from the station. For each transmission a new TCP connection is opened. After the value has been transferred the connection gets closed. Each station has a list of measurements. A measurement consists of a timestamp and a value. These lists are collected from the Output Generation Thread. If a station is paused its thread gets suspended and waits for the wake up signal from the controller. 
 
@@ -252,7 +252,7 @@ The IP Address represents a special configuration parameter. It is always mapped
 
 \subsubsection{Collecting the Data} % (fold)
 \label{ssub:collecting_the_data}
-A data collector thread runs in background an collects the data from all the stations. For each station/parameter combination an own list is kept with all the recent values in it. But it's not the normal measurement that is kept. The measurements get converted in a simpler data type that can be serialized. This datatype has no references to other classes. 
+A data collector thread runs in background an collects the data from all the stations. For each station/parameter combination a distinct list is kept with all the recent values in it. Before saving the measurements they are converted into a simpler data type that can be serialized and does not have references to other classes.
 
 In the collector thread the text file is generated that contains the information about the current status of the stations. Each station is represented in this file. The information written in this file are the current values of the Input Parameters bound to that station. This value is the average of the measurements since the last run of the collector. To be able to see whether the value changes the standard deviation is calculated and written to the output. For example result file see listing \ref{code:result}. 
 For each parameter a new line is started in the result file. Syntax is {\C name[unit]:value;standard deviation;}
@@ -272,7 +272,7 @@ In the short term history there are the history entries from the last two days. 
 
 \subsection{Long term history} % (fold)
 \label{ssub:long_term_history}
-As soon as a new day has started the past day gets transferred to the long term history. To avoid to much values in this list one representing value is calculated for the day. This happens with one of the history functions listed in \ref{par:histfunc}. During the calculation of the history value all measurements older than the last day are removed from the short day history. The representing value is added to the long term history.
+As soon as a new day has started the past day gets transferred to the long term history. To avoid to many values in this list one representing value is calculated for the day. This happens with one of the history functions listed in \ref{par:histfunc}. During the calculation of the history value all measurements older than the last day are removed from the short day history. The representing value is added to the long term history.
 % subsection long_term_history (end)
 
 \subsection{Storage of the history} % (fold)
@@ -281,20 +281,20 @@ The short and long term history are serialized to the hard disk. After new data 
 
 An old history is kept to prevent loosing the history if the master crashes during writing the history. Before saving the history the thread locks the semaphore. After that it renames the current history to another filename. After that the new history is saved. The history is saved now so the semaphore is released.
 
-If an exception encounters during loading the history the master tries to load the old history file. If that also results in an exception a new history is created.
+If an exception arises during loading the history the master tries to load the old history file. If that also results in an exception a new history is created.
 % subsection storage_of_the_history (end)
 % section history (end)
 
 \section{Implementation details} % (fold)
 \label{sec:implementation_details}
-The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. In the doc folder there is the javadoc generated source code documentation.
+The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. The doc folder there contains the javadoc generated source code documentation.
 
 In the following list you see which classes implement which functions. For a class diagram see figure \ref{fig:class_master}.
 
 \begin{itemize}
     \item View: All classes that start with view
     \item Configuration: Parameter, InputParameter, ConfigParameter, StationInputBinding, StationConfigBinding, Station
-    \item Save the configuration: PersitencePreferences, all classes with contentenhandler in its name
+    \item Save the configuration: PersistencePreferences, all classes with ContentHandler in their name
     \item Data collection: Station, MeasurementCollector, Measurement, StationInputBinding, MeasurementHistoryController, MeasurementHistory, MeasurementHistoryEntry
     \item Plotting and Output generation: MeasurementCollector, PlotBase, TimePlot, CurrentPlot
     \item ModBus: ModbusWrapper, Station
