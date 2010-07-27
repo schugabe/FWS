@@ -4,68 +4,38 @@
 
 \section{About the Master} % (fold)
 \label{sec:about_the_master}
-
 The master is written in Java and uses the jamod Library\footnote{\url{http://jamod.sourceforge.net/}} for the communication with the slaves using the Modbus protocol. The view is created with the SWT Library\footnote{\url{http://www.eclipse.org/swt/}}. 
-The description of the master is separated in several parts:
-\begin{itemize}
-	\item View (see \ref{sec:view})
-	\item Configuration (see \ref{sec:configuration})
-	\item Stations  (see \ref{sec:slaves})
-	\item History (see \ref{sec:history})
-\end{itemize}
 
-Before the collection process of the measurement values can be started it's necessary to create a configuration. In this configuration all slaves are defined. A slave must be added to the master before it can be used. Each slave has an individual name and IP address. In the configuration phase it's necessary to specify the kind of data the slaves collect. The data that is transferred from the slave to the master is called Input Parameter. To configure the sensor it's possible to define Configuration Parameters. These values are transferred from the master to the sensor. To map the parameters to the memory in the slave they must be bound to addresses. This happens individually for each slave. So it's possible to collect different sensor data from different slaves. It's also possible to configure the kind of plots that are generated (see \ref{sub:plots}).
+Before the collection process of the measurement values can be started it's necessary to create a configuration. In this configuration all slaves are defined. A slave must be added to the master before it can be used. Each slave has an individual name and IP address. In the configuration phase it's necessary to specify the kind of data the slaves collect. The data that is transferred from the slave to the master is called Input Parameter. To configure the sensor it's possible to define Configuration Parameters. These values are transferred from the master to the slave. To map the parameters to the memory in the slave they must be bound to addresses. This happens individually for each slave. So it's possible to collect different sensor data from different slaves. It's also possible to configure the kind of plots that are generated (see \ref{sub:plots}).
 
 After the configuration of the slaves the collection process can be started. Each slave is polled in its own thread. One collector thread collects the data from the slave threads, generates a text file with the information about the current values from the slaves and draws the plots. The time between the polling of the slaves and between generation of the output files can also be configured. As soon as the current day changes the values from the last day are aggregated to a history value. The values from the slave are kept for two days so it's possible to build a plot based on hourly data from the last day. 
 
 % section about_the_master (end)
+\section{Implementation} % (fold)
+\label{sec:implementation}
+The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. The doc folder\footnote{\url{http://github.com/schugabe/FWS/tree/master/master/FWS_Master/doc/}} contains the javadoc generated source code documentation. In the following list you see which classes implement which functions. For a class diagram see Figure \ref{fig:class_master}.
 
-\section{View} % (fold)
-\label{sec:view}
-
-The view is created with the help of SWT. SWT uses the OS drawing APIs to draw the widgets. The look and feel of the application is very good integrated in the OS it runs on. 
-
-\subsection{Screenshots} % (fold)
-\label{sub:screenshots}
-See Figure~\ref{fig:parameter}, \ref{view1}, \ref{fig:slaves} (Page~\pageref{fig:slaves}) and \ref{fig:data} (Page~\pageref{fig:data}) for screenshots of the master.
+\begin{itemize}
+    \item Configuration: Parameter, InputParameter, ConfigParameter, SlaveInputBinding, SlaveConfigBinding, Slave
+    \item Save the configuration: PersistencePreferences, all classes with ContentHandler in their name
+    \item Data collection: Slave, MeasurementCollector, Measurement, SlaveInputBinding, MeasurementHistoryController, MeasurementHistory, MeasurementHistoryEntry
+    \item Plotting and Output generation: MeasurementCollector, PlotBase, TimePlot, CurrentPlot
+    \item ModBus: ModbusWrapper, Slave
+    \item View: All classes that start with view (not shown in class diagram)
+\end{itemize}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\linewidth]{master/parameters.jpg}
-    \caption{Adding/editing of the parameters}
-    \label{fig:parameter}
-\end{figure} 
-
-\begin{figure}
-     \centering 
-     \subfloat[Quick overview of the slaves and their status]{\label{fig:main} \includegraphics[width=0.4\linewidth]{master/mainview.png}} 
-      \qquad
-     \subfloat[Configuration of the basic settings]{\label{fig:settings} \includegraphics[width=0.4\linewidth]{master/settings.png}}
-      \qquad
-      \subfloat[Add new Station]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
-     \caption{Screenshots of FWS Master} 
-     \label{view1}
+    \includegraphics[width=\linewidth]{master/class.png}
+    \caption{Class diagram of the master}
+    \label{fig:class_master}
 \end{figure}
 
+% section implementation_details (end)
 
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=0.8\linewidth]{master/slaves.jpg}
-    \caption{Editing slave specific settings. The parameter bindings are also set here}
-    \label{fig:slaves}
-\end{figure}
-
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=0.8\linewidth]{master/viewdata.jpg}
-    \caption{Shows the currently collected and saved data}
-    \label{fig:data}
-\end{figure}
-% subsection screenshots (end)
-\newpage
 \section{Configuration} % (fold)
 \label{sec:configuration} 
-%TODO enabled wenn vorhanden
+
 The views that support the configuration are \ref{fig:add}, \ref{fig:settings}, \ref{fig:parameter} and \ref{fig:slaves}.
 
 The result of the configuration phase is an XML file with all settings in it. The location of this file is OS dependent. 
@@ -238,12 +208,12 @@ After the slaves are configured they are added to the slave controller. This con
 \label{ssub:getting_the_data}
 Each slave runs in it's own thread. This thread polls in its own interval the data values from the slave. For each transmission a new TCP connection is opened. After the value has been transferred the connection gets closed. This is necessary as the TCP stack of the slave doesn't support keep alive signals. Leaving the connection open would result in timeouts. Each slave has a list of measurements. A measurement consists of a timestamp and a value. These lists are collected from the Output Generation Thread. If a slave is paused its thread gets suspended and waits for the wake up signal from the controller. 
 
-The Modbus function that is used to transfer the data is read register.
+The Modbus function that is used to transfer the data is sendReadRequest.
 % subsubsection getting_the_data (end)
 
 \subsubsection{Transferring the configuration} % (fold)
 \label{ssub:transferring_the_configuration}
-When the user wants to upload a new configuration the slave will call Write Register for each Configuration Parameter and reads back the answer of the slave. If the answer equals the write register value the value is marked as transferred. A transferred value isn't uploaded again if it is unchanged.
+When the user wants to upload a new configuration the slave will call sendWriteRequest for each Configuration Parameter and reads back the answer of the slave. If the answer equals the write register value the value is marked as transferred. A transferred value isn't uploaded again if it is unchanged.
 % subsubsection transferring_the_configuration (end)
 \subsubsection{Change the IP Address} % (fold)
 \label{ssub:change_the_ip_address}
@@ -286,27 +256,45 @@ If an exception arises during loading the history the master tries to load the o
 % subsection storage_of_the_history (end)
 % section history (end)
 
-\section{Implementation details} % (fold)
-\label{sec:implementation_details}
-The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. The doc folder there contains the javadoc generated source code documentation.
+\section{View} % (fold)
+\label{sec:view}
 
-In the following list you see which classes implement which functions. For a class diagram see Figure \ref{fig:class_master}.
+The view is created with the help of SWT. SWT uses the OS drawing APIs to draw the widgets. The look and feel of the application is very good integrated in the OS it runs on. 
 
-\begin{itemize}
-    \item View: All classes that start with view
-    \item Configuration: Parameter, InputParameter, ConfigParameter, StationInputBinding, StationConfigBinding, Station
-    \item Save the configuration: PersistencePreferences, all classes with ContentHandler in their name
-    \item Data collection: Station, MeasurementCollector, Measurement, StationInputBinding, MeasurementHistoryController, MeasurementHistory, MeasurementHistoryEntry
-    \item Plotting and Output generation: MeasurementCollector, PlotBase, TimePlot, CurrentPlot
-    \item ModBus: ModbusWrapper, Station
-\end{itemize}
+\subsection{Screenshots} % (fold)
+\label{sub:screenshots}
+See Figure~\ref{fig:parameter}, \ref{view1}, \ref{fig:slaves} (Page~\pageref{fig:slaves}) and \ref{fig:data} (Page~\pageref{fig:data}) for screenshots of the master.
 
-%TODO grafik aktualiserien
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{master/class.png}
-    \caption{Class diagram of the master}
-    \label{fig:class_master}
+    \includegraphics[width=\linewidth]{master/parameters.jpg}
+    \caption{Adding/editing of the parameters}
+    \label{fig:parameter}
+\end{figure} 
+
+\begin{figure}
+     \centering 
+     \subfloat[Quick overview of the slaves and their status]{\label{fig:main} \includegraphics[width=0.4\linewidth]{master/mainview.png}} 
+      \qquad
+     \subfloat[Configuration of the basic settings]{\label{fig:settings} \includegraphics[width=0.4\linewidth]{master/settings.png}}
+      \qquad
+      \subfloat[Add new Slave]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
+     \caption{Screenshots of FWS Master} 
+     \label{view1}
 \end{figure}
 
-% section implementation_details (end)
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{master/slaves.jpg}
+    \caption{Editing slave specific settings. The parameter bindings are also set here}
+    \label{fig:slaves}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{master/viewdata.jpg}
+    \caption{Shows the currently collected and saved data}
+    \label{fig:data}
+\end{figure}
+% subsection screenshots (end)
