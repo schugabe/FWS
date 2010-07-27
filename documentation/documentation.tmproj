@@ -8,29 +8,35 @@
 	<array>
 		<dict>
 			<key>filename</key>
-			<string>master.tex</string>
-			<key>lastUsed</key>
-			<date>2010-07-09T10:48:17Z</date>
-			<key>selected</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>slave.tex</string>
-			<key>lastUsed</key>
-			<date>2010-07-06T13:24:19Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
 			<string>documentation.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-06T13:17:07Z</date>
+			<date>2010-07-27T08:54:26Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>introduction.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-05T16:54:04Z</date>
+			<date>2010-07-27T09:19:53Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>sensors.tex</string>
+			<key>lastUsed</key>
+			<date>2010-07-27T09:19:55Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>slave.tex</string>
+			<key>lastUsed</key>
+			<date>2010-07-27T09:32:56Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>master.tex</string>
+			<key>lastUsed</key>
+			<date>2010-07-27T09:39:29Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -44,62 +50,77 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>26</integer>
+				<integer>83</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>4</integer>
+			<integer>40</integer>
 		</dict>
 		<key>introduction.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>133</integer>
+				<integer>88</integer>
 				<key>line</key>
-				<integer>7</integer>
+				<integer>38</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>11</integer>
 		</dict>
 		<key>master.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>103</integer>
+				<integer>393</integer>
 				<key>line</key>
-				<integer>44</integer>
+				<integer>109</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>19</integer>
+			<integer>89</integer>
+		</dict>
+		<key>sensors.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 		<key>slave.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>16</integer>
+				<integer>154</integer>
 				<key>line</key>
-				<integer>145</integer>
+				<integer>120</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>105</integer>
+			<integer>115</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>documentation.tex</string>
-		<string>master.tex</string>
 		<string>introduction.tex</string>
+		<string>sensors.tex</string>
 		<string>slave.tex</string>
+		<string>master.tex</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
