@@ -12,7 +12,7 @@ public abstract class PlotBase {
 	/**
 	 * Each Plot has a path where it saves the plot files
 	 * @param name
-	 * @param path
+	 * @param controller
 	 */
 	public PlotBase(String name,PlotController controller) {
 		this.setName(name);

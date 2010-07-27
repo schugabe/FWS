@@ -43,15 +43,15 @@ public class PersistencePreferences {
 	}
 	
 	/**
-	 * Load the stations from the config file
+	 * Load the slaves from the config file
 	 * @param params
-	 * @return a station controller with alle stations from the config
+	 * @return a slave controller with alle slaves from the config
 	 */
-	public StationController loadStations(ParameterController params) {
-		StationController stations = new StationController();
-		StationContentHandler h = new StationContentHandler(stations,params);
+	public SlaveController loadSlaves(ParameterController params) {
+		SlaveController slaves = new SlaveController();
+		SlaveContentHandler h = new SlaveContentHandler(slaves,params);
 		this.startParsing(h);
-		return stations;
+		return slaves;
 	}
 	
 	/**
@@ -78,11 +78,11 @@ public class PersistencePreferences {
 	/**
 	 * Save all values to the xml file
 	 * @param params
-	 * @param stations
+	 * @param slaves
 	 * @param outDir
 	 * @param generatorTime
 	 */
-	public void saveSettings(ParameterController params,StationController stations,String outDir, int generatorTime, boolean autostart, int plotWidth, int plotHeight) {
+	public void saveSettings(ParameterController params,SlaveController slaves,String outDir, int generatorTime, boolean autostart, int plotWidth, int plotHeight) {
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
@@ -148,29 +148,29 @@ public class PersistencePreferences {
 			
 			rootElement.appendChild(tmp);
 		}
-		for (Station s:stations.getStations()) {
-			Element station = document.createElement("station");
-			station.setAttribute("name", s.getStationName());
-			station.setAttribute("ip", s.getIpAddress());
-			station.setAttribute("intervall", ""+s.getPollingInterval());
+		for (Slave s:slaves.getSlaves()) {
+			Element slave = document.createElement("slave");
+			slave.setAttribute("name", s.getSlaveName());
+			slave.setAttribute("ip", s.getIpAddress());
+			slave.setAttribute("intervall", ""+s.getPollingInterval());
 			
 			for(Binding b:s.getBindings()) {
 				Element bel = document.createElement("binding");
-				if (b instanceof StationConfigBinding) {
+				if (b instanceof SlaveConfigBinding) {
 					bel.setAttribute("type", "config");
-					bel.setAttribute("value", ""+((StationConfigBinding)b).getValue());
-					bel.setAttribute("transfered", ""+((StationConfigBinding)b).isTransfered());
+					bel.setAttribute("value", ""+((SlaveConfigBinding)b).getValue());
+					bel.setAttribute("transfered", ""+((SlaveConfigBinding)b).isTransfered());
 				}
-				if (b instanceof StationInputBinding) {
+				if (b instanceof SlaveInputBinding) {
 					bel.setAttribute("type", "input");
-					bel.setAttribute("plotconfig", ""+((StationInputBinding)b).getPlotConfig());
+					bel.setAttribute("plotconfig", ""+((SlaveInputBinding)b).getPlotConfig());
 				}
 				bel.setAttribute("address", ""+b.getAddress());
 				bel.setAttribute("parameter", b.getParameter().getName());
 				bel.setAttribute("active", ""+b.isActive());
-				station.appendChild(bel);
+				slave.appendChild(bel);
 			}
-			rootElement.appendChild(station);
+			rootElement.appendChild(slave);
 		}
 		
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();

@@ -6,7 +6,7 @@ package fws_master;
  * The HistoryFunction calculates a summary of the last day. This value is saved in a History. 
  * @author Johannes Kasberger
  * @see Parameter
- * @see StationInputBinding
+ * @see SlaveInputBinding
  * @see Units
  * @see HistoryFunctions
  * @see OutputFormats

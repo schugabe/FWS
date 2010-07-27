@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Vector;
 /**
- * A History of Measurements. Without References to Stations or Parameters directly. So it can be serialized. 
+ * A History of Measurements. Without References to Slaves or Parameters directly. So it can be serialized. 
  * @author Johannes Kasberger
  *
  */
@@ -20,19 +20,19 @@ implements Serializable  {
 	 * 
 	 */
 	private static final long serialVersionUID = 3023342558174695841L;
-	private String station;
+	private String slave;
 	private String parameter;
 	private Units unit;
 	private LinkedList<MeasurementHistoryEntry> values;
 		
 	/**
-	 * The station, parameter and unit must be provided at creation. So everything is know to Plot the Data without reference to the Station or Parameter itself.
-	 * @param station
+	 * The slave, parameter and unit must be provided at creation. So everything is know to Plot the Data without reference to the Slave or Parameter itself.
+	 * @param slave
 	 * @param parameter
 	 * @param unit
 	 */
-	public MeasurementHistory(String station, String parameter, Units unit) {
-		this.station = station;
+	public MeasurementHistory(String slave, String parameter, Units unit) {
+		this.slave = slave;
 		this.parameter = parameter;
 		this.unit = unit;
 		this.values = new LinkedList<MeasurementHistoryEntry>();
@@ -58,11 +58,11 @@ implements Serializable  {
 	}
 	
 	/**
-	 * Get the Station of which the Measurements are
-	 * @return Name of the Station
+	 * Get the Slave of which the Measurements are
+	 * @return Name of the Slave
 	 */
-	public String getStation() {
-		return this.station;
+	public String getSlave() {
+		return this.slave;
 	}
 	
 	/**

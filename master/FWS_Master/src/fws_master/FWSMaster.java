@@ -26,19 +26,19 @@ import org.eclipse.swt.widgets.*;
  * The path of the configuration file is dependent of the operating system. 
  * The flow of the data is:
  * The User can add and edit parameters. These parameters represent measurements of the slaves. To get the values of the slaves, it's necessary
- * to add the station to the master. For each station you can setup which parameters should be polled of the slave. This process is called binding.
- * There are two kinds of bindings. StationConfigurationBindings and StationInputBindings. 
+ * to add the slave to the master. For each slave you can setup which parameters should be polled of the slave. This process is called binding.
+ * There are two kinds of bindings. SlaveConfigurationBindings and SlaveInputBindings. 
  * <ul>
  * <li>A ConfigurationBinding is transfered from the master to the slave</li>
  * <li>A InputBinding is transfered from the slave to the master</li>
  * </ul>
  * The configuration is transfered to the slave when the user requests it. During configuration phase the user sets a polling interval for 
- * each station.
- * For each station a own thread is started. This thread pulls the measurement values over the modbus protocol. Another Thread collects the
- * data from the station threads. For each active InputBinding the collector thread creates an entry in a text file that represents the current
+ * each slave.
+ * For each slave a own thread is started. This thread pulls the measurement values over the modbus protocol. Another Thread collects the
+ * data from the slave threads. For each active InputBinding the collector thread creates an entry in a text file that represents the current
  * status of all sensors. 
- * The measurements are also added to a MeasurementHistory. This history is saved for each parameter on each station. This History has no
- * real references to stations or parameters. It saves all necessary data to plot diagrams. The history is separated in two parts.
+ * The measurements are also added to a MeasurementHistory. This history is saved for each parameter on each slave. This History has no
+ * real references to slaves or parameters. It saves all necessary data to plot diagrams. The history is separated in two parts.
  * <ol>
  * <li>Recent history: All values of the last hours. At least 24 hours are saved</li>
  * <li>Long term History: All values of each day are aggregated in one representing value (HistoryFunction determines how this value is computed).
@@ -51,13 +51,13 @@ import org.eclipse.swt.widgets.*;
  * 
  * This Application can only be closed over the "Exit" entry in the Menus. Otherwise it's minimized to the tray.
  * 
- *  The configuration is saved to a xml file (see PersistencePreferences, MasterContentHandler, ParameterContentHandler, StationContentHandler)
+ *  The configuration is saved to a xml file (see PersistencePreferences, MasterContentHandler, ParameterContentHandler, SlaveContentHandler)
  * @author Johannes Kasberger
  *
  */
 public class FWSMaster {
 	private ParameterController parameter_controller;
-	private StationController station_controller;
+	private SlaveController slave_controller;
 	private ViewMain view;
 	private Display display;
 	private Shell shell;
@@ -231,7 +231,7 @@ public class FWSMaster {
 	private void loadConfig() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
 		this.parameter_controller = pref.loadParameters();
-		this.station_controller = pref.loadStations(this.parameter_controller);
+		this.slave_controller = pref.loadSlaves(this.parameter_controller);
 		MasterContentHandler config = pref.loadMasterConfig();
 		
 		this.outDir = config.getPath();
@@ -255,15 +255,15 @@ public class FWSMaster {
 		this.autoStart = config.isAutoStart();
 		this.setPlotWidth(config.getPlotWidth());
 		this.setPlotHeight(config.getPlotHeight());
-		this.collector = new MeasurementCollector(this,this.station_controller,generatorTime,outDir,configDir);
+		this.collector = new MeasurementCollector(this,this.slave_controller,generatorTime,outDir,configDir);
 	}
 	
 	/**
-	 * Get the StationController
+	 * Get the SlaveController
 	 * @return the controller
 	 */
-	public StationController getStationController() {
-		return this.station_controller;
+	public SlaveController getSlaveController() {
+		return this.slave_controller;
 	}
 	
 	
@@ -274,7 +274,7 @@ public class FWSMaster {
 	private void shutdown() {
 		this.blockShutdown();
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart, this.getPlotWidth(),this.getPlotHeight());
+		pref.saveSettings(this.parameter_controller,this.slave_controller,this.outDir,this.generatorTime,this.autoStart, this.getPlotWidth(),this.getPlotHeight());
 	}
 
 	/**
@@ -295,17 +295,17 @@ public class FWSMaster {
 	}
 
 	/**
-	 * Open the station window
+	 * Open the slave window
 	 */
-	public void StationClicked() {
+	public void SlaveClicked() {
 		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
 		tmp_shell.setLocation (pt.x, pt.y);
-		tmp_shell.setText ("Configure Stations");
+		tmp_shell.setText ("Configure Slaves");
 		tmp_shell.setSize (600, 700);
 		
 		@SuppressWarnings("unused")
-		ViewStation view_stat = new ViewStation(tmp_shell,this.station_controller,this.parameter_controller,this);
+		ViewSlave view_stat = new ViewSlave(tmp_shell,this.slave_controller,this.parameter_controller,this);
 		tmp_shell.open();
 		
 		return;
@@ -328,11 +328,11 @@ public class FWSMaster {
 	}
 	
 	/**
-	 * Start or Stopp all stations
-	 * @param start if true start the stations, if false pause them
+	 * Start or Stopp all slaves
+	 * @param start if true start the slaves, if false pause them
 	 */
 	public void StartClicked(boolean start) {
-		this.station_controller.startStations(start);
+		this.slave_controller.startSlaves(start);
 		this.view.enableMenu(!start);
 		
 		if (start) {
@@ -347,26 +347,26 @@ public class FWSMaster {
 	}
 
 	/**
-	 * Show the add station view
+	 * Show the add slave view
 	 */
-	public void viewAddStationClicked() {
+	public void viewAddSlaveClicked() {
 		Shell tmp_shell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		Point pt = display.getCursorLocation();
 		tmp_shell.setLocation (pt.x, pt.y);
-		tmp_shell.setText ("Add new Station");
+		tmp_shell.setText ("Add new Slave");
 		tmp_shell.setSize (300, 200);
 		
 		new ViewNew(tmp_shell,this);
 		tmp_shell.open();
 	}
 	/**
-	 * Called when User selects add station from the fileMenu
+	 * Called when User selects add slave from the fileMenu
 	 */
-	public boolean addStationClicked(String name, String ip) {
+	public boolean addSlaveClicked(String name, String ip) {
 		try {
-			Station newStation  = new Station(name, this.station_controller, ip, 60);
-			this.station_controller.addStation(newStation);
-			this.reloadStationView();
+			Slave newSlave  = new Slave(name, this.slave_controller, ip, 60);
+			this.slave_controller.addSlave(newSlave);
+			this.reloadSlaveView();
 		} catch (Exception ex) {
 			return false;
 		}
@@ -378,7 +378,7 @@ public class FWSMaster {
 	 */
 	public void saveConfigClicked() {
 		PersistencePreferences pref = new PersistencePreferences(configDir,"settings.xml");
-		pref.saveSettings(this.parameter_controller,this.station_controller,this.outDir,this.generatorTime,this.autoStart,this.getPlotWidth(),this.getPlotHeight());
+		pref.saveSettings(this.parameter_controller,this.slave_controller,this.outDir,this.generatorTime,this.autoStart,this.getPlotWidth(),this.getPlotHeight());
 	}
 	
 	/**
@@ -386,7 +386,7 @@ public class FWSMaster {
 	 */
 	public void reloadConfigClicked() {
 		this.loadConfig();
-		this.reloadStationView();
+		this.reloadSlaveView();
 	}
 	
 	/**
@@ -404,10 +404,10 @@ public class FWSMaster {
 	}
 
 	/**
-	 * Enables the disposing of the display and disposes it. Only allow closing when the Stations are stopped.
+	 * Enables the disposing of the display and disposes it. Only allow closing when the Slaves are stopped.
 	 */
 	public void exitClicked() {
-		if (!this.station_controller.isRunning()) {
+		if (!this.slave_controller.isRunning()) {
 			closing = true;
 			display.dispose();
 		}
@@ -478,7 +478,7 @@ public class FWSMaster {
 				
 			}
 			else if (((MenuItem) event.widget)==trayStartItem) {
-				if (station_controller.isRunning()) {
+				if (slave_controller.isRunning()) {
 					StartClicked(false);
 				}
 				else {
@@ -544,7 +544,7 @@ public class FWSMaster {
 		this.shutdownSem.release();
 	}
 
-	public void reloadStationView() {
+	public void reloadSlaveView() {
 		
 	}
 

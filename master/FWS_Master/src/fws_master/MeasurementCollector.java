@@ -16,12 +16,12 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
- * A thread that pulls the data of the stations. This data is collected and a text file is generated with the current values in it. This happens in a certain interval.
+ * A thread that pulls the data of the slaves. This data is collected and a text file is generated with the current values in it. This happens in a certain interval.
  * @author Johannes Kasberger
  *
  */
 public class MeasurementCollector extends Thread {
-	private StationController controller;
+	private SlaveController controller;
 	private int interval;
 	private String outDir;
 	private MeasurementHistoryController historyController;
@@ -33,11 +33,11 @@ public class MeasurementCollector extends Thread {
 	
 	/**
 	 * Constructor
-	 * @param controller list of stations
+	 * @param controller list of slaves
 	 * @param interval
 	 * @param outDir Directory where plots and summary text file should be generated
 	 */
-	public MeasurementCollector(FWSMaster master, StationController controller, int interval,String outDir, String historyDir) {
+	public MeasurementCollector(FWSMaster master, SlaveController controller, int interval,String outDir, String historyDir) {
 		this.interval = 1000*interval;
 		this.controller = controller;
 		this.outDir = outDir;
@@ -59,7 +59,7 @@ public class MeasurementCollector extends Thread {
 				runTime = System.currentTimeMillis();
 				
 				// Start collecting Data
-				log.fine("Getting Data from Stations");
+				log.fine("Getting Data from Slaves");
 				
 				try {
 					Vector<String> result = getData();
@@ -179,21 +179,21 @@ public class MeasurementCollector extends Thread {
 	}
 
 	/**
-	 * Collects the Data from the Stations, add it to the MeasurementHistory and extract the current value of all active InputParameters. 
-	 * The station manages all Measurements in one collection. So the Measurements must be sorted before the average of the last values can be calculated.
+	 * Collects the Data from the Slaves, add it to the MeasurementHistory and extract the current value of all active InputParameters. 
+	 * The slave manages all Measurements in one collection. So the Measurements must be sorted before the average of the last values can be calculated.
 	 * The sorting happens with a HashMap. The different measurements are added to the collection. After all Measurements are sorted the output can be generated.
 	 * @return Result for the text file
 	 */
 	private Vector<String> getData() {
-		Vector<String> result  = new Vector<String>(this.controller.getStations().size());
+		Vector<String> result  = new Vector<String>(this.controller.getSlaves().size());
 
-		for(Station s:this.controller.getStations()) {
+		for(Slave s:this.controller.getSlaves()) {
 			Vector<Measurement> measurements = s.getLastMeasurements();
 			
 			if (measurements == null)
 				continue;
 			
-			log.fine("Station "+s.getStationName()+" has "+measurements.size()+" new Measurements");
+			log.fine("Slave "+s.getSlaveName()+" has "+measurements.size()+" new Measurements");
 			
 			if(measurements.size() == 0)
 				continue;
@@ -211,14 +211,14 @@ public class MeasurementCollector extends Thread {
 				
 			}
 			log.fine("Generating Output");
-			result.add(s.getStationName()+eol+this.buildOutput(params));
+			result.add(s.getSlaveName()+eol+this.buildOutput(params));
 		}
 		return result;
 	}
 
 	/**
 	 * Builds the Output for the current status message. Adds the measurements to the History.
-	 * @param data Measurements of a slave, all of the same sensor (e.g. temperature of station 1)
+	 * @param data Measurements of a slave, all of the same sensor (e.g. temperature of slave 1)
 	 * @return Parameter Name:Average Value;Standard deviation of value;
 	 */
 	private String buildOutput(HashMap<String,Vector<Measurement>> data) {
@@ -234,7 +234,7 @@ public class MeasurementCollector extends Thread {
 				Measurement tmp = ms.firstElement();
 				
 				
-				if( this.historyController.addData(tmp.getStation().getStationName(), tmp.getParameter().getName(), ms))
+				if( this.historyController.addData(tmp.getSlave().getSlaveName(), tmp.getParameter().getName(), ms))
 					newDay = true;
 				
 				double avg = 0;
@@ -269,15 +269,15 @@ public class MeasurementCollector extends Thread {
 	/**
 	 * Gets the Measurement from the History
 	 * @param cfg Plot Configuration
-	 * @param station Name of the Station
+	 * @param slave Name of the Slave
 	 * @param parameter Name of the Parameter
 	 * @return History of values
 	 */
-	private MeasurementHistory buildPlotData(PlotConfig cfg,String station, String parameter) {
+	private MeasurementHistory buildPlotData(PlotConfig cfg,String slave, String parameter) {
 		if (cfg.getTimeBase()=='d' )
-			return this.historyController.getLastHistoryDays(station, parameter, cfg.getCount());
+			return this.historyController.getLastHistoryDays(slave, parameter, cfg.getCount());
 		else if (cfg.getTimeBase() == 'h' || cfg.getTimeBase() == 'c')
-			return this.historyController.getLastHistory(station, parameter, cfg.getCount());
+			return this.historyController.getLastHistory(slave, parameter, cfg.getCount());
 		
 		return null;
 	}
@@ -293,10 +293,10 @@ public class MeasurementCollector extends Thread {
 		HashMap<Integer,PlotData> plots = new HashMap<Integer,PlotData>();
 		
 		
-		for (Station s:this.controller.getStations()) {
+		for (Slave s:this.controller.getSlaves()) {
 			for (Binding b:s.getBindings()) {
-				if (b instanceof StationInputBinding) {
-					StationInputBinding ib = (StationInputBinding)b;
+				if (b instanceof SlaveInputBinding) {
+					SlaveInputBinding ib = (SlaveInputBinding)b;
 					
 					if(!ib.isActive())
 						continue;
@@ -314,14 +314,14 @@ public class MeasurementCollector extends Thread {
 							tmpData = new PlotData(cfg,new Vector<MeasurementHistory>());
 						}
 						else {
-							//If more than one kind of data should be in the diagram the drawing process starts after processing the plotconfig of all stations
+							//If more than one kind of data should be in the diagram the drawing process starts after processing the plotconfig of all slaves
 							tmpData = plots.get(cfg.getId());
 							if (tmpData == null) {
 								tmpData = new PlotData(cfg,new Vector<MeasurementHistory>());
 								plots.put(cfg.getId(), tmpData);
 							}
 						}
-						tmpData.addData(this.buildPlotData(cfg, s.getStationName(), b.getParameter().getName()));
+						tmpData.addData(this.buildPlotData(cfg, s.getSlaveName(), b.getParameter().getName()));
 						
 						if (!tmpData.checkData())
 							continue;

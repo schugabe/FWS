@@ -28,7 +28,7 @@ public class ViewNew {
 		nameLabel.setLayoutData(gridData);
 		
 		nameText = new Text(shell,  SWT.BORDER);
-		nameText.setText("New Station");
+		nameText.setText("New Slave");
 		gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
@@ -40,7 +40,7 @@ public class ViewNew {
 		ipLabel.setLayoutData(gridData);
 		
 		ipText = new Text(shell,  SWT.BORDER);
-		ipText.setText(Station.defaultIP);
+		ipText.setText(Slave.defaultIP);
 		gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
@@ -58,10 +58,10 @@ public class ViewNew {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (!master.addStationClicked(nameText.getText(),ipText.getText())) {
+				if (!master.addSlaveClicked(nameText.getText(),ipText.getText())) {
 					MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-					messageBox.setMessage("Station name or IP Address is invalid (Name and IP must be unique)");
-					messageBox.setText("Error during creating station");
+					messageBox.setMessage("Slave name or IP Address is invalid (Name and IP must be unique)");
+					messageBox.setText("Error during creating slave");
 					messageBox.open();
 				} 
 				else
@@ -72,7 +72,7 @@ public class ViewNew {
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
 		gridData.horizontalAlignment = GridData.CENTER;
-		saveButton.setText("Add Station");
+		saveButton.setText("Add Slave");
 		saveButton.setLayoutData(gridData);
 	}
 	

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  * This class handles the collection of HistoryValues. It has two collections one for recent history an one for the history of the last year.
- * For each Station and each Parameter both histories are saved. 
+ * For each Slave and each Parameter both histories are saved. 
  * @author Johannes Kasberger
  *
  */
@@ -35,21 +35,21 @@ implements Serializable {
 	
 	/**
 	 * Adds the measurements to the recent history
-	 * @param station Name of the Station of which the measurements are
+	 * @param slave Name of the Slave of which the measurements are
 	 * @param parameter Name of the Parameter
 	 * @param data Vector of Measurements
 	 */
-	public boolean addData(String station,String parameter,Vector<Measurement> data) {
+	public boolean addData(String slave,String parameter,Vector<Measurement> data) {
 		//Find Data in recent history
-		String key = generateKey(station,parameter);
+		String key = generateKey(slave,parameter);
 		MeasurementHistory tmpHours = lastHours.get(key);
 		
 		if (data.size() == 0)
 			return false;
 		
-		log.fine("Adding new Data to Station "+station+"/"+parameter);
+		log.fine("Adding new Data to Slave "+slave+"/"+parameter);
 		if (tmpHours == null) {	
-			tmpHours = new MeasurementHistory(station,parameter, data.firstElement().getParameter().getUnit());
+			tmpHours = new MeasurementHistory(slave,parameter, data.firstElement().getParameter().getUnit());
 			lastHours.put(key, tmpHours);
 		}
 		
@@ -64,7 +64,7 @@ implements Serializable {
 			
 			now = Calendar.getInstance();
 			if (last.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR) || last.get(Calendar.YEAR) != last.get(Calendar.YEAR)) {
-				this.changeDay(station, parameter, data.firstElement().getParameter().getHistory_function(), lastEntry.getTimestamp());
+				this.changeDay(slave, parameter, data.firstElement().getParameter().getHistory_function(), lastEntry.getTimestamp());
 				isnewDay = true;
 			}
 		}
@@ -80,22 +80,22 @@ implements Serializable {
 	
 	/**
 	 * Gets the measurement that are max hours hours old
-	 * @param station
+	 * @param slave
 	 * @param parameter
 	 * @param hours maximum age of measurements
 	 * @return History of values
 	 */
-	public MeasurementHistory getLastHistory(String station,String parameter,int hours) {
+	public MeasurementHistory getLastHistory(String slave,String parameter,int hours) {
 		if (hours > 24)
 			return null;
 		
-		String key = generateKey(station,parameter);
+		String key = generateKey(slave,parameter);
 		MeasurementHistory tmp = lastHours.get(key);
 		
 		if (tmp == null)
 			return null;
 		
-		MeasurementHistory result = new MeasurementHistory(tmp.getStation(),tmp.getParameter(),tmp.getUnit());
+		MeasurementHistory result = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit());
 		
 		Date now = new Date();
 		Date border = new Date((now.getTime()-(long)hours*60*60*1000));
@@ -113,17 +113,17 @@ implements Serializable {
 	
 	/**
 	 * Get values of the last days
-	 * @param station
+	 * @param slave
 	 * @param parameter
 	 * @param days age in days of the values
 	 * @return History of values
 	 */
-	public MeasurementHistory getLastHistoryDays(String station,String parameter, int days) {
-		String key = generateKey(station,parameter);
+	public MeasurementHistory getLastHistoryDays(String slave,String parameter, int days) {
+		String key = generateKey(slave,parameter);
 		MeasurementHistory tmp =  lastYear.get(key);
 		if(tmp == null)
 			return null;
-		MeasurementHistory newHist = new MeasurementHistory(tmp.getStation(),tmp.getParameter(),tmp.getUnit());
+		MeasurementHistory newHist = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit());
 		
 		LinkedList<MeasurementHistoryEntry> list = tmp.getValues();
 		
@@ -143,15 +143,15 @@ implements Serializable {
 	
 	/**
 	 * Is called when the day has changed. The representing value for the oldDate is calculated and saved to the long term history.
-	 * @param station
+	 * @param slave
 	 * @param parameter
 	 * @param historyFunction
 	 * @param oldDate
 	 */
-	private void changeDay(String station,String parameter,HistoryFunctions historyFunction, Date oldDate) {
+	private void changeDay(String slave,String parameter,HistoryFunctions historyFunction, Date oldDate) {
 		log.fine("change day");
 		
-		String key = generateKey(station,parameter);
+		String key = generateKey(slave,parameter);
 		
 		//Calculate the Begin and End of the oldDate
 		Calendar tmpDay = Calendar.getInstance();
@@ -179,7 +179,7 @@ implements Serializable {
 		histDate = tmpDay.getTime();
 		
 		
-		//Get the current values of this station/parameter combination
+		//Get the current values of this slave/parameter combination
 		MeasurementHistory current = lastHours.get(key);
 		if (current == null)
 			return;
@@ -187,7 +187,7 @@ implements Serializable {
 		MeasurementHistory year = lastYear.get(key);
 		
 		if (year == null) {
-			year = new MeasurementHistory(current.getStation(),current.getParameter(), current.getUnit());
+			year = new MeasurementHistory(current.getSlave(),current.getParameter(), current.getUnit());
 			lastYear.put(key, year);
 		}
 		
@@ -200,7 +200,7 @@ implements Serializable {
 		}
 		
 		
-		MeasurementHistory newCurrent = new MeasurementHistory(station,parameter,current.getUnit());
+		MeasurementHistory newCurrent = new MeasurementHistory(slave,parameter,current.getUnit());
 		int count = 0;
 		for(MeasurementHistoryEntry m:current.getValues()) {
 			
@@ -236,12 +236,12 @@ implements Serializable {
 	
 	/**
 	 * Generate the Key for the HashMap
-	 * @param station
+	 * @param slave
 	 * @param parameter
 	 * @return key for HashMap
 	 */
-	private String generateKey(String station,String parameter) {
-		return station+parameter;
+	private String generateKey(String slave,String parameter) {
+		return slave+parameter;
 	}
 
 	public HashMap<String,MeasurementHistory>  getDataHours() {

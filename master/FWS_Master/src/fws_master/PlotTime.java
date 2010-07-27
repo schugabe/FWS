@@ -33,7 +33,7 @@ public class PlotTime extends PlotBase {
 	/**
 	 * Call the base constructor
 	 * @param name
-	 * @param path
+	 * @param controller
 	 */
 	public PlotTime(String name,PlotController controller) {
 		super(name, controller);
@@ -60,9 +60,9 @@ public class PlotTime extends PlotBase {
 		for(MeasurementHistory hist:data.getData()) {
 			dataset = new TimeSeriesCollection();
 			TimeSeries s1 = new TimeSeries(hist.getParameter()+"["+Units.getString(hist.getUnit())+"]");
-			if (title.indexOf(hist.getStation()) == -1)
-				title+=" "+hist.getStation();
-			fileName += hist.getStation()+"_"+hist.getParameter();
+			if (title.indexOf(hist.getSlave()) == -1)
+				title+=" "+hist.getSlave();
+			fileName += hist.getSlave()+"_"+hist.getParameter();
 						
 			for (MeasurementHistoryEntry m:hist.getValues()) {
 				s1.addOrUpdate(new Second(m.getTimestamp()), m.getValue());

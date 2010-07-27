@@ -15,8 +15,8 @@ public class ViewMain {
 	
 	private Menu menuBar, fileMenu,configMenu, helpMenu;
 	private MenuItem fileMenuHeader,configMenuHeader,helpMenuHeader;
-	private MenuItem fileNewStationItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, 
-	configParamsItem, configStationsItem, configOutDirItem, configSettingsItem, helpAboutItem, helpHomepageItem;
+	private MenuItem fileNewSlaveItem, fileSaveConfig, fileReloadConfig,fileViewData, fileExitItem, 
+	configParamsItem, configSlavesItem, configOutDirItem, configSettingsItem, helpAboutItem, helpHomepageItem;
 	private Button startButton;
 	
 	public ViewMain(Shell shell, Display display,FWSMaster master) {
@@ -28,11 +28,11 @@ public class ViewMain {
 		InitMenuBar();
 		
 		initScroll();
-		InitStationView();
+		InitSlaveView();
 
 	}
 	
-	public void reloadStationView() {
+	public void reloadSlaveView() {
 		
 	}
 	private void initScroll() {
@@ -44,7 +44,7 @@ public class ViewMain {
 		scroll.setLayout(new FillLayout());
 		
 	}
-	private void InitStationView() {
+	private void InitSlaveView() {
 		RowLayout rowLayout = new RowLayout();
 		rowLayout.wrap = false;
 		rowLayout.pack = true;
@@ -60,9 +60,9 @@ public class ViewMain {
 		c_all.setLayout(rowLayout);
 		scroll.setContent(c_all);
 		
-		this.BuildStationView(c_all);
+		this.BuildSlaveView(c_all);
 	}
-	private void BuildStationView(Composite c_all) {
+	private void BuildSlaveView(Composite c_all) {
 		RowLayout rowLayout = new RowLayout();
 		
 		rowLayout.type = SWT.HORIZONTAL;
@@ -74,12 +74,12 @@ public class ViewMain {
 		rowLayout.justify = false;
 		rowLayout.pack = true;
 		
-		for(Station s:this.master.getStationController().getStations()) {
+		for(Slave s:this.master.getSlaveController().getSlaves()) {
 			Composite c = new Composite(c_all,SWT.NONE);
 			
 			c.setLayout(rowLayout);
 			Label nameLabel = new Label(c, SWT.NONE);
-			nameLabel.setText(s.getStationName());
+			nameLabel.setText(s.getSlaveName());
 			Label ipLabel = new Label(c, SWT.NONE);
 			ipLabel.setText(s.getIpAddress());
 			Label statusLabel = new Label(c, SWT.NONE);
@@ -103,8 +103,8 @@ public class ViewMain {
 	    fileMenu = new Menu(shell, SWT.DROP_DOWN);
 	    fileMenuHeader.setMenu(fileMenu);
 	    
-	    fileNewStationItem = new MenuItem(fileMenu, SWT.PUSH);
-	    fileNewStationItem.setText("Add Station");
+	    fileNewSlaveItem = new MenuItem(fileMenu, SWT.PUSH);
+	    fileNewSlaveItem.setText("Add Slave");
 	    
 	    new MenuItem(fileMenu, SWT.SEPARATOR);
 	     
@@ -124,7 +124,7 @@ public class ViewMain {
 
 	    fileViewData.addSelectionListener(l);
 	    fileExitItem.addSelectionListener(l);
-	    fileNewStationItem.addSelectionListener(l);
+	    fileNewSlaveItem.addSelectionListener(l);
 	   
 	    fileSaveConfig.addSelectionListener(l);
 	    fileReloadConfig.addSelectionListener(l);
@@ -135,8 +135,8 @@ public class ViewMain {
 	    configMenu = new Menu(shell, SWT.DROP_DOWN);
 	    configMenuHeader.setMenu(configMenu);
 	    
-	    configStationsItem= new MenuItem(configMenu, SWT.PUSH);
-	    configStationsItem.setText("Edit Stations");
+	    configSlavesItem= new MenuItem(configMenu, SWT.PUSH);
+	    configSlavesItem.setText("Edit Slaves");
 	    
 	    configParamsItem = new MenuItem(configMenu, SWT.PUSH);
 	    configParamsItem.setText("Edit Parameters");
@@ -162,7 +162,7 @@ public class ViewMain {
 	  
 	    
 	    configParamsItem.addSelectionListener(l);
-	    configStationsItem.addSelectionListener(l);
+	    configSlavesItem.addSelectionListener(l);
 	    configOutDirItem.addSelectionListener(l);
 	    configSettingsItem.addSelectionListener(l);
 	    helpHomepageItem.addSelectionListener(l);
@@ -172,12 +172,12 @@ public class ViewMain {
 	
 	public void enableMenu(boolean enable) {
 		
-		fileNewStationItem.setEnabled(enable);
+		fileNewSlaveItem.setEnabled(enable);
 		fileSaveConfig.setEnabled(enable);
 		fileReloadConfig.setEnabled(enable);
 		
 		fileExitItem.setEnabled(enable);
-		configStationsItem.setEnabled(enable);
+		configSlavesItem.setEnabled(enable);
 		configParamsItem.setEnabled(enable);
 		configOutDirItem.setEnabled(enable);
 		configSettingsItem.setEnabled(enable);
@@ -212,8 +212,8 @@ public class ViewMain {
 			else if (((MenuItem) event.widget) == configParamsItem) {
 				master.ParameterClicked();
 			}
-			else if (((MenuItem) event.widget) == configStationsItem) {
-				master.StationClicked();
+			else if (((MenuItem) event.widget) == configSlavesItem) {
+				master.SlaveClicked();
 			}
 			else if (((MenuItem) event.widget) == configOutDirItem) {
 				master.FolderClicked();
@@ -227,8 +227,8 @@ public class ViewMain {
 			else if (((MenuItem) event.widget) == configSettingsItem) {
 				master.settingsClicked();
 			}
-			else if (((MenuItem) event.widget) == fileNewStationItem) {
-				master.viewAddStationClicked();
+			else if (((MenuItem) event.widget) == fileNewSlaveItem) {
+				master.viewAddSlaveClicked();
 			}
 			else if (((MenuItem) event.widget) == fileViewData) {
 				master.viewDataClicked();

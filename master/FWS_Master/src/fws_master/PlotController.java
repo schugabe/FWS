@@ -37,14 +37,14 @@ public class PlotController {
 	}
 
 	/**
-	 * @param heigth the heigth to set
+	 * @param height the height to set
 	 */
 	public void setHeight(int height) {
 		this.height = height;
 	}
 
 	/**
-	 * @return the heigth
+	 * @return the height
 	 */
 	public int getHeight() {
 		return height;

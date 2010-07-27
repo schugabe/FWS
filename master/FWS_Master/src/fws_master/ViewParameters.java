@@ -66,7 +66,7 @@ public class ViewParameters {
 			return;
 		
 		else if (!this.controller.removeParameter(selected_parameter)) {
-			showError("Parameter in use","Can't delete the parameter as long it's bound to a station");
+			showError("Parameter in use","Can't delete the parameter as long it's bound to a slave");
 			return;
 		}
 		this.loadList();
@@ -108,7 +108,7 @@ public class ViewParameters {
 		
 		if (!new_parameter) {
 			if (this.selected_parameter.inUse()) {
-				showError("Parameter in use","Can't edit the parameter as long it's bound to a station");
+				showError("Parameter in use","Can't edit the parameter as long it's bound to a slave");
 				return;
 			}
 			if (!this.selected_parameter.setName(tmpName)) {

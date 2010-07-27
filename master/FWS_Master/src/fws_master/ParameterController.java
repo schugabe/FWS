@@ -30,7 +30,7 @@ public class ParameterController {
 	}
 	
 	/**
-	 * Remove a parameter from the list. Only possible if this parameter isn't in use of a station
+	 * Remove a parameter from the list. Only possible if this parameter isn't in use of a slave
 	 * @param parameter
 	 * @return true if removing was possible
 	 */

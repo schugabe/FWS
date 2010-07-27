@@ -9,7 +9,7 @@ import java.util.Vector;
  */
 public class Parameter {
 	private String name;
-	private Vector<Binding> stations;
+	private Vector<Binding> slaves;
 	private ParameterController controller;
 	
 	/**
@@ -22,15 +22,15 @@ public class Parameter {
 		this.controller = controller;
 		if (!this.setName(name))
 			throw new Exception("Invalid Parameter Name");
-		stations = new Vector<Binding>();
+		slaves = new Vector<Binding>();
 	}
 	
 	/** 
-	 * True if this parameter is currently used by a station
+	 * True if this parameter is currently used by a slave
 	 * @return true/false
 	 */
 	public boolean inUse() {
-		if (stations.size() != 0)
+		if (slaves.size() != 0)
 			return true;
 		return false;
 	}
@@ -61,27 +61,27 @@ public class Parameter {
 	}
 		
 	/**
-	 * Stations where this parameter is in use
+	 * Slaves where this parameter is in use
 	 * @return Vector of Bindings
 	 */
-	public Vector<Binding> getStationsBindings() {
-		return this.stations;
+	public Vector<Binding> getSlavesBindings() {
+		return this.slaves;
 	}
 	
 	/**
-	 * Add this Parameter to a station
+	 * Add this Parameter to a slave
 	 * @param binding
 	 */
 	public void addBinding(Binding binding) {
-		this.stations.add(binding);
+		this.slaves.add(binding);
 	}
 	
 	/**
-	 * Remove this Parameter from a station
+	 * Remove this Parameter from a slave
 	 * @param binding
 	 * @return true if is removed
 	 */
 	public boolean removeBinding(Binding binding) {
-		return this.stations.remove(binding);
+		return this.slaves.remove(binding);
 	}
 }

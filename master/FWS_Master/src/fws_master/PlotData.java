@@ -60,7 +60,7 @@ public class PlotData {
 	
 	public boolean checkData() {
 		for (MeasurementHistory h: data) {
-			if (h == null || h.getParameter() == null || h.getStation() == null || h.getUnit() == null || h.getValues() == null || h.getValues().size() == 0)
+			if (h == null || h.getParameter() == null || h.getSlave() == null || h.getUnit() == null || h.getValues() == null || h.getValues().size() == 0)
 				return false;
 		}
 		return true;

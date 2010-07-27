@@ -1,6 +1,6 @@
 package fws_master;
 /**
- * A ConfigParameter is a Parameter that will be submitted to the slave. Can be used to configure the behaviour of the slave. There must be an StationConfigBinding to bind a ConfigParameter to a Station.
+ * A ConfigParameter is a Parameter that will be submitted to the slave. Can be used to configure the behaviour of the slave. There must be an SlaveConfigBinding to bind a ConfigParameter to a Slave.
  * @author Johannes Kasberger
  *
  */

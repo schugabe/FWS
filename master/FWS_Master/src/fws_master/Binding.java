@@ -1,12 +1,12 @@
 package fws_master;
 /**
- * Binding is the abstract base class for binding parameters to stations. 
+ * Binding is the abstract base class for binding parameters to slaves. 
  * 
  * @author Johannes Kasberger
- * @see StationConfigBinding 
- * @see StationInputBinding
+ * @see SlaveConfigBinding 
+ * @see SlaveInputBinding
  * @see Parameter
- * @see Station
+ * @see Slave
  */
 public abstract class Binding {
 	/** 
@@ -14,7 +14,7 @@ public abstract class Binding {
 	 */
 	private int address;
 	private Parameter parameter;
-	private Station station;
+	private Slave slave;
 	private boolean active;
 	
 	/**
@@ -22,20 +22,20 @@ public abstract class Binding {
 	 */
 	public Binding() {
 		this.address = -1;
-		this.station = null;
+		this.slave = null;
 		this.parameter = null;
 		this.active = false;
 	}
 	
 	/**
-	 * Constructor for Binding a Parameter to a Station at a address.
-	 * @param station
+	 * Constructor for Binding a Parameter to a Slave at a address.
+	 * @param slave
 	 * @param parameter
-	 * @param address the address of the memory on the station 
+	 * @param address the address of the memory on the slave 
 	 */
-	public Binding(Station station, Parameter parameter, int address, boolean active) {
+	public Binding(Slave slave, Parameter parameter, int address, boolean active) {
 		this.setParameter(parameter);
-		this.setStation(station);
+		this.setSlave(slave);
 		this.address = address;
 		this.active = active;
 	}
@@ -48,10 +48,10 @@ public abstract class Binding {
 	}
 	
 	/**
-	 * Removes the Binding from the Station
+	 * Removes the Binding from the Slave
 	 */
-	public void releaseStation() {
-		this.station.removeBinding(this);
+	public void releaseSlave() {
+		this.slave.removeBinding(this);
 	}
 	
 	/**
@@ -82,21 +82,21 @@ public abstract class Binding {
 		return parameter;
 	}
 	/**
-	 * Removes the binding from its old Station if there is an existing binding
-	 * @param station the station to set
+	 * Removes the binding from its old Slave if there is an existing binding
+	 * @param slave the slave to set
 	 */
-	public void setStation(Station station) {
-		if(this.station != null)
-			this.station.removeBinding(this);
-		this.station = station;
-		this.station.addBinding(this);
+	public void setSlave(Slave slave) {
+		if(this.slave != null)
+			this.slave.removeBinding(this);
+		this.slave = slave;
+		this.slave.addBinding(this);
 		
 	}
 	/**
-	 * @return the station
+	 * @return the slave
 	 */
-	public Station getStation() {
-		return station;
+	public Slave getSlave() {
+		return slave;
 	}
 	
 	/**

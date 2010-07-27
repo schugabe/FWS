@@ -6,14 +6,14 @@ package fws_master;
  */
 public class Measurement {
 	private InputParameter parameter;
-	private Station station;
+	private Slave slave;
 	private long timestamp;
 	private int value;
 
 	
-	public Measurement(Station station,InputParameter parameter,int value) {
+	public Measurement(Slave slave,InputParameter parameter,int value) {
 		this.parameter = parameter;
-		this.station = station;
+		this.slave = slave;
 		this.value = value;
 		this.timestamp = System.currentTimeMillis();
 	}
@@ -26,10 +26,10 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the station
+	 * @return the slave
 	 */
-	public Station getStation() {
-		return station;
+	public Slave getSlave() {
+		return slave;
 	}
 
 	/**

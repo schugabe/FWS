@@ -48,11 +48,11 @@ public class PlotCurrent extends PlotBase {
         
         chart.setBackgroundPaint(new Color(255,255,255,0)); 
 		
-        chart.setTitle(data.getData().get(0).getStation()+" "+data.getData().get(0).getParameter()+" "+now());
+        chart.setTitle(data.getData().get(0).getSlave()+" "+data.getData().get(0).getParameter()+" "+now());
               
         try {
         	ChartRenderingInfo info = new ChartRenderingInfo();
-        	String fileName = data.getData().get(0).getStation()+"_"+data.getData().get(0).getParameter()+preFix+".png";
+        	String fileName = data.getData().get(0).getSlave()+"_"+data.getData().get(0).getParameter()+preFix+".png";
     		ChartUtilities.saveChartAsPNG(new File(this.getPath(), fileName),chart,this.getController().getWidth(),this.getController().getHeight(),info,true,80);    		
     	} catch (IOException e) {
     		log.severe("Plotting current failed"+e.getMessage());
