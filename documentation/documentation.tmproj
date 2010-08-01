@@ -3,20 +3,22 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>master.tex</string>
+	<string>documentation.tex</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>documentation.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-27T08:54:26Z</date>
+			<date>2010-07-29T14:04:01Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>introduction.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-27T09:19:53Z</date>
+			<date>2010-07-27T15:10:43Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -28,15 +30,13 @@
 			<key>filename</key>
 			<string>slave.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-27T09:32:56Z</date>
+			<date>2010-07-27T13:26:54Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>master.tex</string>
 			<key>lastUsed</key>
-			<date>2010-07-27T09:39:29Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2010-07-27T15:18:35Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -48,23 +48,39 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>35</integer>
 				<key>line</key>
-				<integer>83</integer>
+				<integer>42</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>40</integer>
+			<integer>2</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>32</integer>
+				<key>line</key>
+				<integer>42</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>35</integer>
+				<key>line</key>
+				<integer>42</integer>
+			</dict>
 		</dict>
 		<key>introduction.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>88</integer>
+				<integer>154</integer>
 				<key>line</key>
-				<integer>38</integer>
+				<integer>41</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -76,14 +92,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>393</integer>
+				<integer>27</integer>
 				<key>line</key>
-				<integer>109</integer>
+				<integer>295</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>89</integer>
+			<integer>0</integer>
 		</dict>
 		<key>sensors.tex</key>
 		<dict>
@@ -111,7 +127,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>115</integer>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>

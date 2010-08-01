@@ -85,7 +85,7 @@ This signal is captured using the Input Capture Unit of 16-bit Timer 1. Counting
 All described parameters are permanently saved to internal EEPROM. In case of EEPROM error they are reset to their default values. To modify the parameters, they can be transferred via Modbus commands (see address reference table \ref{tab:modbus_write}). All changes are stored in EEPROM automatically.
 
 \begin{table}[ht]
-    \label{tab:modbus_write}
+    
     \centering
     \begin{tabular}{|l|l|l|l|}
     \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
@@ -102,6 +102,7 @@ All described parameters are permanently saved to internal EEPROM. In case of EE
     \hline 
     \end{tabular}
     \caption{Modbus Write Addresses}
+    \label{tab:modbus_write}
 \end{table}
 
 \subsection{Network}
@@ -159,7 +160,7 @@ Where the factors k, d and div are responsible for calibration. Sensor values ar
 The registers listed in table \ref{tab:modbus_read} show the available sensor data.
 
 \begin{table}[ht]
-    \label{tab:modbus_read}
+   
     \centering
     \begin{tabular}{|l|l|l|l|}
     \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
@@ -171,6 +172,7 @@ The registers listed in table \ref{tab:modbus_read} show the available sensor da
     \hline 
     \end{tabular}
     \caption{Modbus Read Addresses}
+     \label{tab:modbus_read}
 \end{table}
 
 \subsection{Sensor enable}
