@@ -9,28 +9,23 @@ The following explanations will discuss hardware and software individually to pr
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\linewidth]{graphics/sensordevice.jpg}
-    \caption{Sensor device with all cables connected}
-    \label{fig:sensordevice}
+    \subfloat[Sensor device with all cables connected]{\label{fig:sensordevice} \includegraphics[width=0.5\linewidth]{graphics/sensordevice.jpg}}
+    \qquad
+    \subfloat[Mainboard with position of parts]{\label{fig:mainboard} \includegraphics[width=0.5\linewidth]{graphics/mainboard.jpg}}
+    \qquad
+    \label{view:slave1}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\linewidth]{graphics/mainboard.jpg}
-    \caption{Mainboard with position of parts}
-    \label{fig:mainboard}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.6\linewidth]{graphics/schematics1.png}
+    \includegraphics[width=0.7\linewidth]{graphics/schematics1.png}
     \caption{Schematics of mainboard}
     \label{fig:mainboard_schematic1}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\linewidth]{graphics/schematics.png}
+    \includegraphics[width=\linewidth]{graphics/schematics.png}
     \caption{Schematics of additional hardware for sensor communication}
     \label{fig:mainboard_schematic}
 \end{figure}
@@ -62,7 +57,7 @@ All other functionalities are implemented in submodules which are using interrup
 \subsection{Modbus module}
 In respect to the TCP/Modbus jargon the slave acts as a Server.
 
-This module consists of two submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP. These submodules where taken from ,,tuxgraphics TCP/IP stack, 3rd generation''\footnote{\url{http://tuxgraphics.org/common/src2/article09051/} \url{http://tuxgraphics.org/electronics/200905/embedded-tcp-ip-stack.shtml}} and adapted as needed.
+This module consists of two submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP. These submodules where taken from ,,tuxgraphics TCP/IP stack, 3rd generation'' \footnote{\url{http://tuxgraphics.org/common/src2/article09051/}}\footnote{\url{http://tuxgraphics.org/electronics/200905/embedded-tcp-ip-stack.shtml}} and adapted as needed.
 
 The Modbus module itself is an in-house development. It currently supports the Modbus function codes for writing and reading single registers. It also has the possibility to request the device identifier. This function has not been implemented completely as the Java-Modbus-Library at the master does not provide this feature.
 
@@ -85,7 +80,6 @@ This signal is captured using the Input Capture Unit of 16-bit Timer 1. Counting
 All described parameters are permanently saved to internal EEPROM. In case of EEPROM error they are reset to their default values. To modify the parameters, they can be transferred via Modbus commands (see address reference table \ref{tab:modbus_write}). All changes are stored in EEPROM automatically.
 
 \begin{table}[ht]
-    
     \centering
     \begin{tabular}{|l|l|l|l|}
     \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
@@ -160,7 +154,7 @@ Where the factors k, d and div are responsible for calibration. Sensor values ar
 The registers listed in table \ref{tab:modbus_read} show the available sensor data.
 
 \begin{table}[ht]
-   
+
     \centering
     \begin{tabular}{|l|l|l|l|}
     \hline \textbf{Address} & \textbf{Description} & \textbf{Valid values} & \textbf{Data format} \\ 
@@ -172,7 +166,7 @@ The registers listed in table \ref{tab:modbus_read} show the available sensor da
     \hline 
     \end{tabular}
     \caption{Modbus Read Addresses}
-     \label{tab:modbus_read}
+    \label{tab:modbus_read}
 \end{table}
 
 \subsection{Sensor enable}
@@ -204,3 +198,5 @@ This register holds the current temperature. The range is only limited by the se
 The transferred value is multiplied by 10 to transmit the first decimal place.
 
 \paragraph{Read address:} 5
+
+\newpage
