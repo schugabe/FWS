@@ -3,14 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>slave.tex</string>
+	<string>documentation.tex</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>documentation.tex</string>
 			<key>lastUsed</key>
-			<date>2010-08-01T17:59:04Z</date>
+			<date>2010-08-07T14:30:38Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -22,21 +24,19 @@
 			<key>filename</key>
 			<string>sensors.tex</string>
 			<key>lastUsed</key>
-			<date>2010-08-01T20:50:39Z</date>
+			<date>2010-08-07T14:05:12Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>slave.tex</string>
 			<key>lastUsed</key>
-			<date>2010-08-01T20:50:39Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2010-08-07T14:06:03Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>master.tex</string>
 			<key>lastUsed</key>
-			<date>2010-08-01T18:09:22Z</date>
+			<date>2010-08-07T14:30:38Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -48,14 +48,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>18</integer>
 				<key>line</key>
-				<integer>84</integer>
+				<integer>64</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>42</integer>
+			<integer>51</integer>
 		</dict>
 		<key>introduction.tex</key>
 		<dict>
@@ -76,23 +76,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>141</integer>
 				<key>line</key>
-				<integer>26</integer>
+				<integer>263</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
-			<integer>131</integer>
+			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>10</integer>
+			<integer>238</integer>
 		</dict>
 		<key>sensors.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>92</integer>
+				<integer>49</integer>
 				<key>line</key>
-				<integer>6</integer>
+				<integer>25</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -104,14 +104,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>37</integer>
+				<integer>47</integer>
 				<key>line</key>
-				<integer>15</integer>
+				<integer>22</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>5</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -125,6 +125,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{385, 0}, {1055, 878}}</string>
+	<string>{{382, 0}, {1058, 878}}</string>
 </dict>
 </plist>
