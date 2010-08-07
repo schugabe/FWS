@@ -181,7 +181,7 @@ For the configuration string {\C h24;1h24;d30;c1;d365;} the following plots are 
 
 \subsubsection{Detailed Information about the plots} % (fold)
 \label{ssub:detailed_information_about_the_plots}
-If two different datasets are plotted in one diagram two axes with separate scales will be generated. When more than two data sets should be drawn in one diagram they share one axis. If more plots with more than two datasets have to be generated it is advisable each to keep the diagrams tidy.
+If two different datasets are plotted in one diagram two axes with separate scales will be generated. When more than two data sets should be drawn in one diagram they share one axis.
 
 The direction parameters values are not connected with a line. Otherwise the diagrams would get unreadable if the wind direction changes a lot.
 
@@ -223,7 +223,7 @@ The IP Address represents a special configuration parameter. It is always mapped
 \label{ssub:collecting_the_data}
 A data collector thread runs in background an collects the data from all the slaves. For each slave/parameter combination a distinct list is kept with all the recent values in it. Before saving the measurements they are converted into a simpler data type that can be serialized and does not have references to other classes.
 
-In the collector thread the text file is generated that contains the information about the current status of the slaves. Each slave is represented in this file. The information written in this file are the current values of the Input Parameters bound to that slave. This value is the average of the measurements since the last run of the collector. To be able to see how the value changed the standard deviation is calculated and written to the output. An example of a result file is given in  Listing \ref{code:result}. 
+In the collector thread the text file is generated that contains the information about the current status of the slaves. Each slave is represented in this file. The information written in this file are the current values of the Input Parameters bound to that slave. This value is the average of the measurements since the last run of the collector. To be able to see how the value changed the standard deviation is calculated and written to the output. An example of a result file is given in Listing \ref{code:result}. 
 For each parameter a new line is started in the file. The syntax is {\C name[unit]:value;standard deviation;}
 
 {\C \lstinputlisting[breaklines=true,caption={Sample result file},label=code:result,frame=tlRB]{master/result.txt} }
