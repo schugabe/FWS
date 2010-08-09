@@ -13,7 +13,7 @@ After the configuration of the slaves the collection process can be started. Whi
 % section about_the_master (end)
 \section{Implementation} % (fold)
 \label{sec:implementation}
-The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. The doc folder\footnote{\url{http://github.com/schugabe/FWS/tree/master/master/FWS_Master/doc/}} contains the javadoc generated source code documentation. In the following list a short overview on the classes and their functionality is provided. For a class diagram, see Figure \ref{fig:class_master}.
+The source code can be downloaded at github\footnote{\url{http://www.github.com/schugabe/fws}}. The doc folder\footnote{\url{http://github.com/schugabe/FWS/tree/master/master/FWS_Master/doc/}} contains the javadoc generated source code documentation. In the following list a short overview of the classes and their functionality is provided. For the class diagram, see Figure \ref{fig:class_master}.
 
 \begin{itemize}
     \item Configuration: Parameter, InputParameter, ConfigParameter, SlaveInputBinding, SlaveConfigBinding, Slave
@@ -42,14 +42,14 @@ The result of the configuration phase is an XML file with all settings in it (Li
 \begin{itemize}
     \item \textbf{OS X}: /Users/\{username\}/Library/Application Support/FWSMaster/settings.xml
     \item \textbf{Linux}: \textasciitilde /.fws\_master/settings.xml
-    \item \textbf{Windows}: C:\textbackslash \{User Dir\} \textbackslash .fws\_master \textbackslash settings.xml
+    \item \textbf{Windows}: \%USERPROFILE\%\textbackslash .fws\_master \textbackslash settings.xml
 \end{itemize}
 
 {\C \lstinputlisting[language=xml,breaklines=true,caption={Sample settings file},label=code:settings,frame=tlRB]{master/settings.xml} }
 
 \subsection{Parameters} % (fold)
 \label{sub:parameters}
-There are two types of parameters. Input Parameters and Configuration Parameters. Each parameter has a unique name and a boolean value if it's enabled. The name is the identifier of the parameter so it has to be unique. Beside of these common attributes the Configuration and Input Parameters have further attributes. The parameters must be assigned to slave addresses. This process is referred to as binding a parameter to a slave. To bind a parameter to a slave, the user must define the address on the slave where the parameter is saved.
+There are two types of parameters. Input Parameters and Configuration Parameters. Each parameter has a unique name and a boolean value if it is enabled. The name is the identifier of the parameter so it has to be unique. Beside of these common attributes the Configuration and Input Parameters have further attributes. The parameters must be assigned to slave addresses. This process is referred to as binding a parameter to a slave. To bind a parameter to a slave, the user must define the address on the slave where the parameter is saved.
 
 \subsubsection{Input Parameter} % (fold)
 \label{ssub:input_parameter}
@@ -79,7 +79,7 @@ The transferred value from the slave is a 16 bit integer value. To be able to di
 
 \paragraph{History Function} % (fold)
 \label{par:histfunc}
-There are three different history functions available. For more details about these functions and how they are used refer to Section \ref{sec:history}.
+There are three different history functions available. For more details about these functions and how they are used refer to Section~\ref{sec:history}.
 \label{par:history_function}
 \begin{itemize}
     \item average
@@ -99,7 +99,7 @@ Additional attributes of a Configuration Parameter:
 
 \paragraph{Value} % (fold)
 \label{par:value}
-A configuration parameter is a value that is transferred from the master to the slave. The value transferred is saved in the attribute value. This value must be a 16 bit integer value.
+A configuration parameter is a value that is transferred from the master to the slave. The value transferred is saved in the attribute value. This value has to be a 16 bit integer value.
 % paragraph value (end)
 % subsubsection configuration_parameter (end)
 
@@ -108,7 +108,7 @@ A configuration parameter is a value that is transferred from the master to the 
 \subsection{Plots} % (fold)
 \label{sub:plots}
 The plots are generated with the help of the jFreeChart Library \footnote{\url{http://www.jfree.org/jfreechart/}}.
-The plots can be particularly configured for the input parameters. Each binding can have several plots assigned. It's also possible to plot more than one data into one plot. The plots are configured with a string. The simplest configuration looks like {\C h24;} With that configuration one plot is generated and the data for this plot are the values from the last 24 hours. The plots are generated in the output directory that can be set by the user.
+The plots can be particularly configured for the input parameters. Each binding can have several plots assigned. It's also possible to plot more than one data into one plot. The plots are configured with a string. The simplest configuration looks like {\C h24;}. With this configuration one plot is generated and the data for this plot are the values of the last 24 hours. The plots are generated in the output directory that can be set by the user.
 
 It's possible to use different data ranges for the plots. To allow the user to choose one range there are three different time bases available:
 \begin{itemize}
@@ -130,7 +130,7 @@ represents the newest values for the plot. Currently this is only implemented fo
 
 \paragraph{Hours} % (fold)
 \label{par:hours}
-represents the values of the last hours for the plot. The amount of the hours is specified in the plot configuration. It's the number after the timebase. Figure \ref{fig:hours} provides an example of a 24 hour plot.
+represents the values of the last hours for the plot. The amount of hours is specified in the plot configuration. It's the number after the timebase. Figure \ref{fig:hours} provides an example of a 24 hour plot.
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\linewidth]{master/plot_exampleh.png}
@@ -141,7 +141,7 @@ represents the values of the last hours for the plot. The amount of the hours is
 
 \paragraph{Days} % (fold)
 \label{par:days}
-plots the values from the last days. For more details about the history, see Section \ref{sec:history}.
+plots the values of the last days. For more details about the history, see Section \ref{sec:history}.
 % paragraph days (end)
 
 \subsubsection{Configuration Syntax} % (fold)
@@ -150,7 +150,7 @@ Each plot is specified by three different parts: [Number]CharacterNumber;
 
 \paragraph{First Number} % (fold)
 \label{par:first_number_id}
-This number is optional and controls if more than one input parameter is drawn in one plot. All configured plots with the same first number (ID) are drawn in the same plot.
+This number is optional and controls if more than one Input Parameter is drawn into one plot. All configured plots with the same first number (ID) are drawn into the same plot.
 % paragraph first_number_id (end)
 \paragraph{Character} % (fold)
 \label{par:character}
@@ -179,7 +179,7 @@ For the configuration string {\C h24;1h24;d30;c1;d365;} the following plots are 
 % paragraph example (end)
 % subsubsection configuration_syntax (end)
 
-\subsubsection{Detailed Information about the plots} % (fold)
+\subsubsection{Detailed information about the plots} % (fold)
 \label{ssub:detailed_information_about_the_plots}
 If two different datasets are plotted in one diagram two axes with separate scales will be generated. When more than two data sets should be drawn in one diagram they share one axis.
 
@@ -204,27 +204,27 @@ After the slaves are configured they are added to the slave controller. This con
 
 \subsubsection{Transferring the Data} % (fold)
 \label{ssub:getting_the_data}
-Each slave has its own thread assigned. This thread polls in its own interval the data values from the slave. For each transmission a new TCP connection is opened. After the value has been transferred the connection gets closed. This is necessary as the TCP stack of the slave doesn't support keep alive signals. Leaving the connection open would otherwise result in timeouts. Each slave has a list of measurements. A measurement consists of a timestamp and a value. These lists are collected from the Output Generation thread. If a slave is paused its thread gets suspended and waits for the wake up signal from the controller. 
+Each slave has its own thread assigned. This thread polls with its own interval the data values from the slave. For each transmission a new TCP connection is opened. After the value has been transferred the connection gets closed. This is necessary as the TCP stack of the slave doesn't support keep alive signals. Leaving the connection open would otherwise result in timeouts. Each slave has a list of measurements. A measurement consists of a timestamp and a value. These lists are collected from the Output Generation thread. If a slave is paused its thread gets suspended and waits for the wake up signal from the controller. 
 
 The Modbus function that is used to transfer the data is named sendReadRequest.
 % subsubsection getting_the_data (end)
 
 \subsubsection{Transferring the configuration} % (fold)
 \label{ssub:transferring_the_configuration}
-When the user wants to upload a new configuration the slave will call the method sendWriteRequest for each Configuration Parameter and reads back the answer of the slave. If the answer equals the previously sent value the value is marked as transferred. A transferred value isn't uploaded again if it is unchanged.
+When the user wants to upload a new configuration, the slave will call the method sendWriteRequest for each Configuration Parameter and reads back the answer of the slave. If the answer equals the previously sent value the value is marked as transferred. An already transferred value will not be uploaded again if it is unchanged.
 % subsubsection transferring_the_configuration (end)
 \subsubsection{Change the IP Address} % (fold)
 \label{ssub:change_the_ip_address}
-The IP Address represents a special configuration parameter. It is always mapped to the address 0 and 1 on the slave. These two 16 bit registers are used to save the IP address. When the IP address has been changed it's transferred to the slave. After the successful transmission of the two values the new IP is saved. Otherwise the old IP is kept.
+The IP Address represents a special Configuration Parameter. It is always mapped to the address 0 and 1 on the slave. These two 16 bit registers are used to save the IP address. When the IP address has been changed it's transferred to the slave. After the successful transmission of the two values the new IP is saved. Otherwise the old IP is kept.
 % subsubsection change_the_ip_address (end)
 
 
 \subsubsection{Collecting the Data} % (fold)
 \label{ssub:collecting_the_data}
-A data collector thread runs in background an collects the data from all the slaves. For each slave/parameter combination a distinct list is kept with all the recent values in it. Before saving the measurements they are converted into a simpler data type that can be serialized and does not have references to other classes.
+A data collector thread runs in background and collects the data from all the slaves. For each slave/parameter combination a distinct list is kept containing all the recent values. Before saving the measurements they are converted into a simpler data type which is serialzable and does not have references to other classes.
 
 In the collector thread the text file is generated that contains the information about the current status of the slaves. Each slave is represented in this file. The information written in this file are the current values of the Input Parameters bound to that slave. This value is the average of the measurements since the last run of the collector. To be able to see how the value changed the standard deviation is calculated and written to the output. An example of a result file is given in Listing \ref{code:result}. 
-For each parameter a new line is started in the file. The syntax is {\C name[unit]:value;standard deviation;}
+For each parameter a new line is started in the file. The syntax is {\C name[unit]:value;standard deviation;}.
 
 {\C \lstinputlisting[breaklines=true,caption={Sample result file},label=code:result,frame=tlRB]{master/result.txt} }
 
@@ -236,7 +236,7 @@ For each parameter a new line is started in the file. The syntax is {\C name[uni
 The collector adds the measurements to the history controller. This controller converts the values to the entries in the history. Each input parameter has two histories: one short term history and one long term history. 
 \subsection{Short term history} % (fold)
 \label{sub:short_term_history}
-In the short term history entries from the last two days are kept. This history is queried when plotting a diagram with the `h' timebase. To this list all new measurements are added as soon as new data arrive from the collector. If the day has changed the previous day is transferred to the long term history. There are at least the last 24 hours in the short term history.
+In the short term history entries of the last two days are kept. This history is queried when plotting a diagram with the `h' timebase. To this list all new measurements are added as soon as new data arrive from the collector. If the day has changed the previous day is transferred to the long term history. There are at least the last 24 hours in the short term history.
 % subsection short_term_history (end)
 
 \subsection{Long term history} % (fold)
@@ -250,7 +250,7 @@ The short and long term history are serialized and transferred to the hard disk.
 
 An old history is kept to prevent loosing the history if the master crashes during writing the history. Before saving the history the thread locks the semaphore. Then, it renames the current history to another filename. Finally, the new history is saved, and the semaphore is released.
 
-If an exception arises during loading the history the master tries to load the old history file. If that results in an exception a new history is created.
+If an exception arises during loading of the history the master tries to load the old history file. If this also results in an exception a new history is created.
 % subsection storage_of_the_history (end)
 % section history (end)
 
@@ -276,7 +276,7 @@ Figures~\ref{fig:parameter}, \ref{view1}, \ref{fig:slaves} (Page~\pageref{fig:sl
       \qquad
      \subfloat[Configuration of the basic settings]{\label{fig:settings} \includegraphics[width=0.4\linewidth]{master/settings.png}}
       \qquad
-      \subfloat[Add new Slave]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
+      \subfloat[Add new slave]{\label{fig:add} \includegraphics[width=0.4\linewidth]{master/add.png}}
      \caption{Screenshots of FWS Master} 
      \label{view1}
 \end{figure}

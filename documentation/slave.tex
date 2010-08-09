@@ -31,9 +31,9 @@ The following explanations will discuss hardware and software individually to pr
     \label{fig:mainboard_schematic}
 \end{figure}
 
-The measurement data acquisition and TCP/IP handling is done by an ATMEL ATmega328p chip, whereas the basic Ethernet communication is handled by an ENC28J60 chip from Microchip. Both chips are communicating via an SPI connection.\footnote{The mainboard is a product of \url{http://tuxgraphics.org}} 
+The measurement data acquisition and TCP/IP handling is done by an ATMEL~ATmega328p chip, whereas the basic Ethernet communication is handled by an ENC28J60 chip from Microchip. Both chips are communicating via an SPI connection.
 
-The mainboard is operated at $3.3 V$ via a voltage regulator. Due to the fact that the sensor device requires a supply voltage of $5 V$, a separate voltage regulator has been added. This regulator is sourced by CONN3 of the mainboard which can be switched on and off by software via the transistor connected upstream.
+The mainboard\footnote{The mainboard is a product of \url{http://tuxgraphics.org}} is operated at $3.3 V$ via a voltage regulator. Due to the fact that the sensor device requires a supply voltage of $5 V$, a separate voltage regulator has been added. This regulator is sourced by CONN3 of the mainboard which can be switched on and off by software via the transistor connected upstream.
 
 To be able to process the analog signals from the sensor device at the ATmega328p, two 1:1 voltage dividers have been installed. This limits the maximum input voltage at the microcontroller's side to $2.5 V$.
 
@@ -58,7 +58,7 @@ All other functionalities are implemented in submodules which are using interrup
 \subsection{Modbus module}
 In respect to the TCP/Modbus jargon the slave acts as a Server.
 
-This module consists of two submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP. These submodules where taken from ,,tuxgraphics TCP/IP stack, 3rd generation'' \footnote{\url{http://tuxgraphics.org/common/src2/article09051/}}\footnote{\url{http://tuxgraphics.org/electronics/200905/embedded-tcp-ip-stack.shtml}} and adapted as needed.
+This module consists of two submodules which encapsulate the access to the ENC28J60 via SPI as well as the implementation of the protocols TCP/IP, ICMP and ARP. These submodules where taken from ``tuxgraphics TCP/IP stack, 3rd generation'' \footnote{\url{http://tuxgraphics.org/common/src2/article09051/}}\footnote{\url{http://tuxgraphics.org/electronics/200905/embedded-tcp-ip-stack.shtml}} and adapted as needed.
 
 The Modbus module itself is an in-house development. It currently supports the Modbus function codes for writing and reading single registers. It also has the possibility to request the device identifier.\footnote{This function has not been implemented completely as the Java-Modbus-Library at the master does not provide this feature.}	
 
@@ -75,7 +75,7 @@ Naturally, analog signals are subject to interference leading to non-precise res
 \subsection{Index signal - Wind speed}
 The wind speed is triggered by a Reed contact in the sensor device generating a frequency of $2.53 Hz$ per $1 m/s$ wind speed.
 
-This signal is captured using the Input Capture Unit of the 16-bit Timer 1. Counting the elapsed time between two index pulses allows to calculate the actual wind speed. This wind speed module also includes specific limits for valid data. For instance, in cases where there's hardly any wind and the wind wheel comes to stop right on top of the Reed contact, input capture interrupts are triggered permanently causing the calculation result to reach unfeasible values. These cases can be avoided by dropping all results not matching the specified values of the wind speed sensor.
+This signal is captured using the Input Capture Unit of the 16-bit~Timer~1. Counting the elapsed time between two index pulses allows to calculate the actual wind speed. This wind speed module also includes specific limits for valid data. For instance, in cases where there's hardly any wind and the wind wheel comes to stop right on top of the Reed contact, input capture interrupts are triggered permanently causing the calculation result to reach unfeasible values. These cases can be avoided by dropping all results not matching the specified range of the wind speed sensor.
 
 \section{Modbus Write Commands}
 All described parameters are permanently saved to internal EEPROM. In case of an EEPROM error they are reset to their default values. To modify the parameters, they can be transferred via Modbus commands (see address reference Table \ref{tab:modbus_write}). All changes are stored in EEPROM automatically.
@@ -120,11 +120,11 @@ The mainboard supports $10 Mbit/s$ T-Base Ethernet LAN. The user can change the 
     \item  Value low byte: Fourth segment (e.g. 111)
 \end{itemize}
 
-IP address change sequence: First write to address 0 then to address 1. Changes will take effect when the complete address has been received and the Modbus response has been sent with the old IP address.
+IP address change sequence: First write to address 0 then to address 1. Changes will take effect when complete address has been received and the Modbus response has been sent with the old IP address.
 
 \subsection{Sensor enable}
 \label{sec:sensor_enable}
-The microcontroller has a configuration parameter for completely enabling/disabling the the sensor device by switching the connected transistor. 
+The microcontroller has a configuration parameter for completely enabling/disabling the sensor device by switching the connected transistor. 
 
 \paragraph{Read and Write address: 2}
 \paragraph{Possible values:}
