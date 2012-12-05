@@ -46,7 +46,7 @@ static typeof(eeTemp[0]) temp[sizeof(eeTemp)/sizeof(eeTemp[0])];
 **/
 void read_winddir(uint16_t value) {
 	// if error occured
-	if (value == 0xffff)
+	if (value == 0x7fff)
 		winddir = value;
 	else {
 		// ADC in [0..720] / 48 = [0..15] = 16 directions = 22,5° per direction
@@ -61,7 +61,7 @@ void read_winddir(uint16_t value) {
 **/
 void read_temperature(uint16_t value) {
 	// if error occured
-	if (value == 0xffff)
+	if (value == 0x7fff)
 		temperature = value;
 	else {
 		// 485 = 14°C

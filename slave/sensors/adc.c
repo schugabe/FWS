@@ -87,5 +87,5 @@ void adc_stop(void) {
 	uint8_t i = 0;
 	for (; i < CHANNELS_SIZE; i++)
 		if (channels[i] != NULL)
-			channels[i](0xFFFF); // callbacks with value for "no results"
+			channels[i](0x7FFF); // callbacks with value for "no results"
 }
