@@ -49,20 +49,19 @@ public class ModBusWrapper {
 	public int sendReadRequest(int address) throws Exception {
 		
 		ReadInputRegistersResponse response = null;
-		int value = 0;
-		
+		short tmp_value = 0;		
 		
 		try {
 			ReadInputRegistersRequest request = new ReadInputRegistersRequest(address,1);
 			response = (ReadInputRegistersResponse)this.sendRequest(request);
-			value = response.getRegisterValue(0);
-			if (value == 0xFFFF)
+			tmp_value = response.getRegister(0).toShort();
+			if (tmp_value == 0x7FFF)
 				throw new Exception("0xFFFF received - value ignored");
 		} catch (Exception ex) {
 			log.warning("Error on reading value: "+ex.getMessage());
 			throw ex;
 		}
-		return value;
+		return tmp_value;
 	}
 	
 	/**

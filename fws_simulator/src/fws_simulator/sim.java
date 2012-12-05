@@ -1,6 +1,8 @@
 package fws_simulator;
 
 
+import java.util.Random;
+
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.procimg.*;
 //import net.wimpi.modbus.Modbus;
@@ -43,22 +45,29 @@ public class sim {
 			listener.start();  
 			double x = 0;
 			double direction = 180.0;
+			Random rg = new Random();
 			while(true) {
-				double tmp = Math.sin(x/200)+1.0f;
-				tmp *= 10.0;
+				
+				double rand = Math.random()/8;
+				if (rg.nextBoolean())
+					rand*=-1;
+				double tmp = Math.sin(x)+rand;
+				//System.out.println(""+tmp);
+				tmp *= 100.0;
 				reg1.setValue((short)tmp);
 				
 				
-				direction = direction + (Math.random() - 0.5) * 15.0;
+				/*direction = direction + (Math.random() - 0.5) * 15.0;
 	            if (direction < 0.0) {
 	                direction = direction + 360.0;
 	            }
 	            else if (direction > 360.0) {
 	                direction = direction - 360.0;
-	            }
+	            }*/
+				direction = Math.random()*100*100;
 				reg2.setValue((short)direction);
-				x++;
-				System.out.println(reg1.getValue()+";"+reg2.getValue());
+				x+=0.01;
+				System.out.println(""+reg1.toShort()+";"+reg2.getValue());
 				
 				Thread.sleep(1000);
 			}

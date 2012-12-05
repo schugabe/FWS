@@ -60,6 +60,17 @@ public class MeasurementCollector extends Thread {
 				
 				// Start collecting Data
 				log.fine("Getting Data from Slaves");
+				File file = null;
+				try {
+					file = new File(this.outDir,"lock-dir");
+					OutputStreamWriter stream = new OutputStreamWriter(new FileOutputStream(file),"UTF-8");				 
+				    stream.write("locked"+eol);
+				    stream.flush();
+					stream.close();
+				} catch(Exception ex) {
+					log.severe("Can't create lock file: "+ex.getMessage());
+				}
+				
 				
 				try {
 					Vector<String> result = getData();
@@ -84,6 +95,13 @@ public class MeasurementCollector extends Thread {
 				
 				this.newDay = false;
 				log.fine("Collector done");
+				
+				try {
+					file.delete();
+				} catch(Exception ex) {
+					log.severe("Can't delete lock file: "+ex.getMessage());
+				}
+				
 				
 				//calculate the runtime of the generation. Wait intervall-runtime to stick to the intervall.
 				long tmpTime = System.currentTimeMillis();

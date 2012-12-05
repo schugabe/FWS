@@ -18,6 +18,7 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -63,33 +64,53 @@ public class PlotTime extends PlotBase {
 			if (title.indexOf(hist.getSlave()) == -1)
 				title+=" "+hist.getSlave();
 			fileName += hist.getSlave()+"_"+hist.getParameter();
-						
+			
+			double min= Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			//double old = 0.0f;
+			//double e = 0.08f;
+			//boolean inited = false;
 			for (MeasurementHistoryEntry m:hist.getValues()) {
-				s1.addOrUpdate(new Second(m.getTimestamp()), m.getValue());
+				double tmp = m.getValue();
+				/*if (!inited) {
+					inited = true;
+					old = tmp;
+				}
+				tmp = (1.0f-e)*old+e*tmp;
+				old = tmp;*/
+				if (tmp < min)
+					min = tmp;
+				if (tmp > max)
+					max = tmp;
+				
+				s1.addOrUpdate(new Second(m.getTimestamp()), tmp);
 			}
 	        dataset.addSeries(s1);
 	        
 	        if (i == 0) {
-	        	chart = ChartFactory.createTimeSeriesChart(title+" "+now(), "Time", "Value", dataset, true, true, false );
+	        	chart = ChartFactory.createTimeSeriesChart(title+" "+now(), "Zeit", "Wert", dataset, true, true, false );
 	    		plot = chart.getXYPlot();
+	    		
 	    		dataset = new TimeSeriesCollection();
-	        } else
+	        } else {
 	        	plot.setDataset(i,dataset);
+	        }
+	        
+	        NumberAxis yaxis = new NumberAxis(""+plot.getDataset(i).getSeriesKey(0));
+	        yaxis.setAutoRangeIncludesZero(false);
+	        plot.setRangeAxis(i, yaxis);
+	        plot.mapDatasetToRangeAxis(i, i);
+	        Range r = plot.getRangeAxis(i).getRange();
+	        if (r.getLength() < 10.0f) {
+	        	yaxis.setRange(min-5.0f, max+5.0f);
+	        	plot.setRangeAxis(i, yaxis);
+	        }
 	        i++;
 		}
 		
 		if (plot == null || chart == null)
 			return;
-		
-		if (cnt == 2) {
-			
-			NumberAxis axis2 = new NumberAxis(""+plot.getDataset(1).getSeriesKey(0));
-	        axis2.setAutoRangeIncludesZero(false);
-	        plot.setRangeAxis(1, axis2);
-	        plot.mapDatasetToRangeAxis(1, 1);
-	        
-		}
-				
+					
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		
 		if (data.getConfiguration().getTimeBase() == 'h')

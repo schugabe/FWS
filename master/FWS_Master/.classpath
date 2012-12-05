@@ -6,6 +6,6 @@
 	<classpathentry kind="lib" path="libs/jamod-1.2.jar"/>
 	<classpathentry kind="lib" path="libs/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="libs/jfreechart-1.0.13.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt"/>
+	<classpathentry kind="lib" path="/home/johannes/FWS/master/FWS_Master/libs/swt_linux.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
