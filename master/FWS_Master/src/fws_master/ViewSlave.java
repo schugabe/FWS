@@ -24,7 +24,6 @@ public class ViewSlave {
 	private Text cfgAddressText,cfgValueText;
 	private Text ipAddressText, ipPlotText;
 	private Button cfgActive,ipActive, cfgBindButton, ipBindButton;
-
 	
 	public ViewSlave(Shell shell,SlaveController sc,ParameterController p, FWSMaster master) {
 		this.shell = shell;

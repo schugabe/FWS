@@ -23,6 +23,7 @@ implements Serializable  {
 	private String slave;
 	private String parameter;
 	private Units unit;
+	private float filter;
 	private LinkedList<MeasurementHistoryEntry> values;
 		
 	/**
@@ -31,10 +32,11 @@ implements Serializable  {
 	 * @param parameter
 	 * @param unit
 	 */
-	public MeasurementHistory(String slave, String parameter, Units unit) {
+	public MeasurementHistory(String slave, String parameter, Units unit, float filter) {
 		this.slave = slave;
 		this.parameter = parameter;
 		this.unit = unit;
+		this.filter = filter;
 		this.values = new LinkedList<MeasurementHistoryEntry>();
 	}
 	
@@ -63,6 +65,14 @@ implements Serializable  {
 	 */
 	public String getSlave() {
 		return this.slave;
+	}
+	
+	/**
+	 * Get the Filterparameter
+	 * @return filter 
+	 */
+	public float getFilter() {
+		return this.filter;
 	}
 	
 	/**

@@ -49,7 +49,8 @@ implements Serializable {
 		
 		log.fine("Adding new Data to Slave "+slave+"/"+parameter);
 		if (tmpHours == null) {	
-			tmpHours = new MeasurementHistory(slave,parameter, data.firstElement().getParameter().getUnit());
+			InputParameter ip = data.firstElement().getParameter();
+			tmpHours = new MeasurementHistory(slave,parameter, ip.getUnit(), ip.getFilter());
 			lastHours.put(key, tmpHours);
 		}
 		
@@ -95,7 +96,7 @@ implements Serializable {
 		if (tmp == null)
 			return null;
 		
-		MeasurementHistory result = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit());
+		MeasurementHistory result = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit(),tmp.getFilter());
 		
 		Date now = new Date();
 		Date border = new Date((now.getTime()-(long)hours*60*60*1000));
@@ -123,7 +124,7 @@ implements Serializable {
 		MeasurementHistory tmp =  lastYear.get(key);
 		if(tmp == null)
 			return null;
-		MeasurementHistory newHist = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit());
+		MeasurementHistory newHist = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit(),tmp.getFilter());
 		
 		LinkedList<MeasurementHistoryEntry> list = tmp.getValues();
 		
@@ -187,7 +188,7 @@ implements Serializable {
 		MeasurementHistory year = lastYear.get(key);
 		
 		if (year == null) {
-			year = new MeasurementHistory(current.getSlave(),current.getParameter(), current.getUnit());
+			year = new MeasurementHistory(current.getSlave(),current.getParameter(), current.getUnit(),current.getFilter());
 			lastYear.put(key, year);
 		}
 		
@@ -200,7 +201,7 @@ implements Serializable {
 		}
 		
 		
-		MeasurementHistory newCurrent = new MeasurementHistory(slave,parameter,current.getUnit());
+		MeasurementHistory newCurrent = new MeasurementHistory(slave,parameter,current.getUnit(),current.getFilter());
 		int count = 0;
 		for(MeasurementHistoryEntry m:current.getValues()) {
 			

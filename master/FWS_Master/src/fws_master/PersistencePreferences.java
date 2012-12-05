@@ -144,6 +144,10 @@ public class PersistencePreferences {
 				tmpEl = document.createElement("history");
 				tmpEl.appendChild(document.createTextNode(""+ip.getHistory_function()));
 				tmp.appendChild(tmpEl);
+				
+				tmpEl = document.createElement("filter");
+				tmpEl.appendChild(document.createTextNode(""+ip.getFilter()));
+				tmp.appendChild(tmpEl);
 			}
 			
 			rootElement.appendChild(tmp);

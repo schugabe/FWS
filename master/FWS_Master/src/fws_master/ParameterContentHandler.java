@@ -18,6 +18,7 @@ public class ParameterContentHandler implements ContentHandler {
 	private String name;
 	private Units unit;
 	private HistoryFunctions hist;
+	private float filter;
 	private OutputFormats format;
 	private int fields;
 	
@@ -35,6 +36,7 @@ public class ParameterContentHandler implements ContentHandler {
 		this.hist = HistoryFunctions.AVG;
 		this.substate = SubStates.IDLE;
 		this.state = States.IDLE;
+		this.filter = 1.0f;
 		fields = 0;
 	}
 	
@@ -62,6 +64,7 @@ public class ParameterContentHandler implements ContentHandler {
 			case FORMAT: this.format = OutputFormats.getFormat(content); break;
 			case UNIT: this.unit = Units.getUnit(content); break;
 			case FUNC: this.hist = HistoryFunctions.getHist(content); break;
+			case FILTER: this.filter = Float.parseFloat(content); break;
 		}
 		
 	}
@@ -85,10 +88,10 @@ public class ParameterContentHandler implements ContentHandler {
 				this.params.addParameter(p);
 				this.reInitFields();
 			}
-			if (state == States.IP && fields==4) {
+			if (state == States.IP && fields==5) {
 				if (this.unit != Units.UNKNOWN && this.format != OutputFormats.UNKNOWN) {
 					try {
-					p= new InputParameter(this.name,this.params,unit,format,hist);
+						p= new InputParameter(this.name,this.params,unit,format,hist,filter);
 					} catch (Exception e) {
 					
 					}
@@ -165,6 +168,9 @@ public class ParameterContentHandler implements ContentHandler {
 			if (localName.equals("history")) {
 				this.substate = SubStates.FUNC;
 			}
+			if (localName.equals("filter")) {
+				this.substate = SubStates.FILTER;
+			}
 		}
 	}
 
@@ -177,7 +183,7 @@ public class ParameterContentHandler implements ContentHandler {
 	}
 	
 	private enum SubStates {
-		IDLE,NAME,UNIT,FORMAT,FUNC;
+		IDLE,NAME,UNIT,FORMAT,FUNC,FILTER;
 	}
 }
 

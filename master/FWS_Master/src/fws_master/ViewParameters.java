@@ -11,6 +11,7 @@ public class ViewParameters {
 	private List list;
 	private Text nameText;
 	private Combo typeCombo,unitCombo,formatCombo,funcCombo;
+	private Spinner filter_spinner;
 	
 	private ParameterController controller;
 	
@@ -49,7 +50,7 @@ public class ViewParameters {
 		this.unitCombo.select(0);
 		this.formatCombo.select(0);
 		this.funcCombo.select(0);
-		
+		this.filter_spinner.setSelection(1000);
 		
 		this.list.deselectAll();
 	}
@@ -73,6 +74,13 @@ public class ViewParameters {
 		
 	}
 	
+	private float getFilterValue() {
+		int selection = filter_spinner.getSelection();
+	    int digits = filter_spinner.getDigits();
+	    return (float) (selection / Math.pow(10, digits));
+	}
+	
+	
 	private void save_param() {
 		if (this.selected_parameter == null)
 			return;
@@ -81,6 +89,7 @@ public class ViewParameters {
 		Units u = Units.SPEEDMS;
 		OutputFormats f = OutputFormats.NK0;
 		HistoryFunctions func = HistoryFunctions.MAX;
+		float filter = 1.0f;
 		int last_sel = -1;
 		boolean is_input = false;
 		
@@ -103,6 +112,8 @@ public class ViewParameters {
 			u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
 			f = OutputFormats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
 			func = HistoryFunctions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+			
+			filter = getFilterValue();
 			is_input = true;
 		}
 		
@@ -120,6 +131,7 @@ public class ViewParameters {
 				tmp_input.setFormat(f);
 				tmp_input.setHistory_function(func);
 				tmp_input.setUnit(u);
+				tmp_input.setFilter(filter);
 			}
 			last_sel = list.getSelectionIndex();
 		}
@@ -134,8 +146,9 @@ public class ViewParameters {
 				u = Units.getUnit(unitCombo.getItem(unitCombo.getSelectionIndex()));
 				f = OutputFormats.getFormat(formatCombo.getItem(formatCombo.getSelectionIndex()));
 				func = HistoryFunctions.getHist(this.funcCombo.getItem(this.funcCombo.getSelectionIndex()));
+				filter = getFilterValue();
 				try {
-				p = new InputParameter(tmpName,this.controller,u,f,func);
+				p = new InputParameter(tmpName,this.controller,u,f,func,filter);
 				} catch (Exception e) { return; }
 			}
 			this.controller.addParameter(p);
@@ -184,6 +197,7 @@ public class ViewParameters {
 				this.unitCombo.select(unitCombo.indexOf(Units.getString(input.getUnit())));
 				this.formatCombo.select(formatCombo.indexOf(OutputFormats.getString(input.getFormat())));
 				this.funcCombo.select(funcCombo.indexOf(input.getHistory_function().toString()));
+				this.filter_spinner.setSelection((int)(input.getFilter()*Math.pow(10, filter_spinner.getDigits())));
 			}
 		}
 		catch (Exception e) {
@@ -209,12 +223,14 @@ public class ViewParameters {
 		this.unitCombo.setEnabled(false);
 		this.formatCombo.setEnabled(false);
 		this.funcCombo.setEnabled(false);
+		this.filter_spinner.setEnabled(false);
 	}
 	
 	private void enableInputCombos() {
 		this.unitCombo.setEnabled(true);
 		this.formatCombo.setEnabled(true);
 		this.funcCombo.setEnabled(true);
+		this.filter_spinner.setEnabled(true);
 	}
 	
 	private void loadList() {
@@ -234,7 +250,7 @@ public class ViewParameters {
 		GridData gridData = new GridData();
 		gridData.grabExcessVerticalSpace = true;
 		gridData.verticalAlignment = GridData.FILL;
-		gridData.verticalSpan = 6;
+		gridData.verticalSpan = 7;
 		gridData.widthHint = 150;
 		list.setLayoutData(gridData);
 		list.addListener(SWT.Selection, new ListListener());
@@ -306,6 +322,25 @@ public class ViewParameters {
 		for (HistoryFunctions func:HistoryFunctions.values()) {
 			funcCombo.add(func.toString());
 		}
+		
+		
+		Label filterLabel = new Label(shell, SWT.NONE);
+		filterLabel.setText("Filter:");
+		filter_spinner = new Spinner(shell, SWT.NONE);
+	    // allow 3 decimal places
+		filter_spinner.setDigits(3);
+	    // set the minimum value to 0.001
+		filter_spinner.setMinimum(1);
+	    // set the maximum value to 20
+		filter_spinner.setMaximum(1000);
+	    // set the increment value to 0.010
+		filter_spinner.setIncrement(1);
+	    // set the seletion to 3.456
+		filter_spinner.setSelection(1000);
+		gridData = new GridData();
+		gridData.horizontalAlignment = SWT.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		filter_spinner.setLayoutData(gridData);
 		
 		
 		Button saveButton = new Button(shell, SWT.PUSH);

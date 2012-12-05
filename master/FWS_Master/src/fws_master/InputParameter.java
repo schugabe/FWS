@@ -15,6 +15,7 @@ public class InputParameter extends Parameter{
 	private Units unit;
 	private OutputFormats format;
 	private HistoryFunctions history_function;
+	private float filter;
 	
 	/**
 	 * A InputBinding must have a Name and must have a controller
@@ -24,7 +25,7 @@ public class InputParameter extends Parameter{
 	 */
 	public InputParameter(String name,ParameterController controller) throws Exception {
 		super(name,controller);
-		
+		setFilter(1.0f);
 	}
 	
 	/**
@@ -36,13 +37,32 @@ public class InputParameter extends Parameter{
 	 * @param history_function History Function of this Binding
 	 * @throws Exception 
 	 */
-	public InputParameter(String name,ParameterController controller, Units unit,OutputFormats format, HistoryFunctions history_function) throws Exception {
+	public InputParameter(String name,ParameterController controller, Units unit,OutputFormats format, HistoryFunctions history_function, float filter) throws Exception {
 		super(name,controller);
 		this.format = format;
 		this.unit = unit;
 		this.history_function = history_function;
+		setFilter(filter);
 	}
 
+	/**
+	 * @param filter the filter to set
+	 */
+	public void setFilter(float filter) {
+		if (filter > 1.0f)
+			filter = 1.0f;
+		if (filter <= 0.0f)
+			filter = 0.0001f;
+		this.filter = filter;
+	}
+
+	/**
+	 * @return the filter
+	 */
+	public float getFilter() {
+		return filter;
+	}
+	
 	/**
 	 * @param unit the unit to set
 	 */

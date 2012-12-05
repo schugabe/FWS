@@ -67,17 +67,17 @@ public class PlotTime extends PlotBase {
 			
 			double min= Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
-			//double old = 0.0f;
-			//double e = 0.08f;
-			//boolean inited = false;
+			double old = 0.0f;
+			float e = hist.getFilter();
+			boolean inited = false;
 			for (MeasurementHistoryEntry m:hist.getValues()) {
 				double tmp = m.getValue();
-				/*if (!inited) {
+				if (!inited) {
 					inited = true;
 					old = tmp;
 				}
 				tmp = (1.0f-e)*old+e*tmp;
-				old = tmp;*/
+				old = tmp;
 				if (tmp < min)
 					min = tmp;
 				if (tmp > max)
