@@ -124,11 +124,11 @@ implements Serializable {
 		MeasurementHistory tmp =  lastYear.get(key);
 		if(tmp == null)
 			return null;
-		MeasurementHistory newHist = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit(),tmp.getFilter());
+		// No filter for days plot required => bypass filter with filter=1.0f
+		float day_filter = 1.0f;
+		MeasurementHistory newHist = new MeasurementHistory(tmp.getSlave(),tmp.getParameter(),tmp.getUnit(),day_filter);
 		
-		LinkedList<MeasurementHistoryEntry> list = tmp.getValues();
-		
-		
+		LinkedList<MeasurementHistoryEntry> list = tmp.getValues();		
 		
 		if (days>list.size())
 			return tmp;
@@ -188,7 +188,8 @@ implements Serializable {
 		MeasurementHistory year = lastYear.get(key);
 		
 		if (year == null) {
-			year = new MeasurementHistory(current.getSlave(),current.getParameter(), current.getUnit(),current.getFilter());
+			float year_filter = 1.0f;
+			year = new MeasurementHistory(current.getSlave(),current.getParameter(), current.getUnit(),year_filter);
 			lastYear.put(key, year);
 		}
 		
@@ -246,12 +247,18 @@ implements Serializable {
 	}
 
 	public HashMap<String,MeasurementHistory>  getDataHours() {
-		return this.lastHours;
-		
+		return this.lastHours;		
 	}
 	
 	public HashMap<String,MeasurementHistory>  getDataDays() {
-		return this.lastYear;
-		
+		return this.lastYear;		
+	}
+	
+	public void updateFilter(String slave,String parameter,float filter) {
+		String key = generateKey(slave,parameter);
+		MeasurementHistory current = lastHours.get(key);
+		if (current == null)
+			return;
+		current.setFilter(filter);
 	}
 }

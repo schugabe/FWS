@@ -27,7 +27,7 @@ implements Serializable  {
 	private LinkedList<MeasurementHistoryEntry> values;
 		
 	/**
-	 * The slave, parameter and unit must be provided at creation. So everything is know to Plot the Data without reference to the Slave or Parameter itself.
+	 * The slave, parameter and unit must be provided at creation. So everything is known to Plot the Data without reference to the Slave or Parameter itself.
 	 * @param slave
 	 * @param parameter
 	 * @param unit
@@ -36,10 +36,16 @@ implements Serializable  {
 		this.slave = slave;
 		this.parameter = parameter;
 		this.unit = unit;
-		this.filter = filter;
+		this.setFilter(filter);
 		this.values = new LinkedList<MeasurementHistoryEntry>();
 	}
 	
+	public void setFilter(float filter) {
+		if (filter > 1.0f || filter <= 0.0f)
+			filter = 1.0f;
+		this.filter = filter;
+	}
+
 	/**
 	 * Add the Measurements to the intern collection
 	 * @param c

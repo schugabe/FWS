@@ -190,7 +190,7 @@ public class MeasurementCollector extends Thread {
 		
 		if (isbackup && controller == null) {
 			controller = new MeasurementHistoryController();
-			log.severe("History Backup not found, Starting new History");
+			log.severe("History Backup not found, Starting new History Backup");
 		}
 			
 		return controller;
@@ -318,6 +318,9 @@ public class MeasurementCollector extends Thread {
 					
 					if(!ib.isActive())
 						continue;
+					InputParameter tmp_param = (InputParameter)ib.getParameter();
+					this.historyController.updateFilter(s.getName(), tmp_param.getName(), tmp_param.getFilter());
+					
 					int plotCount = 0;
 					
 					for (PlotConfig cfg:ib.getPlots()) {
