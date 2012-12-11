@@ -1,6 +1,9 @@
 /*========================================================*/
 /*     Author: Markus Klein                               */
 /*       Date: 09.04.2010                                 */
+/*                                                        */
+/*     Revisions:                                         */
+/*       Date: 09.04.2010 - Additional temperature sensor */
 /*========================================================*/
 
 #include <string.h>
@@ -19,28 +22,29 @@
 #define SENS_DDR	DDRD
 #define SENS_PIN	PD7
 
+#define IP_HIGH		0
+#define IP_LOW		1
 #define ENABLENUM	2
 #define TEMPNUM		3
 
-// Registers for Modbus communication
+// registers for Modbus communication
 static volatile uint16_t winddir; // in ° x10
 static volatile uint16_t errcnt; // in ° x10
 static volatile uint16_t cnt; // in ° x10
 static volatile uint16_t windspeed; // in m/s x10
 static volatile int16_t temperature; // in °C x10
+static volatile int16_t insideTemperature; // in °C x10
 
 // persistent variables, located in EEPROM
-static uint16_t eeEnable EEMEM = DEFAULT_ENABLE;
-static uint8_t eeIp[] EEMEM = DEFAULT_IP_ARR;
-static int32_t eeTemp[] EEMEM = {DEFAULT_TEMP_K,DEFAULT_TEMP_D,DEFAULT_TEMP_DIV};
+static configuration_t EEMEM eeConfig = { DEFAULT_ENABLE, DEFAULT_IP, {DEFAULT_TEMP_K, DEFAULT_TEMP_D, DEFAULT_TEMP_DIV} };
 
-static uint8_t newIp;
-static typeof(eeEnable) enable;
-static typeof(eeIp[0]) ip[sizeof(eeIp)/sizeof(eeIp[0])];
-static typeof(eeTemp[0]) temp[sizeof(eeTemp)/sizeof(eeTemp[0])];
+// local variables
+static const configuration_t defaultConfig = { DEFAULT_ENABLE, DEFAULT_IP, {DEFAULT_TEMP_K, DEFAULT_TEMP_D, DEFAULT_TEMP_DIV} };
+static configuration_t config;
+static volatile uint8_t renewIP = 0;
 
 /**
- * callback for winddirection
+ * Callback for winddirection
  *
  * @param	value	Data from ADC
 **/
@@ -55,7 +59,7 @@ void read_winddir(uint16_t value) {
 }
 
 /**
- * callback for temperature
+ * Callback for temperature
  *
  * @param	value	Data from ADC
 **/
@@ -66,79 +70,95 @@ void read_temperature(uint16_t value) {
 	else {
 		// 485 = 14°C
 		// 388 = 25°C
-		temperature = (temp[0] * value + temp[1]) / temp[2];
+		temperature = (config.temperatureCalibration[0] * value + config.temperatureCalibration[1]) / config.temperatureCalibration[2];
 	}
 }
 
 /**
- * callback for Modbus write register function
+ * Callback for Modbus write register function
+ * for enabling/disabling external power supply to sensor
  *
- * @param	num	Must be equal to ENABLENUM to accept new value
+ * @param	num		Must be equal to ENABLENUM to accept new value
  * @param	value	New enable value
- * @return		True if value was written successfully
+ * @return			True if value was written successfully
 **/
 uint8_t write_enable(uint8_t num, uint16_t value) {
 	if (num != ENABLENUM)
 		return 0;
-	enable = value ? 1 : 0;
-	eeprom_write_word(&eeEnable, enable);
-	enableSensor();
+
+	config.enable = value ? 1 : 0;
+	eeprom_update_word(&eeConfig.enable, config.enable);
+	setSensorStatus();
 	return 1;
 }
 
 /**
  * Callback for Modbus write register function
+ * for setting a new IP address.
  *
  * High-Byte of value is always the left most IP segment!
  * How to set a new IP:
- * 1) Write higher 2 segments at num 0.
- * 2) Write lower 2 segments at num 1.
+ * 1) Write higher 2 segments at num IP_HIGH.
+ * 2) Write lower 2 segments at num IP_LOW.
  *    New IP is stored in EEPROM.
- *    New IP address will be activated after Modbux transmission has
+ *    New IP address will be activated after Modbus transmission has
  *    been confirmed with old IP address.
+ *
+ * Example:
+ *  write_IP(IP_HIGH, 0xC0A8); // 192.168
+ *  write_IP(IP_LOW, 0x00A8); // 0.111
  *
  * @param	num		Register number
  * @param	value	Two 8-bit values for IPv4 segments
  * @return			True if value was written successfully
 **/
 uint8_t write_IP(uint8_t num, uint16_t value) {
-	if (num == 0) {
-		ip[0] = (typeof(ip[0]))(value >> 8);
-		ip[1] = (typeof(ip[0]))value;
-	} else if (num == 1) {
-		ip[2] = (typeof(ip[0]))(value >> 8);
-		ip[3] = (typeof(ip[0]))value;
-		eeprom_write_block(ip,eeIp,sizeof(eeIp));
-		newIp = 1;
-	} else
+	switch (num) {
+	case IP_HIGH:
+		config.ip[0] = (ARRAY_TYPE(config.ip))(value >> 8);
+		config.ip[1] = (ARRAY_TYPE(config.ip))value;
+		break;
+	case IP_LOW:
+		config.ip[2] = (ARRAY_TYPE(config.ip))(value >> 8);
+		config.ip[3] = (ARRAY_TYPE(config.ip))value;
+		eeprom_update_block(config.ip, eeConfig.ip, sizeof(config.ip));
+		renewIP = 1;
+		break;
+	default:
 		return 0;
+	}
 	return 1;
 }
 
 /**
  * Callback for Modbus write register function
  *
- * How to set new temperature parameters:
- * - Write 32bit values k,d and div beginning with num TEMPNUM.
+ * How to set new temperature calibration parameters:
+ * - Write 32bit values for k,d and div
+ * - Addresses:
+ *     - k: TEMPNUM and TEMPNUM+1
+ *     - d: TEMPNUM+2 and TEMPNUM+3
+ *     - div: TEMPNUM+4 and TEMPNUM+5
  * - Write higher word first.
  * - New parameters are stored in EEPROM.
  *
- * @param	num	Register number
+ * @param	num		Register number
  * @param	value	value
- * @return		True if value was written successfully
+ * @return			True if value was written successfully
 **/
-uint8_t write_temp(uint8_t num, uint16_t value) {
-	static typeof(temp[0]) tmp[sizeof(temp)/sizeof(temp[0])];
-	if (num < TEMPNUM || num > TEMPNUM+sizeof(tmp)/sizeof(uint16_t)-1)
+uint8_t write_temperatureCalibration(uint8_t num, uint16_t value) {
+	static ARRAY_TYPE(config.temperatureCalibration) tmp[ARRAY_SIZE(config.temperatureCalibration)];
+	if (num < TEMPNUM || num >= TEMPNUM+2*ARRAY_SIZE(config.temperatureCalibration))
 		return 0;
+
 	num -= TEMPNUM;
 	if (num % 2)
 		tmp[num-1] |= value;
 	else
 		tmp[num] = (uint32_t)value << 16;
-	if (num == sizeof(tmp)/sizeof(uint16_t)) {
-		eeprom_write_block(tmp,eeTemp,sizeof(eeTemp));
-		memcpy(temp,tmp,sizeof(tmp));
+	if (num == 2*ARRAY_SIZE(config.temperatureCalibration)-1) {
+		eeprom_update_block(tmp, eeConfig.temperatureCalibration, sizeof(tmp));
+		memcpy(config.temperatureCalibration, tmp, sizeof(tmp));
 	}
 	return 1;
 }
@@ -146,8 +166,8 @@ uint8_t write_temp(uint8_t num, uint16_t value) {
 /**
  * Enable/disable external power supply and start measurements
 **/
-void enableSensor(void) {
-	if (enable) {
+void setSensorStatus(void) {
+	if (config.enable) {
 		SENS_PORT |= _BV(SENS_PIN);
 		adc_start();
 		windspeed_start();
@@ -163,20 +183,14 @@ void enableSensor(void) {
 /**
  * Load values from EEPROM. Apply default values, if data is not valid.
 **/
-void loadeepromValues(void) {
+void loadEepromValues(void) {
 	// load values from eeprom
-	eeprom_read_block(ip,eeIp,sizeof(eeIp));
-	enable = eeprom_read_word(&eeEnable);
-	eeprom_read_block(temp,eeTemp,sizeof(eeTemp));
-	// check if eeprom has been erased and apply default values if so
-	if (ip[0] == 0xFF)
-		*((uint32_t*)ip) = DEFAULT_IP;
-	if (enable == 0xFFFF)
-		enable = DEFAULT_ENABLE;
-	if (temp[0] == (int32_t)0xFFFFFFFF) {
-		temp[0] = DEFAULT_TEMP_K;
-		temp[1] = DEFAULT_TEMP_D;
-		temp[2] = DEFAULT_TEMP_DIV;
+	eeprom_read_block(&config, &eeConfig, sizeof(config));
+
+	// check if EEPROM has been erased and apply default values
+	if (config.enable == 0xFFFF) {
+		memcpy(&config, &defaultConfig, sizeof(config));
+		eeprom_update_block(&config, &eeConfig, sizeof(eeConfig));
 	}
 }
 
@@ -186,51 +200,50 @@ void loadeepromValues(void) {
 **/
 int main(void) {
 	uint8_t i;
-	
+
 	// load config data from eeprom
-	loadeepromValues();
-	
+	loadEepromValues();
+
 	// init modules
 	led_init();
 	adc_init();
-	windspeed_init(&windspeed,&errcnt,&cnt);
+	windspeed_init(&windspeed, &errcnt, &cnt);
 	mb_init();
-	
-	// force init with current IP
-	newIp = 1;
-		
+	mb_setIP(config.ip);
+
 	// register adc handlers
-	adc_register(0,read_temperature);
-	adc_register(1,read_winddir);
-	
+	adc_register(0, read_temperature);
+	adc_register(1, read_winddir);
+
 	// register Modbus handlers and registers
-	mb_addReadRegister(ENABLENUM,&enable);
-	mb_addReadRegister(3,(uint16_t*)&winddir);
-	mb_addReadRegister(4,(uint16_t*)&windspeed);
-	mb_addReadRegister(5,(uint16_t*)&temperature);
-	mb_addReadRegister(6,(uint16_t*)&errcnt);
-	mb_addReadRegister(7,(uint16_t*)&cnt);
-	
-	mb_addWriteRegister(0,write_IP);
-	mb_addWriteRegister(1,write_IP);
-	mb_addWriteRegister(ENABLENUM,write_enable);
-	for (i = TEMPNUM; i < TEMPNUM+sizeof(eeTemp)/sizeof(uint16_t); i++)
-		mb_addWriteRegister(i,write_temp);
-	
-	// set ddr for sensor on/off
+	mb_addReadRegister(ENABLENUM, &(config.enable));
+	mb_addReadRegister(3, (uint16_t*)&winddir);
+	mb_addReadRegister(4, (uint16_t*)&windspeed);
+	mb_addReadRegister(5, (uint16_t*)&temperature);
+	mb_addReadRegister(6, (uint16_t*)&errcnt);
+	mb_addReadRegister(7, (uint16_t*)&cnt);
+	mb_addReadRegister(8, (uint16_t*)&insideTemperature);
+
+	mb_addWriteRegister(IP_HIGH, write_IP);
+	mb_addWriteRegister(IP_LOW, write_IP);
+	mb_addWriteRegister(ENABLENUM, write_enable);
+	for (i = TEMPNUM; i < TEMPNUM+2*ARRAY_SIZE(config.temperatureCalibration); i++)
+		mb_addWriteRegister(i, write_temperatureCalibration);
+
+	// set DDR for sensor on/off
 	SENS_DDR |= _BV(SENS_PIN);
 
 	// enable interrupts
 	sei();
-	
+
 	// start proccessing
-	enableSensor();
-	
+	setSensorStatus();
+
 	while (1) {
-		// apply new Ip address if requested
-		if (newIp) {
-			newIp = 0;
-			mb_setIP(ip);
+		// apply new IP address if requested
+		if (renewIP) {
+			renewIP = 0;
+			mb_setIP(config.ip);
 		}
 		mb_handleRequest();
 	}

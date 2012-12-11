@@ -1,6 +1,6 @@
 OUTDIR = bin/
 
-OBJ = $(OUTDIR)sensor_main.o 
+OBJ = $(OUTDIR)sensor_main.o
 OBJ += $(OUTDIR)modbus.o $(OUTDIR)enc28j60.o $(OUTDIR)ip_arp_udp_tcp.o $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
 #OBJ += $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
 
@@ -9,12 +9,12 @@ VPATH = modbus modbus/tcp sensors
 TARGET=$(OUTDIR)sensor
 
 MCU=atmega328p
-DUDECPUTYPE=m328p
 DEF=F_CPU=12500000UL
 
-LOADCMD=avrdude
-LOADARG=-p $(DUDECPUTYPE) -c stk500v2 -e -U flash:w:$(TARGET).hex -U eeprom:w:$(TARGET).eep
-FUSEARG=-p $(DUDECPUTYPE) -v -c stk500v2
+LOADCMD=avrdude -p m328p -c stk500v2
+LOADHEX=-e -U flash:w:$(TARGET).hex
+LOADEEP=-U eeprom:w:$(TARGET).eep
+FUSEARG=-v
 
 CC=avr-gcc
 OBJCOPY=avr-objcopy
@@ -40,12 +40,15 @@ $(TARGET).elf: $(OBJ)
 $(OUTDIR)%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+clean:
+	rm -f $(OUTDIR)*
 
-load: $(TARGET).hex $(TARGET).eep
-	$(LOADCMD) $(LOADARG)
+load: $(TARGET).hex
+	$(LOADCMD) $(LOADHEX)
+
+loadeep: $(TARGET).eep
+	$(LOADCMD) $(LOADEEP)
 
 fuse:
 	$(LOADCMD) $(FUSEARG)
-	
-clean:
-	rm -f $(OUTDIR)*
+
