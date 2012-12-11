@@ -11,7 +11,7 @@
 #define DEFAULT_ENABLE 1
 // IP: 192.168.0.111
 #define DEFAULT_IP 0xC0A8006F
-#define DEFAULT_IP_ARR {192,168,0,111}
+#define DEFAULT_IP_ARR {192,168,123,111}
 // Temperature scaling factors
 #define DEFAULT_TEMP_K (-1134UL)
 #define DEFAULT_TEMP_D (690000UL)
