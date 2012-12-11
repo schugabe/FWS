@@ -3,7 +3,7 @@
 /*       Date: 09.04.2010                                 */
 /*                                                        */
 /*     Revisions:                                         */
-/*       Date: 12.12.2011 - Additional temperature sensor */
+/*       Date: 12.12.2012 - Additional temperature sensor */
 /*========================================================*/
 
 #include <string.h>
