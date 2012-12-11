@@ -4,7 +4,7 @@
 /*       Date: 09.04.2010                                 */
 /*                                                        */
 /*     Revisions:                                         */
-/*       Date: 09.04.2010 - Additional temperature sensor */
+/*       Date: 12.12.2012 - Additional temperature sensor */
 /*========================================================*/
 
 #ifndef _sensor_main_h_
