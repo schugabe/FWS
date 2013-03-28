@@ -47,6 +47,11 @@ void mb_init(void) {
 	enc28j60Init((uint8_t*)mymac);
 	enc28j60clkout(2); // change clkout from 6.25MHz to 12.5MHz
 	_delay_us(60); // 60us
+	/* Magjack leds configuration, see enc28j60 datasheet, page 11 */
+	// LEDB=yellow LEDA=green
+	//
+	// 0x476 is PHLCON LEDA=links status, LEDB=receive/transmit
+	// enc28j60PhyWrite(PHLCON,0b0000 0100 0111 01 10);
 	enc28j60PhyWrite(PHLCON,0x476);
 }
 
