@@ -56,7 +56,7 @@ public class ModBusWrapper {
 			response = (ReadInputRegistersResponse)this.sendRequest(request);
 			tmp_value = response.getRegister(0).toShort();
 			if (tmp_value == 0x7FFF)
-				throw new Exception("0xFFFF received - value ignored");
+				throw new Exception("0x7FFF received - value ignored");
 		} catch (Exception ex) {
 			log.warning("Error on reading value: "+ex.getMessage());
 			throw ex;
