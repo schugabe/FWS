@@ -17,7 +17,7 @@
 #define DEFAULT_IP	{192,168,123,111}
 
 // Temperature scaling factors
-#define DEFAULT_TEMP_K		(-1134UL)
+#define DEFAULT_TEMP_K		(-1134L)
 #define DEFAULT_TEMP_D		(690000UL)
 #define DEFAULT_TEMP_DIV	(1000)
 

@@ -15,6 +15,7 @@
 #include "sensors/adc.h"
 #include "sensors/led.h"
 #include "sensors/windspeed.h"
+#include "sensors/onewiretemp.h"
 
 #include "sensor_main.h"
 
@@ -208,6 +209,7 @@ int main(void) {
 	led_init();
 	adc_init();
 	windspeed_init(&windspeed, &errcnt, &cnt);
+	onewiretemp_init();
 	mb_init();
 	mb_setIP(config.ip);
 
@@ -246,6 +248,7 @@ int main(void) {
 			mb_setIP(config.ip);
 		}
 		mb_handleRequest();
+		onewiretemp_update(&insideTemperature);
 	}
 }
 

@@ -1,10 +1,10 @@
 OUTDIR = bin/
 
 OBJ = $(OUTDIR)sensor_main.o
-OBJ += $(OUTDIR)modbus.o $(OUTDIR)enc28j60.o $(OUTDIR)ip_arp_udp_tcp.o $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
+OBJ += $(OUTDIR)modbus.o $(OUTDIR)enc28j60.o $(OUTDIR)ip_arp_udp_tcp.o $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o $(OUTDIR)crc8.o $(OUTDIR)ds18x20.o $(OUTDIR)onewire.o $(OUTDIR)onewiretemp.o
 #OBJ += $(OUTDIR)windspeed.o $(OUTDIR)adc.o $(OUTDIR)led.o
 
-VPATH = modbus modbus/tcp sensors
+VPATH = modbus modbus/tcp sensors sensors/ds18s20
 
 TARGET=$(OUTDIR)sensor
 
@@ -19,7 +19,7 @@ FUSEARG=-v
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 # optimize for size:
-CFLAGS=-g -D$(DEF) -mmcu=$(MCU) -Wall -W -Os -mcall-prologues
+CFLAGS=-g -D$(DEF) -mmcu=$(MCU) -Wall -Wextra -Os -mcall-prologues
 
 all: $(TARGET).hex $(TARGET).eep
 
@@ -38,7 +38,7 @@ $(TARGET).elf: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ -Wl,-Map,$(TARGET).map $(OBJ)
 
 $(OUTDIR)%.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+	@$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
 	rm -f $(OUTDIR)*
