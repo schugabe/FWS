@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="SWT_CONTAINER"/>
 	<classpathentry kind="lib" path="libs/jamod-1.2.jar"/>
 	<classpathentry kind="lib" path="libs/jcommon-1.0.18.jar"/>
 	<classpathentry kind="lib" path="libs/jfreechart-1.0.14.jar"/>
-	<classpathentry kind="lib" path="/home/johannes/FWS/master/FWS_Master/libs/swt_linux.jar"/>
+	<classpathentry kind="lib" path="/Volumes/Daten/Documents/Bachelor/6. semester/fws/master/FWS_Master/libs/swt-gtk-arm.jar"/>
+	<classpathentry kind="lib" path="/Volumes/Daten/Documents/Bachelor/6. semester/fws/master/FWS_Master/libs/commons-daemon-1.0.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

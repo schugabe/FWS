@@ -66,6 +66,8 @@ public class MasterContentHandler implements ContentHandler {
 		case AUTOSTART: try {this.autoStart = Boolean.parseBoolean(content); } catch(Exception e) { this.autoStart = false; } break;
 		case PLOTWIDTH: try {this.plotWidth = Integer.parseInt(content); } catch (Exception e) { this.plotWidth = 800; } break;
 		case PLOTHEIGHT: try {this.plotHeight = Integer.parseInt(content); } catch (Exception e) { this.plotHeight = 600; } break;
+		default:
+			break;
 		}
 	}
 

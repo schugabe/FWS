@@ -30,6 +30,7 @@ public class MeasurementCollector extends Thread {
 	private static String eol = System.getProperty( "line.separator" );
 	private String historyFile,historyBackupFile; 
 	private FWSMaster master;
+	private volatile boolean running = true;
 	
 	/**
 	 * Constructor
@@ -47,17 +48,20 @@ public class MeasurementCollector extends Thread {
 		this.master = master;
 		historyController = loadHistory(false); 
 	}
-	
-
 
 	public void run() {
 		long sleepTime = this.interval;
 		long runTime;
-		while (true) {
+		while (running) {			
 			try {
 				Thread.sleep(sleepTime);
+			}
+			catch (InterruptedException e) {
+				break;
+			}	
+			
+			try {				
 				runTime = System.currentTimeMillis();
-				
 				// Start collecting Data
 				log.fine("Getting Data from Slaves");
 				File file = null;
@@ -69,8 +73,7 @@ public class MeasurementCollector extends Thread {
 					stream.close();
 				} catch(Exception ex) {
 					log.severe("Can't create lock file: "+ex.getMessage());
-				}
-				
+				}				
 				
 				try {
 					Vector<String> result = getData();
@@ -103,7 +106,7 @@ public class MeasurementCollector extends Thread {
 				}
 				
 				
-				//calculate the runtime of the generation. Wait intervall-runtime to stick to the intervall.
+				//calculate the runtime of the generation. Wait interval-runtime to stick to the interval.
 				long tmpTime = System.currentTimeMillis();
 				tmpTime = tmpTime-runTime;
 				sleepTime = this.interval-tmpTime;
@@ -152,32 +155,23 @@ public class MeasurementCollector extends Thread {
 		master.releaseShutdown();		
 	}
 	
-	private MeasurementHistoryController loadHistory(boolean isbackup) {
-		
-		FileInputStream fs;
-		ObjectInputStream is;
+	private MeasurementHistoryController loadHistory(boolean isbackup) {		
 		MeasurementHistoryController controller = null;
 		
-		try {
-			if (isbackup) 
-				fs = new FileInputStream(historyBackupFile);
-			else
-				fs = new FileInputStream(historyFile);
-			
-			try {
-				is = new ObjectInputStream(fs);
-				try {
-					controller = (MeasurementHistoryController)is.readObject();
-				} catch (ClassNotFoundException e) {
-					log.severe("Loading History: Error during loading History: "+e.getMessage());
-				}
-			} catch (IOException e) {
-				log.severe("Loading History: ObjectInputStream not created: "+e.getMessage());
-				return new MeasurementHistoryController();
+		String fileName;
+		if (isbackup) 
+			fileName = historyBackupFile;
+		else
+			fileName = historyFile;
+		
+		try (FileInputStream fs =  new FileInputStream(fileName)){			
+			try (ObjectInputStream is = new ObjectInputStream(fs)) {
+				controller = (MeasurementHistoryController)is.readObject();
+			} catch (ClassNotFoundException e) {
+				log.severe("Loading History: Error during loading History: "+e.getMessage());
 			}
-			
-		} catch (FileNotFoundException e) {
-			log.severe("Loading History: History not found");
+		} catch (IOException e) {
+			log.severe("Loading History ("+fileName+": "+e.getMessage());
 		}
 		
 		if (controller == null && !isbackup) {
@@ -192,7 +186,7 @@ public class MeasurementCollector extends Thread {
 			controller = new MeasurementHistoryController();
 			log.severe("History Backup not found, Starting new History Backup");
 		}
-			
+		
 		return controller;
 	}
 
@@ -416,5 +410,10 @@ public class MeasurementCollector extends Thread {
 	 */
 	public MeasurementHistoryController getMeasurementHistoryController() {
 		return this.historyController;
+	}
+
+	public void stopThread() {
+		this.running = false;
+		this.interrupt();
 	}
 }

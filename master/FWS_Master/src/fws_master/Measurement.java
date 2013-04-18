@@ -60,6 +60,8 @@ public class Measurement {
 		case NK3: tmp /= 1000; break;
 		case NK4: tmp /= 10000; break;
 		case NK5: tmp /= 100000; break;
+		default:
+			break;
 		
 		}
 		return tmp;

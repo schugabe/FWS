@@ -91,6 +91,9 @@ public class Slave extends Thread{
 	 * @param msg
 	 */
 	private void setLabel(final String msg) {
+		if (this.statusLabel == null)
+			return;
+		
 		this.statusLabel.getDisplay().asyncExec(new Runnable() {
 			public void run()
 			{

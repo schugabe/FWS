@@ -210,31 +210,27 @@ public class PersistencePreferences {
 	 * @return if parsing was successful 
 	 */
 	private boolean startParsing(ContentHandler h) {
-		//FileReader stream = null;
-		InputStreamReader stream = null;
-		try {
-			stream = new InputStreamReader(new FileInputStream(new File(path,filename)),"UTF-8");
+		try (InputStreamReader stream = new InputStreamReader(new FileInputStream(new File(path,filename)),"UTF-8")) {
+			XMLReader parser = null;
+			try {
+				parser = XMLReaderFactory.createXMLReader();
+				parser.setContentHandler(h);
+			} catch(SAXException e) {
+				log.warning(e.getMessage());
+				return false;
+			}
+			try {
+				parser.parse(new InputSource(stream));
+			} catch(Exception e) {
+				log.warning(e.getMessage());
+				return false;
+			}
 			
+			return true;
 		} catch(Exception ex) {
-			log.warning("Config file not found");
+			log.warning("Error reading config file "+ex.getMessage());
 			return false;
-		}
-		
-		XMLReader parser = null;
-		try {
-			parser = XMLReaderFactory.createXMLReader();
-			
-			parser.setContentHandler(h);
-		} catch(SAXException e) {
-			log.warning(e.getMessage());
-			return false;
-		}
-		try {
-			parser.parse(new InputSource(stream));
-		} catch(Exception e) {
-			log.warning(e.getMessage());return false;
-		}
-		return true;
+		}		
 	}
 
 }

@@ -44,14 +44,10 @@ public class ParameterContentHandler implements ContentHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		
 		if (state== States.IDLE)
-			return;
-		
-		
+			return;	
 		
 		char [] conv = new char[length];
-		
-		
-		
+				
 		System.arraycopy(ch, start, conv, 0, length);
 		String content = new String(conv);
 		
@@ -65,8 +61,9 @@ public class ParameterContentHandler implements ContentHandler {
 			case UNIT: this.unit = Units.getUnit(content); break;
 			case FUNC: this.hist = HistoryFunctions.getHist(content); break;
 			case FILTER: this.filter = Float.parseFloat(content); break;
-		}
-		
+		default:
+			break;
+		}		
 	}
 
 	@Override

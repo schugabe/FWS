@@ -85,21 +85,7 @@ public class FWSMaster {
 		// Set the Application Image
 		Image appImg = new Image(display,FWSMaster.class.getResourceAsStream("/resources/logo.png") );
 		shell.setImage(appImg);
-		//Generate configPath
-		String os = System.getProperty("os.name");
-		String basePath = System.getProperty("user.home");
-		String configDirPath;
-		
-		if (os.equals("Mac OS X")) {
-			configDirPath = basePath+"/Library/Application Support/FWSMaster";
-		} else {
-			configDirPath= basePath+File.separator+".fwsmaster";
-		}
-		
-		//Create configDir if not existent
-		File configDir = new File(configDirPath);
-		if(!configDir.isDirectory())
-			configDir.mkdir();
+		String configDirPath = generateConfigPath();
 				
 		//Create the Master
 		FWSMaster master = new FWSMaster(shell,display,configDirPath);
@@ -117,6 +103,51 @@ public class FWSMaster {
 		master.shutdown();
 		System.exit(0);
 	}
+
+	public static String generateConfigPath() {
+		//Generate configPath
+		String os = System.getProperty("os.name");
+		String basePath = System.getProperty("user.home");
+		String configDirPath;
+		
+		if (os.equals("Mac OS X")) {
+			configDirPath = basePath+"/Library/Application Support/FWSMaster";
+		} else {
+			configDirPath= basePath+File.separator+".fwsmaster";
+		}
+		
+		//Create configDir if not existent
+		File configDir = new File(configDirPath);
+		if(!configDir.isDirectory())
+			configDir.mkdir();
+		return configDirPath;
+	}
+	
+	public FWSMaster() {
+		this.configDir = FWSMaster.generateConfigPath();
+		lowLevelInit();
+		log.info("Loading as Daemon, configDir: "+this.configDir);
+		this.loadConfig();
+		log.info("Config Loaded");
+	}
+	
+	public void start() {
+		this.collector.start();
+		this.slave_controller.startSlaves(true);
+		log.info("daemon started");
+	}
+	
+	public void stop() {
+		this.slave_controller.startSlaves(false);
+		this.collector.stopThread();
+		try {
+			this.collector.join(100);
+		} catch (InterruptedException e) {
+			log.severe(e.getMessage());
+		}
+		//don't call this.shutdown() because config changes are not saved in daemon mode
+		log.info("daemon stopped");
+	}
 	
 	/**
 	 * Constructor creates a MainView and creates the Tray Icon
@@ -125,19 +156,9 @@ public class FWSMaster {
 	 * @param configDir the os dependent config path
 	 */
 	private FWSMaster(final Shell shell, Display display,String configDir) {
-		//Generate the Log File
-		try {
-			//max. 2 mb log file 
-			FileHandler fh = new FileHandler(configDir+"/fws_master%g.log", 2000000,3,true);
-			log.addHandler(fh);
-			log.setLevel(Level.INFO);
-			SimpleFormatter formatter = new SimpleFormatter();
-			fh.setFormatter(formatter);
-		} catch (Exception ex) {
-			System.out.println("Error during creating log Handler: "+ex.getMessage());
-		}
+		this.configDir = configDir;
 		
-		shutdownSem = new Semaphore(1);
+		lowLevelInit();
 		
 		this.shell = shell;
 		this.display = display;
@@ -156,7 +177,7 @@ public class FWSMaster {
 		
 		this.createTray();
 		//Load the preferences 
-		this.configDir = configDir;
+		
 		
 		this.loadConfig();
 		
@@ -173,6 +194,22 @@ public class FWSMaster {
 			this.shell.setVisible(false);
 			HideShow();
 		}
+	}
+
+	private void lowLevelInit() {
+		//Generate the Log File
+		try {
+			//max. 2 mb log file 
+			FileHandler fh = new FileHandler(this.configDir+"/fws_master%g.log", 2000000,3,true);
+			log.addHandler(fh);
+			log.setLevel(Level.INFO);
+			SimpleFormatter formatter = new SimpleFormatter();
+			fh.setFormatter(formatter);
+		} catch (Exception ex) {
+			System.out.println("Error during creating log Handler: "+ex.getMessage());
+		}
+		
+		shutdownSem = new Semaphore(1);
 	}
 	
 	/**
