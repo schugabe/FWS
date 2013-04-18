@@ -1,0 +1,127 @@
+Image auf SD Karte kopieren
+
+Booten und einrichten, SD Karte resize
+
+sudo apt-get update && sudo apt-get upgrade
+
+sudo raspi-config => update & overclocling
+
+sudo apt-get install x11vnc sendemail vim automake libswt-gtk-3-jni libswt-cairo-gtk-3-jni
+sudo apt-get autoremove
+
+
+
+Java
+====
+
+http://www.oracle.com/technetwork/articles/java/raspberrypi-1704896.html
+http://www.savagehomeautomation.com/projects/raspberry-pi-installing-oracle-java-development-kit-jdk-170u-1.html
+
+tar -zxvf *.gz
+sudo mkdir -p -v /opt/java
+sudo mv -v jdk1.7.0_21 /opt/java/
+sudo update-alternatives --install "/usr/bin/java" "java" "/opt/java/jdk1.7.0_21/bin/java" 1
+sudo update-alternatives --set java /opt/java/jdk1.7.0_21/bin/java
+
+echo 'JAVA_HOME="/opt/java/jdk1.7.0_21"' | sudo tee -a /etc/environment
+echo 'export JAVA_HOME="/opt/java/jdk1.7.0_21"' >> ~/.bashrc 
+echo 'export PATH=$PATH:$JAVA_HOME/bin' >> ~/.bashrc 
+
+
+GUI autostart => nur wenn nicht als daemon!!!
+=============
+
+mkdir -p /home/pi/.config/autostart
+
+cat > /home/pi/.config/autostart/start_fws.desktop << EOF
+[Desktop Entry]
+Type=Application
+Exec=/home/pi/start_fws.sh
+EOF
+
+
+Shell scripts
+=============
+
+cat > /home/pi/start_fws.sh << EOF
+#!/bin/bash
+/usr/bin/java -jar /home/pi/fws_master_filter.jar > /dev/null
+
+sendemail -f fws@v-i-p.tv -t klein@v-i-p.tv johannes@wordproject.net -u 'FWS crash report' -m 'Leider crash!' -a ~/.fwsmaster/fws_master0.log -s mail.v-i-p.tv -xu fws@v-i-p.tv -xp zgachgfrogt
+EOF
+
+chmod +x /home/pi/start_fws.sh
+
+cat > /home/pi/runvnc.sh << EOF
+#!/bin/sh
+## Requires port forwarding of 5900 with putty
+x11vnc -localhost -display :0
+EOF
+
+chmod +x /home/pi/runvnc.sh
+
+JSVC
+=======
+sudo ln -s /opt/java/jdk1.7.0_21/include/linux/jni_md.h /opt/java/jdk1.7.0_21/include/jni_md.h
+
+cd commons-daemon-1.0.15-src/src/native/unix
+support/buildconf.sh
+./configure
+make
+sudo cp jsvc /usr/bin/
+
+
+init script
+===========
+create /etc/init.d/fws and fill content:
+ 
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          fwsMaster
+# Required-Start:    $remote_fs $syslog $time $network $named 
+# Required-Stop:     $remote_fs $syslog $time $network $named 
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts/stops weater station master
+# Description:       ...
+### END INIT INFO
+# Author: Johannes Kasberger
+
+# Setup variables
+EXEC=/usr/bin/jsvc
+JAVA_HOME=/opt/java/jdk1.7.0_21
+CLASS_PATH="/home/pi/fws.jar"
+CLASS=fws_master.DaemonLoader
+USER=pi
+PID=/tmp/fws.pid
+
+do_exec()
+{
+ $EXEC -home "$JAVA_HOME" -cp $CLASS_PATH  -user $USER -pidfile $PID $1 $CLASS
+}
+
+case "$1" in
+    start)
+        do_exec
+            ;;
+    stop)
+        do_exec "-stop"
+            ;;
+    restart)
+        if [ -f "$PID" ]; then
+            do_exec "-stop"
+            do_exec
+        else
+            echo "service not running, will do nothing"
+            exit 1
+        fi
+            ;;
+    *)
+            echo "usage: fws {start|stop|restart}" >&2
+            exit 3
+            ;;
+esac
+
+sudo chmod 755 /etc/init.d/fws
+sudo chown root:root /etc/init.d/fws
+sudo update-rc.d fws defaults
