@@ -9,7 +9,8 @@ sudo raspi-config => update & overclocling
 sudo apt-get install x11vnc sendemail vim automake libswt-gtk-3-jni libswt-cairo-gtk-3-jni
 sudo apt-get autoremove
 
-
+User: pi
+Pwd: zgachgfrogt
 
 Java
 ====
