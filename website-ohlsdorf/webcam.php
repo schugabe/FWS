@@ -65,7 +65,7 @@ for ($i = 2; $i <= count($lines)-1; $i++) {
   #tabs-outer {
   	  width: 750px;
   }
-  #footer img { vertical-align: middle; border: 0; }
+  footer img { vertical-align: middle; border: 0; margin-right: 2em; }
   </style>
   <script type="text/javascript">
     $(function() {
@@ -115,12 +115,15 @@ for ($i = 2; $i <= count($lines)-1; $i++) {
 
 <div id="tabs-4">
 <img src="Flugplatz_AussentemperaturFlugplatz_Windspeed1.png?t=<?php echo date("YMdHs"); ?>" width="600" alt="Außentemperatur und Windgeschwindigkeit der letzten 24h" /><br /><br />
-<img src="Flugplatz_Innentemperatur5.png?t=<?php echo date("YMdHs"); ?>" width="600" alt="Innentemperatur der letzten 24h" />
+<img src="Flugplatz_Innentemperatur5.png" width="600" alt="Innentemperatur der letzten 24h" />
 </div>
 
 </div>
 </div>
 <p>(<em>Diese Seite wird automatisch jede Minute aktualisiert.</em>)</p>
-<p id="footer"><strong>&copy</strong> <a href="http://www.akatec.at/" target="_blank"><img src="akatec.jpg" width="100" alt="Akatec IT-Systemintegration GmbH" /></a></p>
+<footer>
+<a href="http://www.akatec.at/" target="_blank"><img src="akatec.jpg" height="55" alt="Logo Akatec IT-Systemintegration GmbH" /></a>
+<a href="http://reelworx.at/" target="_blank"><img src="reelworx.png" height="35" alt="Logo Reelworx GmbH" /></a>
+</footer>
 </body>
 </html>
